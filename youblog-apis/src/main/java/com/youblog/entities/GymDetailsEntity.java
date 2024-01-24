@@ -14,10 +14,9 @@ import lombok.ToString;
 @Entity
 @Table(name = "gym_details")
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
-
 public class GymDetailsEntity {
 	
 	@Id
