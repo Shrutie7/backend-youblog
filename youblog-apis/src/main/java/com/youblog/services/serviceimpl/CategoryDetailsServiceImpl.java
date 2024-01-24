@@ -33,7 +33,7 @@ public class CategoryDetailsServiceImpl implements CategoryDetailsService{
 			getcategorylist.forEach(ele->{
 				Map<String, Object> catlist = new HashMap<>();
 				catlist.put("categoryId", ele.getCategory_id());
-				catlist.put("categoryName", ele.getCategory_title());
+				catlist.put("categoryName", ele.getCategory_name());
 				
 			categorylist.add(catlist);
 			});

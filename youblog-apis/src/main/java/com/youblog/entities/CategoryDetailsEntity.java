@@ -23,6 +23,6 @@ public class CategoryDetailsEntity {
 @Column(name="category_id")
 private Long category_id;
 
-@Column(name="category_title")
-private String category_title;
+@Column(name="category_name")
+private String category_name;
 }

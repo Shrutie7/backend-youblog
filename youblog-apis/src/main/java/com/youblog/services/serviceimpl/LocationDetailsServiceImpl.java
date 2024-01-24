@@ -53,11 +53,12 @@ public class LocationDetailsServiceImpl implements LocationDetailsService{
 	}
 	@Override
 	public ResponseEntity<Map<String, Object>> getcitylist(Citylistrequest usreq) {
-		Map<String, Object> data = new HashMap<>();
-		ArrayList<Object[]> getcity = locationdetailsrepo.getcitylist(usreq.getState());
-		ArrayList<Map<String,Object>> citylist = new ArrayList<>();
+
 		
 		if(usreq.getState()!=null) {
+			Map<String, Object> data = new HashMap<>();
+			ArrayList<Object[]> getcity = locationdetailsrepo.getcitylist(usreq.getState());
+			ArrayList<Map<String,Object>> citylist = new ArrayList<>();
 			if(getcity==null) {
 				  data.put("citylist", new ArrayList<>());
 				return ResponseHandler.response(data, "city list not found", false);
@@ -81,12 +82,14 @@ public class LocationDetailsServiceImpl implements LocationDetailsService{
 	}
 	@Override
 	public ResponseEntity<Map<String, Object>> getlocationaddresslist(Locationaddressrequest usreq) {
-		
-		Map<String, Object> data = new HashMap<>();
-		
-		ArrayList<Object[]> getaddressList = locationdetailsrepo.getlocationaddress(usreq.getState(), usreq.getCity());
-		ArrayList<Map<String,Object>> addresslist = new ArrayList<>();
-		if(usreq.getState()!=null && usreq.getCity()!=null) {
+//		if(!usreq.getState().isEmpty() && !usreq.getCity().isEmpty())
+	
+		if(!usreq.getState().isEmpty() && !usreq.getCity().isEmpty()) {
+			System.out.println(usreq.getState());
+			System.out.println(usreq.getCity());
+			Map<String, Object> data = new HashMap<>();
+			ArrayList<Object[]> getaddressList = locationdetailsrepo.getlocationaddress(usreq.getState(), usreq.getCity());
+			ArrayList<Map<String,Object>> addresslist = new ArrayList<>();
 			
 			if(getaddressList==null)
 			{
@@ -97,7 +100,7 @@ public class LocationDetailsServiceImpl implements LocationDetailsService{
 				getaddressList.forEach(ele->{
 					Map<String, Object> addressList1 = new HashMap<>();
 					addressList1.put("locationId",ele[0].toString());
-					addressList1.put("location_address", ele[1].toString());
+					addressList1.put("locationAddress", ele[1].toString());
 					
 					addresslist.add(addressList1);
 				});
@@ -115,11 +118,11 @@ public class LocationDetailsServiceImpl implements LocationDetailsService{
 	@Override
 	public ResponseEntity<Map<String, Object>> getgymaddresslist(Gymaddressrequest usreq) {
 		
+	
+	if(usreq.getLocation_id()!=null) {
 		Map<String, Object> data = new HashMap<>();
 		ArrayList<Object[]> getgymaddress = gymdetailsrepo.getgymaddresslist(usreq.getLocation_id());
 		ArrayList<Map<String, Object>> gymaddresslist = new ArrayList<>();
-	if(usreq.getLocation_id()!=null) {
-		
 		if(getgymaddress==null) {
 			data.put("gymAddressList", new ArrayList<>());
 			return ResponseHandler.response(data, "gym address list not found", false);
@@ -132,7 +135,7 @@ public class LocationDetailsServiceImpl implements LocationDetailsService{
 				gymaddresslist1.put("gymId", ele[0].toString());
 				gymaddresslist1.put("gymName", ele[1].toString());
 				gymaddresslist1.put("gymAddress", ele[2].toString());
-				
+				gymaddresslist1.put("ownerId", ele[3].toString());
 				gymaddresslist.add(gymaddresslist1);
 			});
 			data.put("gymAddressList", gymaddresslist);

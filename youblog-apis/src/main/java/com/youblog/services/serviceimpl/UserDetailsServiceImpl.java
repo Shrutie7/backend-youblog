@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.youblog.entities.UserDetailsEntity;
 import com.youblog.payloads.GetUserRequest;
+import com.youblog.payloads.TrainerListRequest;
 import com.youblog.payloads.UpdatePasswordRequest;
 import com.youblog.payloads.UpdateUserRequest;
 import com.youblog.payloads.UserDetailsRequest;
@@ -37,17 +38,35 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 			Map<String, String> token = keycloakutility.getAdminToken();
 			String accesstoken = token.get("access_token");
-			keycloakutility.keycloakUserCreator(usrequest.getEmailId(), usrequest.getPassword(),
+			 ResponseEntity<Map<String, Object>> flag = keycloakutility.keycloakUserCreator(usrequest.getEmailId(), usrequest.getPassword(),
 					usrequest.getFirstName(), usrequest.getLastName(), usrequest.getEmailId(), true, accesstoken);
 
-			UserDetailsEntity use = new UserDetailsEntity();
-			use.setEmailId(usrequest.getEmailId());
-			use.setFirstName(usrequest.getFirstName());
-			use.setLastName(usrequest.getLastName());
-			use.setGender(usrequest.getGender());
-			use.setPersonalNo(usrequest.getPersonalNo());
-			use.setActiveFlag(true);
-			userdetailsrepo.save(use);
+			 if(!Boolean.valueOf(flag.getBody().get("status").toString())) {
+				 
+				 return ResponseHandler.response(null, flag.getBody().get("message").toString(), false);
+			 }
+			 try {
+				 UserDetailsEntity use = new UserDetailsEntity();
+					use.setEmailId(usrequest.getEmailId());
+					use.setFirstName(usrequest.getFirstName());
+					use.setLastName(usrequest.getLastName());
+					use.setLocationId(usrequest.getLocationId());
+					use.setParentUserId(usrequest.getParentUserId());
+					use.setRoleId(usrequest.getRoleId());
+					use.setUserName(usrequest.getUserName());
+					use.setGender(usrequest.getGender());
+					use.setActiveFlag(true);
+					use.setCategoryId(usrequest.getCategoryId());
+					use.setGymId(usrequest.getGymId());
+					userdetailsrepo.save(use);
+			 }
+			catch(Exception e) {
+//				e.printStackTrace();
+				keycloakutility.keycloakUserDelete(usrequest.getEmailId(),accesstoken);
+				
+				return ResponseHandler.response(null, "user cannot be created because " + e.getLocalizedMessage(), false);
+				
+			}
 			return ResponseHandler.response(null, "created", true);
 		} else {
 			return ResponseHandler.response(null, "email already present", false);
@@ -59,15 +78,66 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	public ResponseEntity<Map<String, Object>> getUser(GetUserRequest usreq) {
 		// TODO Auto-generated method stub
 		if(usreq.getEmailId()!=null) {
-			UserDetailsEntity getdetails = userdetailsrepo.getUserDetails(usreq.getEmailId());
+			ArrayList<Object[]> getdetails = userdetailsrepo.getUserDetails(usreq.getEmailId());
+			System.out.println(getdetails);
 			if(getdetails!=null) {
 				Map<String, Object> hm = new HashMap<>();
-				hm.put("firstName", getdetails.getFirstName());
-				hm.put("lastName",getdetails.getLastName());
-				hm.put("gender", getdetails.getGender());
-				hm.put("emailId", getdetails.getEmailId());
-				hm.put("personalNo", getdetails.getPersonalNo());
-				hm.put("userId", getdetails.getUserId());
+//				hm.put("firstName", getdetails.getFirstName());
+//				hm.put("lastName",getdetails.getLastName());
+//				hm.put("gender", getdetails.getGender());
+//				hm.put("emailId", getdetails.getEmailId());
+//				hm.put("userId", getdetails.getUserId());
+//				hm.put("userName", getdetails.getUserName());
+//				hm.put("roleId",getdetails.getRoleId());
+				
+				getdetails.forEach(ele->{
+				
+					
+					hm.put("userName",ele[0]!=null?ele[0].toString():"N/A");
+					hm.put("emailId",ele[1]!=null?ele[1].toString():"N/A");
+					hm.put("firstName",ele[2]!=null?ele[2].toString():"N/A");
+					hm.put("lastName",ele[3]!=null?ele[3].toString():"N/A");
+					hm.put("roleId",ele[4]!=null?ele[4].toString():"");
+					hm.put("gender",ele[5]!=null?ele[5].toString():"N/A");
+					hm.put("roleName",ele[6]!=null?ele[6].toString():"N/A");
+					hm.put("userId",ele[7]!=null?ele[7].toString():"N/A");
+					hm.put("gymId",ele[8]!=null?ele[8].toString():"");
+					
+					Map<String,Object> parentdetails = new HashMap<>();
+					
+					if(ele[9]!=null) 
+					{
+						parentdetails.put("username", ele[10]!=null?ele[10].toString():"N/A");
+						parentdetails.put("firstName",ele[11]!=null?ele[11].toString():"N/A");
+						parentdetails.put("lastName",ele[12]!=null?ele[12].toString():"N/A");
+						parentdetails.put("roleId",ele[13]!=null?ele[13].toString():"");
+						
+					}
+					hm.put("parentUserDetails",parentdetails);
+					hm.put("parentUserId", ele[9]!=null?ele[9].toString():"");
+					
+					Map<String,Object> locationDetails = new HashMap<>();
+					
+					locationDetails.put("locationId",ele[14]!=null?ele[14].toString():"");
+					locationDetails.put("state",ele[15]!=null?ele[15].toString():"N/A");
+					locationDetails.put("city",ele[16]!=null?ele[16].toString():"N/A");
+					locationDetails.put("location",ele[17]!=null?ele[17].toString():"N/A");
+					
+					hm.put("locationDetails", locationDetails);
+					
+					Map<String,Object> planDetails = new HashMap<>();
+					
+					planDetails.put("planId",ele[18]!=null?ele[18].toString():"N/A");
+					planDetails.put("planName",ele[19]!=null?ele[19].toString():"N/A");
+					planDetails.put("planStartDate",ele[20]!=null?ele[20].toString():"N/A");
+					
+					hm.put("planDetails", planDetails);
+
+					hm.put("gymtypeId", ele[21]!=null ? ele[21]:"");
+					});
+				
+				
+				
 				return ResponseHandler.response(hm, "user details fetched", true);
 			}
 			else {
@@ -93,8 +163,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				getdetails.setFirstName(usreq.getFirstName());
 				getdetails.setLastName(usreq.getLastName());
 				getdetails.setGender(usreq.getGender());
-				getdetails.setPersonalNo(usreq.getPersonalNo());
-				getdetails.setActiveFlag(usreq.getActiveFlag());
+				getdetails.setUserName(usreq.getUserName());
+				getdetails.setParentUserId(usreq.getParentUserId());//post approval of worklist
+				getdetails.setLocationId(usreq.getLocationId());//post approval of worklist
+				getdetails.setActiveFlag(usreq.getActiveFlag()); //post approval of worklist 
+				getdetails.setGymId(usreq.getGymId());
 				userdetailsrepo.save(getdetails);
 				return ResponseHandler.response(null, "user updated successfully", true);
 			}
@@ -144,7 +217,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public ResponseEntity<Map<String, Object>> getUserList() {
 		// TODO Auto-generated method stub
-		ArrayList<Object[]> getuserlist = userdetailsrepo.getUserList();
+		ArrayList<UserDetailsEntity> getuserlist = userdetailsrepo.getUserList();
 		ArrayList<Map<String,Object>> userlist = new ArrayList<>() ;
 	
 		if(getuserlist==null) {
@@ -153,16 +226,70 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		else {
 			getuserlist.forEach(ele->{
 				Map<String,Object> res = new HashMap<>();
-				res.put("emailId", ele[0].toString());	
-				res.put("firstName", ele[1].toString());
-//				res.put("lastName", ele[2].toString());
-				res.put("gender", ele[2].toString());
-//				res.put("personalNo", ele[6].toString());
-//				res.put("activeFlag", ele[5].toString());
+				res.put("emailId", ele.getEmailId());	
+				res.put("firstName", ele.getFirstName());
+				res.put("lastName", ele.getLastName());
+				res.put("gender", ele.getGender());
+				res.put("locationId",ele.getLocationId());
+				res.put("parentUserId",ele.getParentUserId());
+				res.put("roleId", ele.getRoleId());
+				res.put("planId",ele.getPlanId());
+				res.put("userName", ele.getUserName());
 				userlist.add(res);
 			});
 			return ResponseHandler.response(userlist, "user list found", true);
 		}
+	
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> getTrainerList(TrainerListRequest usreq) {
+	
+	
+		if(usreq.getOwnerId()!=null) {
+			
+			
+			ArrayList<Object[]> getTrainerList = userdetailsrepo.getTrainerList(usreq.getOwnerId());
+			
+			ArrayList<Map<String,Object>> trainerlist = new ArrayList<>() ;
+			
+			Map<String, Object> listOfTrainers = new HashMap<>();
+			if(getTrainerList.size()==0) {
+				listOfTrainers.put("listOfTrainers", trainerlist);
+				
+				return ResponseHandler.response(listOfTrainers,"trainer list not found", false);
+			}
+			else {
+				
+				getTrainerList.forEach(ele->{
+					Map<String,Object> res = new HashMap<>();
+					
+					res.put("userId", ele[2]!=null ? ele[2].toString():"");
+					
+//					String fullName =  "";
+//					fullName = ele.getFirstName() + " " + ele.getLastName();
+					
+					res.put("trainerName", ele[1]!=null ? ele[1].toString():"N/A");
+					res.put("rating", ele[0]!=null ? ele[0].toString():"");
+					res.put("categoryId",ele[3]!=null?ele[3].toString():"");
+					res.put("categoryName",ele[4]!=null ? ele[4].toString():"" );
+					trainerlist.add(res);
+					
+				});
+				listOfTrainers.put("listOfTrainers", trainerlist);
+				
+				return ResponseHandler.response(listOfTrainers,"trainer list found", true);
+			}
+			
+			
+		
+			
+		}
+		else {
+			return ResponseHandler.response(null, "Please Provide owner Id", false);
+		}
+		
+		
 	
 	}
 

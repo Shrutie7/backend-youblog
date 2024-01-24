@@ -6,13 +6,18 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
-public class UpdatePasswordRequest {
+public class FeedbackCreateRequest {
+	
 	private Long userId;
-	private String emailId;
-	private String currentPassword;
-	private String newPassword;
-	private String confirmNewPassword;
+	private Long rating;
+	private Long trainerId;
+	private Long gymId;
+	private Long feedbackTypeId;
+	private String message;
+	
+	
+
 }

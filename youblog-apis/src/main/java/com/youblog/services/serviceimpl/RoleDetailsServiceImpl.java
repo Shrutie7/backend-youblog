@@ -35,6 +35,7 @@ public class RoleDetailsServiceImpl implements RoleDetailsService{
 				Map<String,Object> res = new HashMap<>();
 				res.put("roleId", ele.getRole_id());
 				res.put("roleName", ele.getRole_name());
+				res.put("roleDesc", ele.getRole_description());
 				
 				rolelist.add(res);
 			});

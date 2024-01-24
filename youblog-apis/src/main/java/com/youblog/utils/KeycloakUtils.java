@@ -72,7 +72,11 @@ public class KeycloakUtils {
 	public Boolean checkPersonalNoInKeycloak(String username, String adminToken) {
 		UserRepresentation[] users = fetchKeycloakUsers(adminToken);
 		if (users != null && users.length > 0) {
+			
+			System.out.println(username);
+		
 			for (UserRepresentation user : users) {
+				System.out.println(user.getUsername());
 				if (username.equals(user.getUsername())) {
 					log.info(user.toString());
 					return true;
@@ -161,10 +165,33 @@ public class KeycloakUtils {
 				return ResponseHandler.response(null,"EmailId already taken", false);
 			}
 		} else {
-			return ResponseHandler.response(null,"Personal No. already taken", false);
+			return ResponseHandler.response(null,"Email Id already taken", false);
 		}
 	}
 	
+	
+	public ResponseEntity<Map<String, Object>> keycloakUserDelete(String username, String adminToken) {
+		UserRepresentation users = fetchKeycloakId(username.toLowerCase(), adminToken);
+		String url = "/" + keyValue.getYtclonerealm() + "/users/" + users.getId();
+		final String keycloakUrl = keyValue.getAuthServerUrl() + "/admin/realms" + url;
+
+		final String ADMIN_TOKEN = adminToken;
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.set(AUTHORIZATION, BEARER + ADMIN_TOKEN);
+		HttpEntity<UserDTO> request = new HttpEntity<>(headers);
+		ResponseEntity<String> response = restTemplate.exchange(keycloakUrl, HttpMethod.DELETE, request, String.class,
+				keyValue.getYtclonerealm(), users.getId());
+
+		if (response.getStatusCode().is2xxSuccessful()) {
+			log.info("User Deleted successfully");
+			return ResponseHandler.response(null,"User Deleted successfully", true);
+		} else {
+			log.info("Failed to delete user. Response: " + response.getBody());
+			return ResponseHandler.response(null,"Failed to delete user. Response: " + response.getBody(), false);
+
+		}
+	}
 	
 	public boolean validatePassword(String userName, String Password) {
 		

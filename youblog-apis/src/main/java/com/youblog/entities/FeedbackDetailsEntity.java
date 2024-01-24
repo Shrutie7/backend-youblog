@@ -12,31 +12,37 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "gym_details")
+@Table(name = "feedback_details")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+public class FeedbackDetailsEntity {
 
-public class GymDetailsEntity {
 	
-	@Id
+@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="gym_id")
-	private Long gym_id;
-	
-	@Column(name="gym_name")
-	private String gym_name;
-	
-	@Column(name="location_id")
-	private Long location_id;
-	
-	@Column(name="owner_id")
-	private Long owner_id;
-	
-	@Column(name="gym_address")
-	private String gym_address;
+	@Column(name="feedback_id")
+public Long feedbackId;
 
-	@Column(name="contact")
-	private String contact;
+@Column(name="user_id")
+public Long userId;
+
+@Column(name="rating")
+public Long rating;
+
+@Column(name="trainer_user_id")
+public Long trainerUserId;
+
+@Column(name="feedback_type_id")
+public Long feedbackTypeId;
+
+@Column(name="gym_id")
+public Long gymId;
+	
+
+@Column(name="message")
+public String message;
+	
+	
 }

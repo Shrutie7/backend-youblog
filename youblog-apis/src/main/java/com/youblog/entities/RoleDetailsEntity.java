@@ -27,5 +27,8 @@ public class RoleDetailsEntity {
 	
 	@Column(name="role_name")
 	private String role_name;
+	
+	@Column(name="role_description")
+	private String role_description;
 
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 import com.youblog.payloads.GetUserRequest;
+import com.youblog.payloads.TrainerListRequest;
 import com.youblog.payloads.UpdatePasswordRequest;
 import com.youblog.payloads.UpdateUserRequest;
 import com.youblog.payloads.UserDetailsRequest;
@@ -23,4 +24,6 @@ public interface UserDetailsService {
 	public ResponseEntity<Map<String, Object>> updateUserPassword(UpdatePasswordRequest usreq);
 	
 	public ResponseEntity<Map<String,Object>> getUserList();
+	
+	public ResponseEntity<Map<String,Object>> getTrainerList(TrainerListRequest usreq);
 }

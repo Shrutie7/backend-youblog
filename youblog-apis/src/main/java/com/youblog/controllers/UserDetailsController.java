@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.youblog.payloads.GetUserRequest;
+import com.youblog.payloads.TrainerListRequest;
 import com.youblog.payloads.UpdatePasswordRequest;
 import com.youblog.payloads.UpdateUserRequest;
 import com.youblog.payloads.UserDetailsRequest;
@@ -48,9 +49,10 @@ public class UserDetailsController {
 	public ResponseEntity<Map<String,Object>> userList(){
 		return userdetailsservice.getUserList();
 	}
-		
 	
-	
-	
+	@PostMapping("/trainerlist")
+	public ResponseEntity<Map<String,Object>> trainerList(@RequestBody TrainerListRequest usreq){
+		return userdetailsservice.getTrainerList(usreq);
+	}
 	
 }
