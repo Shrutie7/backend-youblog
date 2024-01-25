@@ -9,4 +9,5 @@ import com.youblog.payloads.PlanCreateRequest;
 public interface PlanDetailsService {
 
 	public ResponseEntity<Map<String,Object>> createPlan(PlanCreateRequest usreq);
+	
 }

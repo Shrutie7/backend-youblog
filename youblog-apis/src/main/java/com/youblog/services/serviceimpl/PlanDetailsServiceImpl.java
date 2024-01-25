@@ -14,7 +14,7 @@ import com.youblog.utils.ResponseHandler;
 
 
 @Service
-public class planDetailsServiceImpl implements PlanDetailsService{
+public class PlanDetailsServiceImpl implements PlanDetailsService{
 
 	@Autowired
 	PlanDetailsRepository plandetailsrepo;
