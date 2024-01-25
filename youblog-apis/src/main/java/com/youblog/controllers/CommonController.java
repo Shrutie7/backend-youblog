@@ -14,11 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import com.youblog.payloads.FeedbackCreateRequest;
 import com.youblog.payloads.FeedbackListRequest;
 import com.youblog.payloads.GymCreateRequest;
-import com.youblog.payloads.PlanCreateRequest;
 import com.youblog.services.CategoryDetailsService;
 import com.youblog.services.FeedbackService;
 import com.youblog.services.GymDetailsService;
-import com.youblog.services.PlanDetailsService;
 import com.youblog.services.RoleDetailsService;
 
 @RestController
@@ -36,9 +34,6 @@ public class CommonController {
 	
 	@Autowired
 	private FeedbackService feedbackservice;
-	
-	@Autowired
-	private PlanDetailsService plandetailsservice;
 	
 	@GetMapping("/categorylist")
 	public ResponseEntity<Map<String,Object>> categoryList(){
@@ -68,8 +63,5 @@ public class CommonController {
 		return feedbackservice.getfeedbacklist(usreq);
 	}
 	
-	@PostMapping("/plan/create")
-	public ResponseEntity<Map<String,Object>> createplan(@RequestBody PlanCreateRequest usreq){
-		return plandetailsservice.createPlan(usreq);
-	}
+	
 }
