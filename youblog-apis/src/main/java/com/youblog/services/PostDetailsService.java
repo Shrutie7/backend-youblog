@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.youblog.payloads.GetPostDetailsRequest;
 import com.youblog.payloads.PostDetailsListRequest;
+import com.youblog.payloads.PostLikeRequest;
 import com.youblog.payloads.UpdatePostDetailsRequest;
 
 import jakarta.servlet.http.HttpServletResponse;
@@ -26,5 +27,11 @@ public interface PostDetailsService {
 	public ResponseEntity<Map<String, Object>> postGet(GetPostDetailsRequest getPostDetailsRequest);
 
 	public ResponseEntity<Map<String, Object>> postUpdate(UpdatePostDetailsRequest updatePostDetailsRequest);
-	
+
+	public ResponseEntity<Map<String, Object>> postLike(PostLikeRequest postLikeRequest);
+
+	public ResponseEntity<Map<String, Object>> postDisLike(PostLikeRequest postLikeRequest);
+
+	public ResponseEntity<Map<String, Object>> postLikeList(PostLikeRequest postLikeRequest);
+
 }

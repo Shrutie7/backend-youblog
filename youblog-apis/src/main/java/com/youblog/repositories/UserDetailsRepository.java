@@ -61,6 +61,9 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 	@Query(value="select * from user_details where user_id = :userId and active_flag = true",nativeQuery = true)
 	public UserDetailsEntity updateUserDetails(Long userId);
 	
+	@Query(value="select * from user_details where user_id = :userId and active_flag = true",nativeQuery = true)
+	public UserDetailsEntity getUserDetails(Long userId);
+	
 	@Query(value="select * from user_details where active_flag = true",nativeQuery = true)
 	public ArrayList<UserDetailsEntity> getUserList();
 

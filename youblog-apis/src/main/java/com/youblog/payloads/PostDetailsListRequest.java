@@ -16,4 +16,8 @@ public class PostDetailsListRequest {
 	private Long categoryId;
 	
 	private Long roleId;
+	
+	private Boolean activeFlag;
+	
+	private Boolean archiveFlag;
 }

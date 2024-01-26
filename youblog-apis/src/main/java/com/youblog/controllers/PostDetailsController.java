@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.youblog.payloads.GetPostDetailsRequest;
 import com.youblog.payloads.PostDetailsListRequest;
+import com.youblog.payloads.PostLikeRequest;
 import com.youblog.payloads.UpdatePostDetailsRequest;
 import com.youblog.services.PostDetailsService;
 
@@ -59,4 +60,20 @@ public class PostDetailsController {
 	public ResponseEntity<Map<String, Object>> postUpdate(@RequestBody UpdatePostDetailsRequest updatePostDetailsRequest) {
 		return postDetailsService.postUpdate(updatePostDetailsRequest);
 	}
+	
+	@PostMapping("/like")
+	public ResponseEntity<Map<String, Object>> postLike(@RequestBody PostLikeRequest postLikeRequest) {
+		return postDetailsService.postLike(postLikeRequest);
+	}
+	
+	@PostMapping("/dislike")
+	public ResponseEntity<Map<String, Object>> postDisLike(@RequestBody PostLikeRequest postLikeRequest) {
+		return postDetailsService.postDisLike(postLikeRequest);
+	}
+	
+	@PostMapping("/likes/list")
+	public ResponseEntity<Map<String, Object>> postLikeList(@RequestBody PostLikeRequest postLikeRequest) {
+		return postDetailsService.postLikeList(postLikeRequest);
+	}
+
 }
