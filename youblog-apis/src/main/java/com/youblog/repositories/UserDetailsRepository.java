@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import com.youblog.entities.PlanDetailsEntity;
 import com.youblog.entities.UserDetailsEntity;
 import com.youblog.payloads.GetUserRequest;
 
@@ -90,4 +91,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 			+ "	UD.CATEGORY_ID,\r\n"
 			+ "	CD.CATEGORY_NAME",nativeQuery = true)
 	public ArrayList<Object[]> getTrainerList(Long ownerId);
+	
+	@Query(value="select * from user_details where user_id = :userId",nativeQuery = true)
+	public UserDetailsEntity planpurchase(Long userId);
 }

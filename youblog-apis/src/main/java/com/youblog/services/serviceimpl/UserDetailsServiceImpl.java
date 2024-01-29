@@ -1,8 +1,9 @@
 package com.youblog.services.serviceimpl;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.youblog.entities.UserDetailsEntity;
 import com.youblog.payloads.GetUserRequest;
+import com.youblog.payloads.PlanPurchaseRequest;
 import com.youblog.payloads.TrainerListRequest;
 import com.youblog.payloads.UpdatePasswordRequest;
 import com.youblog.payloads.UpdateUserRequest;
@@ -292,6 +294,29 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		
 	
 	}
+	
+	
+	@Override
+	public ResponseEntity<Map<String, Object>> planpurchase(PlanPurchaseRequest usreq) {
+
+		if(usreq.getUserId()!=null||usreq.getPlanId()!=null) {
+			UserDetailsEntity getdetails = userdetailsrepo.planpurchase(usreq.getUserId());
+			System.out.println(getdetails);
+			if(getdetails!=null) {		
+				getdetails.setPlanPurchasedDate(Date.from(Instant.now()));
+				getdetails.setPlanId(usreq.getPlanId());
+				userdetailsrepo.save(getdetails);
+				return ResponseHandler.response(null, "plan purchased successfully", true);
+			}
+			else {
+				return ResponseHandler.response(null, "plan cannot be purchased", false);
+			}
+		}
+		else {
+			return ResponseHandler.response(null, "Please Provide userId and planId also", false);
+		}
+	}
+	
 
 }
 

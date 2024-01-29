@@ -335,7 +335,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			}
 			subResponse.put("likedUserData", userResponse);
 			subResponse.put("likedOn",
-					data.getLikedOnDate() != null ? DateParser.dateToString("dd Mon YY HH:mm", data.getLikedOnDate())
+					data.getLikedOnDate() != null ? DateParser.dateToString("dd MMM YY HH:mm", data.getLikedOnDate())
 							: "");
 			response.append("postLikesDetails", subResponse);
 		});

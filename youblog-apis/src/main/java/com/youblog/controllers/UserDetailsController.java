@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.youblog.payloads.GetUserRequest;
+import com.youblog.payloads.PlanPurchaseRequest;
 import com.youblog.payloads.TrainerListRequest;
 import com.youblog.payloads.UpdatePasswordRequest;
 import com.youblog.payloads.UpdateUserRequest;
@@ -55,4 +56,9 @@ public class UserDetailsController {
 		return userdetailsservice.getTrainerList(usreq);
 	}
 	
+	
+	@PostMapping("/plan/purchase")
+	public ResponseEntity<Map<String,Object>> planpurchase(@RequestBody PlanPurchaseRequest usreq){
+		return userdetailsservice.planpurchase(usreq);
+	}
 }
