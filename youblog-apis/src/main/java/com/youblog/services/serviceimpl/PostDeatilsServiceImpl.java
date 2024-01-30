@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -29,6 +30,7 @@ import com.youblog.entities.PostDetailsEntity;
 import com.youblog.entities.PostLikesEntity;
 import com.youblog.entities.UserDetailsEntity;
 import com.youblog.payloads.GetPostDetailsRequest;
+import com.youblog.payloads.PostBookmarkRequest;
 import com.youblog.payloads.PostDetailsListRequest;
 import com.youblog.payloads.PostLikeRequest;
 import com.youblog.payloads.UpdatePostDetailsRequest;
@@ -78,7 +80,14 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		}
 		try {
 			PostDetailsEntity postDetailsEntity = new PostDetailsEntity();
-			postDetailsEntity.setCategoryId(Long.valueOf(request.get("categoryId").toString()));
+			JSONArray json=   (JSONArray) request.get("categoryId");
+			Integer[] categories = new Integer[json.length()];
+			int i=0;
+			for(Object data:json) {
+				categories[i] = (Integer) data;
+				i++;
+			}
+			postDetailsEntity.setCategoryId(categories);
 			postDetailsEntity.setCreatedDate(Date.from(Instant.now()));
 			postDetailsEntity.setDecription(request.get("description").toString());
 			postDetailsEntity.setUserId(Long.valueOf(request.get("userId").toString()));
@@ -121,6 +130,8 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 				subResponse.put("postId", data[0] != null ? data[0] : "");
 				subResponse.put("title", data[1] != null ? data[1].toString() : "");
 				subResponse.put("contentUrl", data[2] != null ? "/post/get/media/" + data[2] : "");
+				GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(data[2])));
+				subResponse.put("contentType", file.getMetadata().getString("_contentType").split("/")[0]);
 				subResponse.put("categoryId", data[4] != null ? data[4] : "");
 				subResponse.put("postedDate", data[5] != null ? data[5].toString() : "");
 				subResponse.put("updatedDate", data[10] != null ? data[10].toString() : "");
@@ -189,6 +200,8 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			subResponse.put("postId", data[0] != null ? data[0] : "");
 			subResponse.put("title", data[1] != null ? data[1].toString() : "");
 			subResponse.put("contentUrl", data[2] != null ? "/post/get/media/" + data[2] : "");
+			GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(data[2])));
+			subResponse.put("contentType", file.getMetadata().getString("_contentType").split("/")[0]);
 			subResponse.put("categoryId", data[4] != null ? data[4] : "");
 			subResponse.put("postedDate", data[5] != null ? data[5].toString() : "");
 			subResponse.put("updatedDate", data[10] != null ? data[10].toString() : "");
@@ -217,31 +230,6 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			subResponse.put("likesCount", data[20] != null ? data[20] : 0);
 			subResponse.put("likeStatus", data[21] != null ? data[21] : false);
 		});
-
-//		JSONObject response = new JSONObject();
-//		response.put("postId", data.getPostId());
-//		response.put("title", data.getTitle() != null ? data.getTitle() : "");
-//		response.put("contentUrl", data.getContent() != null ? "/post/get/media/" + data.getContent() : "");
-//		response.put("categoryId", data.getCategoryId() != null ? data.getCategoryId() : "");
-//		response.put("postedDate",
-//				data.getCreatedDate() != null ? DateParser.dateToString("dd MMM yy HH:mm", data.getCreatedDate()) : "");
-//		response.put("updatedDate",
-//				data.getUpdatedDate() != null ? DateParser.dateToString("dd MMM yy HH:mm", data.getUpdatedDate()) : "");
-//		response.put("updatedUserId", data.getUpdatedUserId() != null ? data.getUpdatedUserId() : "");
-//		response.put("remarks", data.getRemarks() != null ? data.getRemarks() : "");
-//		response.put("description", data.getDecription() != null ? data.getDecription() : "");
-//		UserDetailsEntity userData = userDetailsRepository.getUserDetails(data.getUserId());
-//		JSONObject userResponse = new JSONObject();
-//		if (userData != null) {
-//			userResponse.put("userId", userData.getUserId());
-//			userResponse.put("userName", userData.getFirstName() + " " + userData.getLastName());
-//			userResponse.put("roleId", userData.getRoleId());
-//			userResponse.put("emailId", userData.getEmailId());
-//			userResponse.put("locationId", userData.getLocationId());
-//		}
-//		response.put("postedBy", userResponse);
-//		response.put("activeFlag", data.getActiveFlag());
-//		response.put("archiveFlag", data.getArchiveFlag());
 		return ResponseHandler.response(subResponse.toMap(), "Post Details Fetched Successfully.", true);
 	}
 
@@ -335,10 +323,28 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			}
 			subResponse.put("likedUserData", userResponse);
 			subResponse.put("likedOn",
-					data.getLikedOnDate() != null ? DateParser.dateToString("dd Mon YY HH:mm", data.getLikedOnDate())
+					data.getLikedOnDate() != null ? DateParser.dateToString("dd MMM YY HH:mm", data.getLikedOnDate())
 							: "");
 			response.append("postLikesDetails", subResponse);
 		});
 		return ResponseHandler.response(response.toMap(), "Like Details Fetched Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postAddBookmark(PostBookmarkRequest postBookmarkRequest) {
+		
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postRemoveBookmark(PostBookmarkRequest postBookmarkRequest) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postBookmarksList(PostBookmarkRequest postBookmarkRequest) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.youblog.payloads.GetPostDetailsRequest;
+import com.youblog.payloads.PostBookmarkRequest;
 import com.youblog.payloads.PostDetailsListRequest;
 import com.youblog.payloads.PostLikeRequest;
 import com.youblog.payloads.UpdatePostDetailsRequest;
@@ -33,5 +34,11 @@ public interface PostDetailsService {
 	public ResponseEntity<Map<String, Object>> postDisLike(PostLikeRequest postLikeRequest);
 
 	public ResponseEntity<Map<String, Object>> postLikeList(PostLikeRequest postLikeRequest);
+
+	public ResponseEntity<Map<String, Object>> postAddBookmark(PostBookmarkRequest postBookmarkRequest);
+
+	public ResponseEntity<Map<String, Object>> postRemoveBookmark(PostBookmarkRequest postBookmarkRequest);
+
+	public ResponseEntity<Map<String, Object>> postBookmarksList(PostBookmarkRequest postBookmarkRequest);
 
 }

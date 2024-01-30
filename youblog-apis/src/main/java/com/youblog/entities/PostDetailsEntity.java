@@ -36,7 +36,7 @@ public class PostDetailsEntity {
 	private Long userId;
 
 	@Column(name = "CATEGORY_ID")
-	private Long categoryId;
+	private Integer[] categoryId;
 
 	@Column(name = "CREATED_DATE")
 	private Date createdDate;

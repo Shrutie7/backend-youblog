@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.youblog.payloads.GetPostDetailsRequest;
+import com.youblog.payloads.PostBookmarkRequest;
 import com.youblog.payloads.PostDetailsListRequest;
 import com.youblog.payloads.PostLikeRequest;
 import com.youblog.payloads.UpdatePostDetailsRequest;
@@ -75,5 +76,20 @@ public class PostDetailsController {
 	public ResponseEntity<Map<String, Object>> postLikeList(@RequestBody PostLikeRequest postLikeRequest) {
 		return postDetailsService.postLikeList(postLikeRequest);
 	}
+	
+	@PostMapping("/add/bookmark")
+	public ResponseEntity<Map<String, Object>> postAddBookmark(@RequestBody PostBookmarkRequest postBookmarkRequest) {
+		return postDetailsService.postAddBookmark(postBookmarkRequest);
+	}
+	
+	@PostMapping("/remove/bookmark")
+	public ResponseEntity<Map<String, Object>> postRemoveBookmark(@RequestBody PostBookmarkRequest postBookmarkRequest) {
+		return postDetailsService.postRemoveBookmark(postBookmarkRequest);
+	}
+	
+	@PostMapping("/bookmarks/list")
+	public ResponseEntity<Map<String, Object>> postBookmarksList(@RequestBody PostBookmarkRequest postBookmarkRequest) {
+		return postDetailsService.postBookmarksList(postBookmarkRequest);
+	} 
 
 }
