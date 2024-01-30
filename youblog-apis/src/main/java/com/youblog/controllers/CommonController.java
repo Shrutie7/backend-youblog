@@ -14,7 +14,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.youblog.payloads.FeedbackCreateRequest;
 import com.youblog.payloads.FeedbackListRequest;
 import com.youblog.payloads.GymCreateRequest;
+import com.youblog.payloads.PLanGetRequest;
+import com.youblog.payloads.PlanCheckExpiryRequest;
 import com.youblog.payloads.PlanCreateRequest;
+import com.youblog.payloads.PlanDeleteRequest;
+import com.youblog.payloads.PlanEditRequest;
+import com.youblog.payloads.PlanListRequest;
+import com.youblog.payloads.PlanPurchaseRequest;
 import com.youblog.services.CategoryDetailsService;
 import com.youblog.services.FeedbackService;
 import com.youblog.services.GymDetailsService;
@@ -72,4 +78,32 @@ public class CommonController {
 	public ResponseEntity<Map<String,Object>> createplan(@RequestBody PlanCreateRequest usreq){
 		return plandetailsservice.createPlan(usreq);
 	}
+	
+	@PostMapping("/plan/list")
+	public ResponseEntity<Map<String,Object>> planlist(@RequestBody PlanListRequest usreq){
+		return plandetailsservice.getplanlist(usreq);
+	}
+	
+	@PostMapping("/plan/edit")
+	public ResponseEntity<Map<String,Object>> editplan(@RequestBody PlanEditRequest usreq){
+		return plandetailsservice.editPlan(usreq);
+	}
+	
+	@PostMapping("/plan/delete")
+	public ResponseEntity<Map<String,Object>> deleteplan(@RequestBody PlanDeleteRequest usreq){
+		return plandetailsservice.deletePlan(usreq);
+	}
+	
+	@PostMapping("/plan/get")
+	public ResponseEntity<Map<String,Object>> getplan(@RequestBody PLanGetRequest usreq){
+		return plandetailsservice.getplan(usreq);
+	}
+	
+	@PostMapping("/plan/checkexpiry")
+	public ResponseEntity<Map<String,Object>> planexpirycheck(@RequestBody PlanCheckExpiryRequest usreq){
+		return plandetailsservice.planexpirycheck(usreq);
+	}
+	
+
+	
 }
