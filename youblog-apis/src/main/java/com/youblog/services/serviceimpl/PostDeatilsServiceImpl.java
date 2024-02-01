@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -26,17 +27,24 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import com.youblog.entities.CommentDetailsEntity;
 import com.youblog.entities.PostDetailsEntity;
 import com.youblog.entities.PostLikesEntity;
-import com.youblog.entities.UserDetailsEntity;
+import com.youblog.entities.PostSaveDetailsEntity;
 import com.youblog.payloads.GetPostDetailsRequest;
 import com.youblog.payloads.PostBookmarkRequest;
+import com.youblog.payloads.PostCommentAddRequest;
+import com.youblog.payloads.PostCommentEditRequest;
+import com.youblog.payloads.PostCommentListRequest;
+import com.youblog.payloads.PostCommentReplyListRequest;
+import com.youblog.payloads.PostCommentReplyRequest;
 import com.youblog.payloads.PostDetailsListRequest;
 import com.youblog.payloads.PostLikeRequest;
 import com.youblog.payloads.UpdatePostDetailsRequest;
+import com.youblog.repositories.CommentDetailsRepository;
 import com.youblog.repositories.PostDetailsRepository;
 import com.youblog.repositories.PostLikesRepository;
-import com.youblog.repositories.UserDetailsRepository;
+import com.youblog.repositories.PostSaveDetailsRepository;
 import com.youblog.services.PostDetailsService;
 import com.youblog.utils.DateParser;
 import com.youblog.utils.ResponseHandler;
@@ -56,10 +64,13 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 	private GridFsOperations gridFsOperations;
 
 	@Autowired
-	private UserDetailsRepository userDetailsRepository;
+	private PostLikesRepository postLikesRepository;
 
 	@Autowired
-	private PostLikesRepository postLikesRepository;
+	private PostSaveDetailsRepository postSaveDetailsRepository;
+
+	@Autowired
+	private CommentDetailsRepository commentDetailsRepository;
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postCreate(MultipartFile postMedia, String jsonData) {
@@ -80,10 +91,10 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		}
 		try {
 			PostDetailsEntity postDetailsEntity = new PostDetailsEntity();
-			JSONArray json=   (JSONArray) request.get("categoryId");
+			JSONArray json = (JSONArray) request.get("categoryId");
 			Integer[] categories = new Integer[json.length()];
-			int i=0;
-			for(Object data:json) {
+			int i = 0;
+			for (Object data : json) {
 				categories[i] = (Integer) data;
 				i++;
 			}
@@ -126,47 +137,60 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		if (postDetailsList.size() > 0) {
 			JSONObject response = new JSONObject();
 			for (Object[] data : postDetailsList) {
-				JSONObject subResponse = new JSONObject();
-				subResponse.put("postId", data[0] != null ? data[0] : "");
-				subResponse.put("title", data[1] != null ? data[1].toString() : "");
-				subResponse.put("contentUrl", data[2] != null ? "/post/get/media/" + data[2] : "");
-				GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(data[2])));
-				subResponse.put("contentType", file.getMetadata().getString("_contentType").split("/")[0]);
-				subResponse.put("categoryId", data[4] != null ? data[4] : "");
-				subResponse.put("postedDate", data[5] != null ? data[5].toString() : "");
-				subResponse.put("updatedDate", data[10] != null ? data[10].toString() : "");
-				subResponse.put("remarks", data[9] != null ? data[9].toString() : "");
-				subResponse.put("description", data[6] != null ? data[6] : "");
-				subResponse.put("activeFlag", data[7] != null ? data[7] : true);
-				subResponse.put("archiveFlag", data[8] != null ? data[8] : false);
-				JSONObject createdUserResponse = new JSONObject();
-				if (data[3] != null) {
-					createdUserResponse.put("userId", data[3] != null ? data[3] : "");
-					createdUserResponse.put("userName",
-							(data[13] != null && data[13] != " ") ? data[13].toString() : "");
-					createdUserResponse.put("roleId", data[14] != null ? data[14] : "");
-					createdUserResponse.put("emailId", data[12] != null ? data[12].toString() : "");
-					createdUserResponse.put("locationId", data[15] != null ? data[15] : "");
+				if (postDetailsListRequest.getBookmarkFlag()) {
+					if (Boolean.valueOf(data[22].toString()) == postDetailsListRequest.getBookmarkFlag()) {
+						response.append("postList", responseConstructor(data));
+					}
+				} else {
+					response.append("postList", responseConstructor(data));
 				}
-				subResponse.put("postedBy", createdUserResponse);
-				JSONObject updatedUserResponse = new JSONObject();
-				if (data[11] != null) {
-					updatedUserResponse.put("userId", data[11] != null ? data[11] : "");
-					updatedUserResponse.put("userName",
-							(data[17] != null && data[17] != " ") ? data[17].toString() : "");
-					updatedUserResponse.put("roleId", data[18] != null ? data[18] : "");
-					updatedUserResponse.put("emailId", data[16] != null ? data[16].toString() : "");
-					updatedUserResponse.put("locationId", data[19] != null ? data[19] : "");
-				}
-				subResponse.put("updatedBy", updatedUserResponse);
-				subResponse.put("likesCount", data[20] != null ? data[20] : 0);
-				subResponse.put("likeStatus", data[21] != null ? data[21] : false);
-				response.append("postList", subResponse);
 			}
-			return ResponseHandler.response(response.toMap(), "Post Details Fetched Successfully!", true);
+			if (response.length() != 0) {
+				return ResponseHandler.response(response.toMap(), "Post Details Fetched Successfully!", true);
+			}else {
+				return ResponseHandler.response(new ArrayList<>(), "Post Details Not Found!", false);
+			}
 		} else {
-			return ResponseHandler.response(null, "No Posts Found.", false);
+			return ResponseHandler.response(new ArrayList<>(), "No Posts Found.", false);
 		}
+	}
+
+	public Map<String, Object> responseConstructor(Object[] data) {
+		JSONObject subResponse = new JSONObject();
+		subResponse.put("postId", data[0] != null ? data[0] : "");
+		subResponse.put("title", data[1] != null ? data[1].toString() : "");
+		subResponse.put("contentUrl", data[2] != null ? "/post/get/media/" + data[2] : "");
+		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(data[2])));
+		subResponse.put("contentType", file.getMetadata().getString("_contentType").split("/")[0]);
+		subResponse.put("categoryId", data[4] != null ? data[4] : "");
+		subResponse.put("postedDate", data[5] != null ? data[5].toString() : "");
+		subResponse.put("updatedDate", data[10] != null ? data[10].toString() : "");
+		subResponse.put("remarks", data[9] != null ? data[9].toString() : "");
+		subResponse.put("description", data[6] != null ? data[6] : "");
+		subResponse.put("activeFlag", data[7] != null ? data[7] : true);
+		subResponse.put("archiveFlag", data[8] != null ? data[8] : false);
+		JSONObject createdUserResponse = new JSONObject();
+		if (data[3] != null) {
+			createdUserResponse.put("userId", data[3] != null ? data[3] : "");
+			createdUserResponse.put("userName", (data[13] != null && data[13] != " ") ? data[13].toString() : "");
+			createdUserResponse.put("roleId", data[14] != null ? data[14] : "");
+			createdUserResponse.put("emailId", data[12] != null ? data[12].toString() : "");
+			createdUserResponse.put("locationId", data[15] != null ? data[15] : "");
+		}
+		subResponse.put("postedBy", createdUserResponse);
+		JSONObject updatedUserResponse = new JSONObject();
+		if (data[11] != null) {
+			updatedUserResponse.put("userId", data[11] != null ? data[11] : "");
+			updatedUserResponse.put("userName", (data[17] != null && data[17] != " ") ? data[17].toString() : "");
+			updatedUserResponse.put("roleId", data[18] != null ? data[18] : "");
+			updatedUserResponse.put("emailId", data[16] != null ? data[16].toString() : "");
+			updatedUserResponse.put("locationId", data[19] != null ? data[19] : "");
+		}
+		subResponse.put("updatedBy", updatedUserResponse);
+		subResponse.put("likesCount", data[20] != null ? data[20] : 0);
+		subResponse.put("likeStatus", data[21] != null ? data[21] : false);
+		subResponse.put("bookmarkStatus", data[22] != null ? data[22] : false);
+		return subResponse.toMap();
 	}
 
 	@Override
@@ -177,8 +201,16 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 	}
 
 	@Override
-	public void downloadMedia(String id, HttpServletResponse response) throws IOException {
-		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
+	public void downloadMedia(GetPostDetailsRequest downloadPostRequest, HttpServletResponse response)
+			throws IOException {
+		if (downloadPostRequest.getPostId() == null) {
+			return;
+		}
+		Optional<PostDetailsEntity> postDetails = postDetailsRepository.findById(downloadPostRequest.getPostId());
+		if (postDetails.isEmpty()) {
+			return;
+		}
+		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(postDetails.get().getContent())));
 		response.setContentType(file.getMetadata().getString("_contentType").split("/")[1]);
 		response.setHeader("content-Disposition", "attachment; filename=" + file.getMetadata().getString("title") + "."
 				+ file.getMetadata().getString("_contentType").split("/")[1]);
@@ -191,46 +223,16 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		if (getPostDetailsRequest.getPostId() == null) {
 			return ResponseHandler.response(null, "Please Provide PostId", false);
 		}
-		List<Object[]> postDetails = postDetailsRepository.getPostDetails(getPostDetailsRequest.getPostId(),getPostDetailsRequest.getUserId());
+		List<Object[]> postDetails = postDetailsRepository.getPostDetails(getPostDetailsRequest.getPostId(),
+				getPostDetailsRequest.getUserId());
 		if (postDetails.size() == 0) {
 			return ResponseHandler.response(null, "Post Details Not Found", false);
 		}
-		JSONObject subResponse = new JSONObject();
-		postDetails.forEach(data -> {
-			subResponse.put("postId", data[0] != null ? data[0] : "");
-			subResponse.put("title", data[1] != null ? data[1].toString() : "");
-			subResponse.put("contentUrl", data[2] != null ? "/post/get/media/" + data[2] : "");
-			GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(data[2])));
-			subResponse.put("contentType", file.getMetadata().getString("_contentType").split("/")[0]);
-			subResponse.put("categoryId", data[4] != null ? data[4] : "");
-			subResponse.put("postedDate", data[5] != null ? data[5].toString() : "");
-			subResponse.put("updatedDate", data[10] != null ? data[10].toString() : "");
-			subResponse.put("remarks", data[9] != null ? data[9].toString() : "");
-			subResponse.put("description", data[6] != null ? data[6] : "");
-			subResponse.put("activeFlag", data[7] != null ? data[7] : true);
-			subResponse.put("archiveFlag", data[8] != null ? data[8] : false);
-			JSONObject createdUserResponse = new JSONObject();
-			if (data[3] != null) {
-				createdUserResponse.put("userId", data[3] != null ? data[3] : "");
-				createdUserResponse.put("userName", (data[13] != null && data[13] != " ") ? data[13].toString() : "");
-				createdUserResponse.put("roleId", data[14] != null ? data[14] : "");
-				createdUserResponse.put("emailId", data[12] != null ? data[12].toString() : "");
-				createdUserResponse.put("locationId", data[15] != null ? data[15] : "");
-			}
-			subResponse.put("postedBy", createdUserResponse);
-			JSONObject updatedUserResponse = new JSONObject();
-			if (data[11] != null) {
-				updatedUserResponse.put("userId", data[11] != null ? data[11] : "");
-				updatedUserResponse.put("userName", (data[17] != null && data[17] != " ") ? data[17].toString() : "");
-				updatedUserResponse.put("roleId", data[18] != null ? data[18] : "");
-				updatedUserResponse.put("emailId", data[16] != null ? data[16].toString() : "");
-				updatedUserResponse.put("locationId", data[19] != null ? data[19] : "");
-			}
-			subResponse.put("updatedBy", updatedUserResponse);
-			subResponse.put("likesCount", data[20] != null ? data[20] : 0);
-			subResponse.put("likeStatus", data[21] != null ? data[21] : false);
-		});
-		return ResponseHandler.response(subResponse.toMap(), "Post Details Fetched Successfully.", true);
+		Map<String, Object> subResponse = new HashMap<>();
+		for (Object[] data : postDetails) {
+			subResponse = responseConstructor(data);
+		}
+		return ResponseHandler.response(subResponse, "Post Details Fetched Successfully.", true);
 	}
 
 	@Override
@@ -289,7 +291,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		}
 		PostLikesEntity postLikes = postLikesRepository.getPostLikeBasedOnUserId(postLikeRequest.getPostId(),
 				postLikeRequest.getUserId());
-		if (postLikes != null) {
+		if (postLikes != null && postLikes.getActiveFlag()) {
 			postLikes.setActiveFlag(false);
 			postLikes.setLikedOnDate(Date.from(Instant.now()));
 			postLikesRepository.save(postLikes);
@@ -304,27 +306,24 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		if (postLikeRequest.getPostId() == null) {
 			return ResponseHandler.response(null, "Please Provide Post Id", false);
 		}
-		List<PostLikesEntity> postlLikesList = postLikesRepository.getPostLikesList(postLikeRequest.getPostId());
+		List<Object[]> postlLikesList = postLikesRepository.getPostLikesList(postLikeRequest.getPostId());
 		if (postlLikesList.size() == 0) {
 			return ResponseHandler.response(null, "Likes List Not Found", false);
 		}
 		JSONObject response = new JSONObject();
 		postlLikesList.forEach(data -> {
 			JSONObject subResponse = new JSONObject();
-			subResponse.put("postId", data.getPostId());
-			UserDetailsEntity userData = userDetailsRepository.getUserDetails(data.getLikedUserId());
+			subResponse.put("postId", data[0] != null ? data[0] : "");
 			JSONObject userResponse = new JSONObject();
-			if (userData != null) {
-				userResponse.put("userId", userData.getUserId());
-				userResponse.put("userName", userData.getFirstName() + " " + userData.getLastName());
-				userResponse.put("roleId", userData.getRoleId());
-				userResponse.put("emailId", userData.getEmailId());
-				userResponse.put("locationId", userData.getLocationId());
+			if (data[6] != null) {
+				userResponse.put("userId", data[6] != null ? data[6] : "");
+				userResponse.put("userName", (data[2] != null && data[2] != " ") ? data[2].toString() : "");
+				userResponse.put("roleId", data[3] != null ? data[3] : "");
+				userResponse.put("emailId", data[4] != null ? data[4].toString() : "");
+				userResponse.put("locationId", data[5] != null ? data[5] : "");
 			}
 			subResponse.put("likedUserData", userResponse);
-			subResponse.put("likedOn",
-					data.getLikedOnDate() != null ? DateParser.dateToString("dd MMM YY HH:mm", data.getLikedOnDate())
-							: "");
+			subResponse.put("likedOn", data[1] != null ? data[1].toString() : "");
 			response.append("postLikesDetails", subResponse);
 		});
 		return ResponseHandler.response(response.toMap(), "Like Details Fetched Successfully", true);
@@ -332,18 +331,127 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postAddBookmark(PostBookmarkRequest postBookmarkRequest) {
-		
-		return null;
+		if (postBookmarkRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide Post Id", false);
+		}
+		PostSaveDetailsEntity postBookmark = postSaveDetailsRepository
+				.getPostBookmarkUserId(postBookmarkRequest.getPostId(), postBookmarkRequest.getUserId());
+		if (postBookmark != null) {
+			postBookmark.setActiveFlag(true);
+			postBookmark.setPostSavedDate(Date.from(Instant.now()));
+			postSaveDetailsRepository.save(postBookmark);
+		} else {
+			PostSaveDetailsEntity bookmark = new PostSaveDetailsEntity();
+			bookmark.setActiveFlag(true);
+			bookmark.setPostSavedDate(Date.from(Instant.now()));
+			bookmark.setUserId(postBookmarkRequest.getUserId());
+			bookmark.setPostId(postBookmarkRequest.getPostId());
+			postSaveDetailsRepository.save(bookmark);
+		}
+		return ResponseHandler.response(null, "Bookmarked Successfully", true);
 	}
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postRemoveBookmark(PostBookmarkRequest postBookmarkRequest) {
+		if (postBookmarkRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide Post Id", false);
+		}
+		PostSaveDetailsEntity postBookmark = postSaveDetailsRepository
+				.getPostBookmarkUserId(postBookmarkRequest.getPostId(), postBookmarkRequest.getUserId());
+		if (postBookmark != null && postBookmark.getActiveFlag()) {
+			postBookmark.setActiveFlag(false);
+			postBookmark.setPostSavedDate(Date.from(Instant.now()));
+			postSaveDetailsRepository.save(postBookmark);
+			return ResponseHandler.response(null, "Bookmark Removed Successfully", true);
+		} else {
+			return ResponseHandler.response(null, "Post Bookmark Details Not Found", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postBookmarksList(PostBookmarkRequest postBookmarkRequest) {
+		if (postBookmarkRequest.getUserId() == null) {
+			return ResponseHandler.response(null, "Please Provide User Id", false);
+		}
+		List<PostSaveDetailsEntity> postBookmarks = postSaveDetailsRepository
+				.getBookmarksList(postBookmarkRequest.getUserId());
+		if (postBookmarks.size() == 0) {
+			return ResponseHandler.response(null, "Bookmarks List Not Found", false);
+		}
+		JSONObject response = new JSONObject();
+		postBookmarks.forEach(data -> {
+			JSONObject subResponse = new JSONObject();
+			subResponse.put("postId", data.getPostId());
+			subResponse.put("bookmarkedOn",
+					data.getPostSavedDate() != null
+							? DateParser.dateToString("dd MMM YY HH:mm", data.getPostSavedDate())
+							: "");
+			response.append("bookmarksList", subResponse);
+		});
+		return ResponseHandler.response(response.toMap(), "Bookmark Details Fetched Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentAdd(PostCommentAddRequest postCommentAddRequest) {
+		if (postCommentAddRequest.getCommentDesc() == null || postCommentAddRequest.getPostId() == null
+				|| postCommentAddRequest.getUserId() == null) {
+			return ResponseHandler.response(null, "Please Provide postId/ userId / comment Details", false);
+		}
+		CommentDetailsEntity commentDetailsEntity = new CommentDetailsEntity();
+		commentDetailsEntity.setActiveFlag(true);
+		commentDetailsEntity.setCommentDesc(postCommentAddRequest.getCommentDesc());
+		commentDetailsEntity.setCommentedDate(Date.from(Instant.now()));
+		commentDetailsEntity.setPostId(postCommentAddRequest.getPostId());
+		commentDetailsEntity.setUserId(postCommentAddRequest.getUserId());
+		try {
+			commentDetailsRepository.save(commentDetailsEntity);
+			return ResponseHandler.response(null, "Commented Successfully", true);
+		} catch (Exception e) {
+			return ResponseHandler.response(null, "Failed to Add Comment", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentEdit(PostCommentEditRequest postCommentEditRequest) {
+		if (postCommentEditRequest.getCommentId() == null) {
+			return ResponseHandler.response(null, "Please Provide commentId", false);
+		}
+		CommentDetailsEntity comment = commentDetailsRepository
+				.getCommentDetails(postCommentEditRequest.getCommentId());
+		if (comment == null) {
+			return ResponseHandler.response(null, "Comment Details Not Found", false);
+		}
+
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentList(PostCommentListRequest postCommentListRequest) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public ResponseEntity<Map<String, Object>> postBookmarksList(PostBookmarkRequest postBookmarkRequest) {
+	public ResponseEntity<Map<String, Object>> postCommentReplyList(
+			PostCommentReplyListRequest postCommentReplyListRequest) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentReply(PostCommentReplyRequest postCommentReplyRequest) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentDelete(PostCommentReplyListRequest postCommentDeleteRequest) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postListBasedOnUser(PostDetailsListRequest postDetailsListRequest) {
 		// TODO Auto-generated method stub
 		return null;
 	}

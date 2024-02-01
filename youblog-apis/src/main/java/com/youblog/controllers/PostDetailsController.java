@@ -18,6 +18,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.youblog.payloads.GetPostDetailsRequest;
 import com.youblog.payloads.PostBookmarkRequest;
+import com.youblog.payloads.PostCommentAddRequest;
+import com.youblog.payloads.PostCommentEditRequest;
+import com.youblog.payloads.PostCommentListRequest;
+import com.youblog.payloads.PostCommentReplyListRequest;
+import com.youblog.payloads.PostCommentReplyRequest;
 import com.youblog.payloads.PostDetailsListRequest;
 import com.youblog.payloads.PostLikeRequest;
 import com.youblog.payloads.UpdatePostDetailsRequest;
@@ -49,9 +54,9 @@ public class PostDetailsController {
 	    return media;
 	}
 	
-	@GetMapping("/download/media/{id}")
-	public void downloadMedia(@PathVariable String id, HttpServletResponse response) throws Exception {
-	    postDetailsService.downloadMedia(id,response);       
+	@GetMapping("/download/media")
+	public void downloadMedia(@RequestBody GetPostDetailsRequest downloadPostRequest, HttpServletResponse response) throws Exception {
+	    postDetailsService.downloadMedia(downloadPostRequest,response);       
 	}
 	
 	@PostMapping("/get")
@@ -93,5 +98,39 @@ public class PostDetailsController {
 	public ResponseEntity<Map<String, Object>> postBookmarksList(@RequestBody PostBookmarkRequest postBookmarkRequest) {
 		return postDetailsService.postBookmarksList(postBookmarkRequest);
 	} 
-
+	
+	@PostMapping("/comment/add")
+	public ResponseEntity<Map<String, Object>> postCommentAdd(@RequestBody PostCommentAddRequest postCommentAddRequest) {
+		return postDetailsService.postCommentAdd(postCommentAddRequest);
+	}
+	
+	@PostMapping("/comment/edit")
+	public ResponseEntity<Map<String, Object>> postCommentEdit(@RequestBody PostCommentEditRequest postCommentEditRequest) {
+		return postDetailsService.postCommentEdit(postCommentEditRequest);
+	}
+	
+	@PostMapping("/comment/list")
+	public ResponseEntity<Map<String, Object>> postCommentList(@RequestBody PostCommentListRequest postCommentListRequest) {
+		return postDetailsService.postCommentList(postCommentListRequest);
+	}
+	
+	@PostMapping("/comment/reply/list")
+	public ResponseEntity<Map<String, Object>> postCommentReplyList(@RequestBody PostCommentReplyListRequest postCommentReplyListRequest) {
+		return postDetailsService.postCommentReplyList(postCommentReplyListRequest);
+	}
+	
+	@PostMapping("/comment/reply")
+	public ResponseEntity<Map<String, Object>> postCommentReply(@RequestBody PostCommentReplyRequest postCommentReplyRequest) {
+		return postDetailsService.postCommentReply(postCommentReplyRequest);
+	}
+	
+	@PostMapping("/comment/delete")
+	public ResponseEntity<Map<String, Object>> postCommentDelete(@RequestBody PostCommentReplyListRequest postCommentDeleteRequest) {
+		return postDetailsService.postCommentDelete(postCommentDeleteRequest);
+	}
+	
+	@PostMapping("/list/user/based")
+	public ResponseEntity<Map<String, Object>> postListBasedOnUser(@RequestBody PostDetailsListRequest postDetailsListRequest) {
+		return postDetailsService.postListBasedOnUser(postDetailsListRequest);
+	}
 }

@@ -20,4 +20,6 @@ public class PostDetailsListRequest {
 	private Boolean activeFlag;
 	
 	private Boolean archiveFlag;
+	
+	private Boolean bookmarkFlag;
 }
