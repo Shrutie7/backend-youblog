@@ -147,11 +147,11 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			}
 			if (response.length() != 0) {
 				return ResponseHandler.response(response.toMap(), "Post Details Fetched Successfully!", true);
-			}else {
-				return ResponseHandler.response(new ArrayList<>(), "Post Details Not Found!", false);
+			} else {
+				return ResponseHandler.response(null, "Post Details Not Found!", false);
 			}
 		} else {
-			return ResponseHandler.response(new ArrayList<>(), "No Posts Found.", false);
+			return ResponseHandler.response(null, "No Posts Found.", false);
 		}
 	}
 
@@ -452,7 +452,23 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postListBasedOnUser(PostDetailsListRequest postDetailsListRequest) {
-		// TODO Auto-generated method stub
-		return null;
+		if (postDetailsListRequest.getUserId() == null) {
+			return ResponseHandler.response(null, "Please Provide User Id", false);
+		}
+		boolean archiveFlag = false;
+		if (postDetailsListRequest.getArchiveFlag() != null) {
+			archiveFlag = postDetailsListRequest.getArchiveFlag();
+		}
+		List<Object[]> postDetails = postDetailsRepository.postListBasedOnUser(postDetailsListRequest.getUserId(),
+				archiveFlag);
+		if (postDetails.size() > 0) {
+			JSONObject response = new JSONObject();
+			for (Object[] data : postDetails) {
+				response.append("postList", responseConstructor(data));
+			}
+			return ResponseHandler.response(response.toMap(), "Post Details Fetched Successfully!", true);
+		} else {
+			return ResponseHandler.response(null, "No Posts Found.", false);
+		}
 	}
 }
