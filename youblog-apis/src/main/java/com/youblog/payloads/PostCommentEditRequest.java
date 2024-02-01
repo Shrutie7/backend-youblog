@@ -12,6 +12,5 @@ public class PostCommentEditRequest {
 	private Long commentId;
 	
 	private String commentDesc;
-	
-	private Long userId;
+
 }

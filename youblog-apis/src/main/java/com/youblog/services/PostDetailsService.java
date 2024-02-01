@@ -28,7 +28,7 @@ public interface PostDetailsService {
 
 	public ResponseEntity<GridFsResource> getMedia(String id);
 
-	public void downloadMedia(GetPostDetailsRequest downloadPostRequest,HttpServletResponse response)  throws IOException;
+	public void downloadMedia(String id,HttpServletResponse response)  throws IOException;
 
 	public ResponseEntity<Map<String, Object>> postGet(GetPostDetailsRequest getPostDetailsRequest);
 

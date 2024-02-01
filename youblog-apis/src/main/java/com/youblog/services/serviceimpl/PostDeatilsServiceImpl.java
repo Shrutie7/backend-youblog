@@ -201,16 +201,9 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 	}
 
 	@Override
-	public void downloadMedia(GetPostDetailsRequest downloadPostRequest, HttpServletResponse response)
+	public void downloadMedia(String id, HttpServletResponse response)
 			throws IOException {
-		if (downloadPostRequest.getPostId() == null) {
-			return;
-		}
-		Optional<PostDetailsEntity> postDetails = postDetailsRepository.findById(downloadPostRequest.getPostId());
-		if (postDetails.isEmpty()) {
-			return;
-		}
-		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(postDetails.get().getContent())));
+		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
 		response.setContentType(file.getMetadata().getString("_contentType").split("/")[1]);
 		response.setHeader("content-Disposition", "attachment; filename=" + file.getMetadata().getString("title") + "."
 				+ file.getMetadata().getString("_contentType").split("/")[1]);
@@ -421,14 +414,38 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		if (comment == null) {
 			return ResponseHandler.response(null, "Comment Details Not Found", false);
 		}
-
-		return null;
+		comment.setCommentDesc(postCommentEditRequest.getCommentDesc());
+		commentDetailsRepository.save(comment);
+		return ResponseHandler.response(null, "Comment Edited Successfully", true);
 	}
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postCommentList(PostCommentListRequest postCommentListRequest) {
-		// TODO Auto-generated method stub
-		return null;
+		if (postCommentListRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide PostId", false);
+		}
+		List<Object[]> commentDetails = commentDetailsRepository.postCommentList(postCommentListRequest.getPostId());
+		if (commentDetails.size() == 0) {
+			return ResponseHandler.response(null, "Likes List Not Found", false);
+		}
+		JSONObject response = new JSONObject();
+		commentDetails.forEach(data -> {
+			JSONObject subResponse = new JSONObject();
+			subResponse.put("commentId", data[0] != null ? data[0] : "");
+			JSONObject userResponse = new JSONObject();
+			if (data[6] != null) {
+				userResponse.put("userId", data[7] != null ? data[7] : "");
+				userResponse.put("userName", (data[3] != null && data[3] != " ") ? data[3].toString() : "");
+				userResponse.put("roleId", data[4] != null ? data[4] : "");
+				userResponse.put("emailId", data[5] != null ? data[5].toString() : "");
+				userResponse.put("locationId", data[6] != null ? data[6] : "");
+			}
+			subResponse.put("commentedUserData", userResponse);
+			subResponse.put("comment", data[1] != null ? data[1].toString() : "");
+			subResponse.put("commentedOn", data[2] != null ? data[2].toString() : "");
+			response.append("commentList", subResponse);
+		});
+		return ResponseHandler.response(response.toMap(), "Comment Details Fetched Successfully", true);
 	}
 
 	@Override
@@ -446,8 +463,17 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postCommentDelete(PostCommentReplyListRequest postCommentDeleteRequest) {
-		// TODO Auto-generated method stub
-		return null;
+		if(postCommentDeleteRequest.getCommentId()==null) {
+			return ResponseHandler.response(null, "Please Provide Comment Id", false);
+		}
+		CommentDetailsEntity comment = commentDetailsRepository
+				.getCommentDetails(postCommentDeleteRequest.getCommentId());
+		if (comment == null) {
+			return ResponseHandler.response(null, "Comment Details Not Found", false);
+		}
+		comment.setActiveFlag(false);
+		commentDetailsRepository.save(comment);
+		return ResponseHandler.response(null, "Comment Deleted Successfully", true);
 	}
 
 	@Override

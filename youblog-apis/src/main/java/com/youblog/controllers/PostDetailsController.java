@@ -11,7 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,9 +56,9 @@ public class PostDetailsController {
 	    return media;
 	}
 	
-	@GetMapping("/download/media")
-	public void downloadMedia(@RequestBody GetPostDetailsRequest downloadPostRequest, HttpServletResponse response) throws Exception {
-	    postDetailsService.downloadMedia(downloadPostRequest,response);       
+	@GetMapping("/download/media/{id}")
+	public void downloadMedia(@PathVariable String id, HttpServletResponse response) throws Exception {
+	    postDetailsService.downloadMedia(id,response);       
 	}
 	
 	@PostMapping("/get")
