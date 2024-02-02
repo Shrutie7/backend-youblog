@@ -205,7 +205,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			throws IOException {
 		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
 		response.setContentType(file.getMetadata().getString("_contentType").split("/")[1]);
-		response.setHeader("content-Disposition", "attachment; filename=" + file.getMetadata().getString("title") + "."
+		response.setHeader("Content-Disposition", "attachment; filename=" + file.getMetadata().getString("title") + "."
 				+ file.getMetadata().getString("_contentType").split("/")[1]);
 		InputStream stream = gridFsOperations.getResource(file).getInputStream();
 		FileCopyUtils.copy(stream, response.getOutputStream());
@@ -426,7 +426,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		}
 		List<Object[]> commentDetails = commentDetailsRepository.postCommentList(postCommentListRequest.getPostId());
 		if (commentDetails.size() == 0) {
-			return ResponseHandler.response(null, "Likes List Not Found", false);
+			return ResponseHandler.response(null, "Comments List Not Found", false);
 		}
 		JSONObject response = new JSONObject();
 		commentDetails.forEach(data -> {
@@ -451,14 +451,53 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 	@Override
 	public ResponseEntity<Map<String, Object>> postCommentReplyList(
 			PostCommentReplyListRequest postCommentReplyListRequest) {
-		// TODO Auto-generated method stub
-		return null;
+		if (postCommentReplyListRequest.getCommentId() == null) {
+			return ResponseHandler.response(null, "Please Provide Comment Id", false);
+		}
+		List<Object[]> postCommentList = commentDetailsRepository.getPostCommentReplyList(postCommentReplyListRequest.getCommentId());
+		if (postCommentList.size() == 0) {
+			return ResponseHandler.response(null, "Comment Reply List Not Found", false);
+		}
+		JSONObject response = new JSONObject();
+		postCommentList.forEach(data -> {
+			JSONObject subResponse = new JSONObject();
+			subResponse.put("commentId", data[0] != null ? data[0] : "");
+			JSONObject userResponse = new JSONObject();
+			if (data[6] != null) {
+				userResponse.put("userId", data[10] != null ? data[10] : "");
+				userResponse.put("userName", (data[6] != null && data[6] != " ") ? data[6].toString() : "");
+				userResponse.put("roleId", data[7] != null ? data[7] : "");
+				userResponse.put("emailId", data[8] != null ? data[8].toString() : "");
+				userResponse.put("locationId", data[9] != null ? data[9] : "");
+			}
+			subResponse.put("commentedUserData", userResponse);
+			subResponse.put("comment", data[1] != null ? data[1].toString() : "");
+			subResponse.put("parentCommentId", data[3]!=null?data[3]:"");
+			subResponse.put("commentedOn", data[5] != null ? data[5].toString() : "");
+			response.append("commentList", subResponse);
+			response.append("postLikesDetails", subResponse);
+		});
+		return ResponseHandler.response(response.toMap(), "Like Details Fetched Successfully", true);
 	}
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postCommentReply(PostCommentReplyRequest postCommentReplyRequest) {
-		// TODO Auto-generated method stub
-		return null;
+		if (postCommentReplyRequest.getCommentDesc() == null || postCommentReplyRequest.getParentCommentId() == null
+				|| postCommentReplyRequest.getUserId() == null) {
+			return ResponseHandler.response(null, "Please Provide parent commentId/ userId / comment Details", false);
+		}
+		CommentDetailsEntity commentDetailsEntity = new CommentDetailsEntity();
+		commentDetailsEntity.setActiveFlag(true);
+		commentDetailsEntity.setCommentDesc(postCommentReplyRequest.getCommentDesc());
+		commentDetailsEntity.setCommentedDate(Date.from(Instant.now()));
+		commentDetailsEntity.setCommentParentId(postCommentReplyRequest.getParentCommentId());
+		commentDetailsEntity.setUserId(postCommentReplyRequest.getUserId());
+		try {
+			commentDetailsRepository.save(commentDetailsEntity);
+			return ResponseHandler.response(null, "Comment Replied Successfully", true);
+		} catch (Exception e) {
+			return ResponseHandler.response(null, "Failed to Reply for Comment", false);
+		}
 	}
 
 	@Override
