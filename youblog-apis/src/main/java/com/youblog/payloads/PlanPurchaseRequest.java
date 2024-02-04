@@ -3,13 +3,15 @@ package com.youblog.payloads;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetPostDetailsRequest {
-	
-	private Long postId;
-	
+@ToString
+
+public class PlanPurchaseRequest {
+
 	private Long userId;
+	private Long planId;
 }

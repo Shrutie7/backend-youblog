@@ -5,11 +5,13 @@ import java.io.InputStream;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.bson.types.ObjectId;
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -25,13 +27,24 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.client.gridfs.model.GridFSFile;
+import com.youblog.entities.CommentDetailsEntity;
 import com.youblog.entities.PostDetailsEntity;
-import com.youblog.entities.UserDetailsEntity;
+import com.youblog.entities.PostLikesEntity;
+import com.youblog.entities.PostSaveDetailsEntity;
 import com.youblog.payloads.GetPostDetailsRequest;
+import com.youblog.payloads.PostBookmarkRequest;
+import com.youblog.payloads.PostCommentAddRequest;
+import com.youblog.payloads.PostCommentEditRequest;
+import com.youblog.payloads.PostCommentListRequest;
+import com.youblog.payloads.PostCommentReplyListRequest;
+import com.youblog.payloads.PostCommentReplyRequest;
 import com.youblog.payloads.PostDetailsListRequest;
+import com.youblog.payloads.PostLikeRequest;
 import com.youblog.payloads.UpdatePostDetailsRequest;
+import com.youblog.repositories.CommentDetailsRepository;
 import com.youblog.repositories.PostDetailsRepository;
-import com.youblog.repositories.UserDetailsRepository;
+import com.youblog.repositories.PostLikesRepository;
+import com.youblog.repositories.PostSaveDetailsRepository;
 import com.youblog.services.PostDetailsService;
 import com.youblog.utils.DateParser;
 import com.youblog.utils.ResponseHandler;
@@ -51,7 +64,13 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 	private GridFsOperations gridFsOperations;
 
 	@Autowired
-	private UserDetailsRepository userDetailsRepository;
+	private PostLikesRepository postLikesRepository;
+
+	@Autowired
+	private PostSaveDetailsRepository postSaveDetailsRepository;
+
+	@Autowired
+	private CommentDetailsRepository commentDetailsRepository;
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postCreate(MultipartFile postMedia, String jsonData) {
@@ -68,12 +87,18 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			id = gridFsTemplate.store(postMedia.getInputStream(),
 					request.get("title").toString() + Date.from(Instant.now()), postMedia.getContentType(), metaData);
 		} catch (Exception e) {
-			// TODO: handle exception
 			return ResponseHandler.response("Cause : " + e.getLocalizedMessage(), "Failed to Create Post.", false);
 		}
 		try {
 			PostDetailsEntity postDetailsEntity = new PostDetailsEntity();
-			postDetailsEntity.setCategoryId(Long.valueOf(request.get("categoryId").toString()));
+			JSONArray json = (JSONArray) request.get("categoryId");
+			Integer[] categories = new Integer[json.length()];
+			int i = 0;
+			for (Object data : json) {
+				categories[i] = (Integer) data;
+				i++;
+			}
+			postDetailsEntity.setCategoryId(categories);
 			postDetailsEntity.setCreatedDate(Date.from(Instant.now()));
 			postDetailsEntity.setDecription(request.get("description").toString());
 			postDetailsEntity.setUserId(Long.valueOf(request.get("userId").toString()));
@@ -93,7 +118,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postList(PostDetailsListRequest postDetailsListRequest) {
-		List<PostDetailsEntity> postDetailsList = new ArrayList<>();
+		List<Object[]> postDetailsList = new ArrayList<>();
 		if (postDetailsListRequest.getRoleId() == 4 || postDetailsListRequest.getRoleId() == 3) {
 			if (postDetailsListRequest.getCategoryId() != null) {
 				postDetailsList = postDetailsRepository.postListWithCategory(postDetailsListRequest.getUserId(),
@@ -111,39 +136,61 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		}
 		if (postDetailsList.size() > 0) {
 			JSONObject response = new JSONObject();
-			for (PostDetailsEntity data : postDetailsList) {
-				JSONObject subResponse = new JSONObject();
-				subResponse.put("postId", data.getPostId());
-				subResponse.put("title", data.getTitle() != null ? data.getTitle() : "");
-				subResponse.put("contentUrl", data.getContent() != null ? "/post/get/media/" + data.getContent() : "");
-				subResponse.put("categoryId", data.getCategoryId() != null ? data.getCategoryId() : "");
-				subResponse.put("postedDate",
-						data.getCreatedDate() != null
-								? DateParser.dateToString("dd MMM yy HH:mm", data.getCreatedDate())
-								: "");
-				subResponse.put("updatedDate",
-						data.getUpdatedDate() != null
-								? DateParser.dateToString("dd MMM yy HH:mm", data.getUpdatedDate())
-								: "");
-				subResponse.put("updatedUserId", data.getUpdatedUserId() != null ? data.getUpdatedUserId() : "");
-				subResponse.put("remarks", data.getRemarks() != null ? data.getRemarks() : "");
-				subResponse.put("description", data.getDecription() != null ? data.getDecription() : "");
-				UserDetailsEntity userData = userDetailsRepository.updateUserDetails(data.getUserId());
-				JSONObject userResponse = new JSONObject();
-				if (userData != null) {
-					userResponse.put("userId", userData.getUserId());
-					userResponse.put("userName", userData.getFirstName() + " " + userData.getLastName());
-					userResponse.put("roleId", userData.getRoleId());
-					userResponse.put("emailId", userData.getEmailId());
-					userResponse.put("locationId", userData.getLocationId());
+			for (Object[] data : postDetailsList) {
+				if (postDetailsListRequest.getBookmarkFlag()) {
+					if (Boolean.valueOf(data[22].toString()) == postDetailsListRequest.getBookmarkFlag()) {
+						response.append("postList", responseConstructor(data));
+					}
+				} else {
+					response.append("postList", responseConstructor(data));
 				}
-				subResponse.put("postedBy", userResponse);
-				response.append("postList", subResponse);
 			}
-			return ResponseHandler.response(response.toMap(), "Post Details Fetched Successfully!", true);
+			if (response.length() != 0) {
+				return ResponseHandler.response(response.toMap(), "Post Details Fetched Successfully!", true);
+			} else {
+				return ResponseHandler.response(null, "Post Details Not Found!", false);
+			}
 		} else {
 			return ResponseHandler.response(null, "No Posts Found.", false);
 		}
+	}
+
+	public Map<String, Object> responseConstructor(Object[] data) {
+		JSONObject subResponse = new JSONObject();
+		subResponse.put("postId", data[0] != null ? data[0] : "");
+		subResponse.put("title", data[1] != null ? data[1].toString() : "");
+		subResponse.put("contentUrl", data[2] != null ? "/post/get/media/" + data[2] : "");
+		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(data[2])));
+		subResponse.put("contentType", file.getMetadata().getString("_contentType").split("/")[0]);
+		subResponse.put("categoryId", data[4] != null ? data[4] : "");
+		subResponse.put("postedDate", data[5] != null ? data[5].toString() : "");
+		subResponse.put("updatedDate", data[10] != null ? data[10].toString() : "");
+		subResponse.put("remarks", data[9] != null ? data[9].toString() : "");
+		subResponse.put("description", data[6] != null ? data[6] : "");
+		subResponse.put("activeFlag", data[7] != null ? data[7] : true);
+		subResponse.put("archiveFlag", data[8] != null ? data[8] : false);
+		JSONObject createdUserResponse = new JSONObject();
+		if (data[3] != null) {
+			createdUserResponse.put("userId", data[3] != null ? data[3] : "");
+			createdUserResponse.put("userName", (data[13] != null && data[13] != " ") ? data[13].toString() : "");
+			createdUserResponse.put("roleId", data[14] != null ? data[14] : "");
+			createdUserResponse.put("emailId", data[12] != null ? data[12].toString() : "");
+			createdUserResponse.put("locationId", data[15] != null ? data[15] : "");
+		}
+		subResponse.put("postedBy", createdUserResponse);
+		JSONObject updatedUserResponse = new JSONObject();
+		if (data[11] != null) {
+			updatedUserResponse.put("userId", data[11] != null ? data[11] : "");
+			updatedUserResponse.put("userName", (data[17] != null && data[17] != " ") ? data[17].toString() : "");
+			updatedUserResponse.put("roleId", data[18] != null ? data[18] : "");
+			updatedUserResponse.put("emailId", data[16] != null ? data[16].toString() : "");
+			updatedUserResponse.put("locationId", data[19] != null ? data[19] : "");
+		}
+		subResponse.put("updatedBy", updatedUserResponse);
+		subResponse.put("likesCount", data[20] != null ? data[20] : 0);
+		subResponse.put("likeStatus", data[21] != null ? data[21] : false);
+		subResponse.put("bookmarkStatus", data[22] != null ? data[22] : false);
+		return subResponse.toMap();
 	}
 
 	@Override
@@ -154,10 +201,11 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 	}
 
 	@Override
-	public void downloadMedia(String id, HttpServletResponse response) throws IOException {
+	public void downloadMedia(String id, HttpServletResponse response)
+			throws IOException {
 		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
 		response.setContentType(file.getMetadata().getString("_contentType").split("/")[1]);
-		response.setHeader("content-Disposition", "attachment; filename=" + file.getMetadata().getString("title") + "."
+		response.setHeader("Content-Disposition", "attachment; filename=" + file.getMetadata().getString("title") + "."
 				+ file.getMetadata().getString("_contentType").split("/")[1]);
 		InputStream stream = gridFsOperations.getResource(file).getInputStream();
 		FileCopyUtils.copy(stream, response.getOutputStream());
@@ -168,36 +216,16 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		if (getPostDetailsRequest.getPostId() == null) {
 			return ResponseHandler.response(null, "Please Provide PostId", false);
 		}
-		Optional<PostDetailsEntity> postDetails = postDetailsRepository.findById(getPostDetailsRequest.getPostId());
-		if (postDetails.isEmpty()) {
+		List<Object[]> postDetails = postDetailsRepository.getPostDetails(getPostDetailsRequest.getPostId(),
+				getPostDetailsRequest.getUserId());
+		if (postDetails.size() == 0) {
 			return ResponseHandler.response(null, "Post Details Not Found", false);
 		}
-		PostDetailsEntity data = postDetails.get();
-		JSONObject response = new JSONObject();
-		response.put("postId", data.getPostId());
-		response.put("title", data.getTitle() != null ? data.getTitle() : "");
-		response.put("contentUrl", data.getContent() != null ? "/post/get/media/" + data.getContent() : "");
-		response.put("categoryId", data.getCategoryId() != null ? data.getCategoryId() : "");
-		response.put("postedDate",
-				data.getCreatedDate() != null ? DateParser.dateToString("dd MMM yy HH:mm", data.getCreatedDate()) : "");
-		response.put("updatedDate",
-				data.getUpdatedDate() != null ? DateParser.dateToString("dd MMM yy HH:mm", data.getUpdatedDate()) : "");
-		response.put("updatedUserId", data.getUpdatedUserId() != null ? data.getUpdatedUserId() : "");
-		response.put("remarks", data.getRemarks() != null ? data.getRemarks() : "");
-		response.put("description", data.getDecription() != null ? data.getDecription() : "");
-		UserDetailsEntity userData = userDetailsRepository.updateUserDetails(data.getUserId());
-		JSONObject userResponse = new JSONObject();
-		if (userData != null) {
-			userResponse.put("userId", userData.getUserId());
-			userResponse.put("userName", userData.getFirstName() + " " + userData.getLastName());
-			userResponse.put("roleId", userData.getRoleId());
-			userResponse.put("emailId", userData.getEmailId());
-			userResponse.put("locationId", userData.getLocationId());
+		Map<String, Object> subResponse = new HashMap<>();
+		for (Object[] data : postDetails) {
+			subResponse = responseConstructor(data);
 		}
-		response.put("postedBy", userResponse);
-		response.put("activeFlag", data.getActiveFlag());
-		response.put("archiveFlag", data.getArchiveFlag());
-		return ResponseHandler.response(response.toMap(), "Post Details Fetched Successfully.", true);
+		return ResponseHandler.response(subResponse, "Post Details Fetched Successfully.", true);
 	}
 
 	@Override
@@ -225,5 +253,287 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		}
 		postDetailsRepository.save(postDetailsEntity);
 		return ResponseHandler.response(null, "Post Details Updated Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postLike(PostLikeRequest postLikeRequest) {
+		if (postLikeRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide Post Id", false);
+		}
+		PostLikesEntity postLikes = postLikesRepository.getPostLikeBasedOnUserId(postLikeRequest.getPostId(),
+				postLikeRequest.getUserId());
+		if (postLikes != null) {
+			postLikes.setActiveFlag(true);
+			postLikes.setLikedOnDate(Date.from(Instant.now()));
+			postLikesRepository.save(postLikes);
+		} else {
+			PostLikesEntity likes = new PostLikesEntity();
+			likes.setActiveFlag(true);
+			likes.setLikedOnDate(Date.from(Instant.now()));
+			likes.setLikedUserId(postLikeRequest.getUserId());
+			likes.setPostId(postLikeRequest.getPostId());
+			postLikesRepository.save(likes);
+		}
+		return ResponseHandler.response(null, "Liked Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postDisLike(PostLikeRequest postLikeRequest) {
+		if (postLikeRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide Post Id", false);
+		}
+		PostLikesEntity postLikes = postLikesRepository.getPostLikeBasedOnUserId(postLikeRequest.getPostId(),
+				postLikeRequest.getUserId());
+		if (postLikes != null && postLikes.getActiveFlag()) {
+			postLikes.setActiveFlag(false);
+			postLikes.setLikedOnDate(Date.from(Instant.now()));
+			postLikesRepository.save(postLikes);
+			return ResponseHandler.response(null, "Disliked Successfully", true);
+		} else {
+			return ResponseHandler.response(null, "Post Like Details Not Found", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postLikeList(PostLikeRequest postLikeRequest) {
+		if (postLikeRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide Post Id", false);
+		}
+		List<Object[]> postlLikesList = postLikesRepository.getPostLikesList(postLikeRequest.getPostId());
+		if (postlLikesList.size() == 0) {
+			return ResponseHandler.response(null, "Likes List Not Found", false);
+		}
+		JSONObject response = new JSONObject();
+		postlLikesList.forEach(data -> {
+			JSONObject subResponse = new JSONObject();
+			subResponse.put("postId", data[0] != null ? data[0] : "");
+			JSONObject userResponse = new JSONObject();
+			if (data[6] != null) {
+				userResponse.put("userId", data[6] != null ? data[6] : "");
+				userResponse.put("userName", (data[2] != null && data[2] != " ") ? data[2].toString() : "");
+				userResponse.put("roleId", data[3] != null ? data[3] : "");
+				userResponse.put("emailId", data[4] != null ? data[4].toString() : "");
+				userResponse.put("locationId", data[5] != null ? data[5] : "");
+			}
+			subResponse.put("likedUserData", userResponse);
+			subResponse.put("likedOn", data[1] != null ? data[1].toString() : "");
+			response.append("postLikesDetails", subResponse);
+		});
+		return ResponseHandler.response(response.toMap(), "Like Details Fetched Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postAddBookmark(PostBookmarkRequest postBookmarkRequest) {
+		if (postBookmarkRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide Post Id", false);
+		}
+		PostSaveDetailsEntity postBookmark = postSaveDetailsRepository
+				.getPostBookmarkUserId(postBookmarkRequest.getPostId(), postBookmarkRequest.getUserId());
+		if (postBookmark != null) {
+			postBookmark.setActiveFlag(true);
+			postBookmark.setPostSavedDate(Date.from(Instant.now()));
+			postSaveDetailsRepository.save(postBookmark);
+		} else {
+			PostSaveDetailsEntity bookmark = new PostSaveDetailsEntity();
+			bookmark.setActiveFlag(true);
+			bookmark.setPostSavedDate(Date.from(Instant.now()));
+			bookmark.setUserId(postBookmarkRequest.getUserId());
+			bookmark.setPostId(postBookmarkRequest.getPostId());
+			postSaveDetailsRepository.save(bookmark);
+		}
+		return ResponseHandler.response(null, "Bookmarked Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postRemoveBookmark(PostBookmarkRequest postBookmarkRequest) {
+		if (postBookmarkRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide Post Id", false);
+		}
+		PostSaveDetailsEntity postBookmark = postSaveDetailsRepository
+				.getPostBookmarkUserId(postBookmarkRequest.getPostId(), postBookmarkRequest.getUserId());
+		if (postBookmark != null && postBookmark.getActiveFlag()) {
+			postBookmark.setActiveFlag(false);
+			postBookmark.setPostSavedDate(Date.from(Instant.now()));
+			postSaveDetailsRepository.save(postBookmark);
+			return ResponseHandler.response(null, "Bookmark Removed Successfully", true);
+		} else {
+			return ResponseHandler.response(null, "Post Bookmark Details Not Found", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postBookmarksList(PostBookmarkRequest postBookmarkRequest) {
+		if (postBookmarkRequest.getUserId() == null) {
+			return ResponseHandler.response(null, "Please Provide User Id", false);
+		}
+		List<PostSaveDetailsEntity> postBookmarks = postSaveDetailsRepository
+				.getBookmarksList(postBookmarkRequest.getUserId());
+		if (postBookmarks.size() == 0) {
+			return ResponseHandler.response(null, "Bookmarks List Not Found", false);
+		}
+		JSONObject response = new JSONObject();
+		postBookmarks.forEach(data -> {
+			JSONObject subResponse = new JSONObject();
+			subResponse.put("postId", data.getPostId());
+			subResponse.put("bookmarkedOn",
+					data.getPostSavedDate() != null
+							? DateParser.dateToString("dd MMM YY HH:mm", data.getPostSavedDate())
+							: "");
+			response.append("bookmarksList", subResponse);
+		});
+		return ResponseHandler.response(response.toMap(), "Bookmark Details Fetched Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentAdd(PostCommentAddRequest postCommentAddRequest) {
+		if (postCommentAddRequest.getCommentDesc() == null || postCommentAddRequest.getPostId() == null
+				|| postCommentAddRequest.getUserId() == null) {
+			return ResponseHandler.response(null, "Please Provide postId/ userId / comment Details", false);
+		}
+		CommentDetailsEntity commentDetailsEntity = new CommentDetailsEntity();
+		commentDetailsEntity.setActiveFlag(true);
+		commentDetailsEntity.setCommentDesc(postCommentAddRequest.getCommentDesc());
+		commentDetailsEntity.setCommentedDate(Date.from(Instant.now()));
+		commentDetailsEntity.setPostId(postCommentAddRequest.getPostId());
+		commentDetailsEntity.setUserId(postCommentAddRequest.getUserId());
+		try {
+			commentDetailsRepository.save(commentDetailsEntity);
+			return ResponseHandler.response(null, "Commented Successfully", true);
+		} catch (Exception e) {
+			return ResponseHandler.response(null, "Failed to Add Comment", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentEdit(PostCommentEditRequest postCommentEditRequest) {
+		if (postCommentEditRequest.getCommentId() == null) {
+			return ResponseHandler.response(null, "Please Provide commentId", false);
+		}
+		CommentDetailsEntity comment = commentDetailsRepository
+				.getCommentDetails(postCommentEditRequest.getCommentId());
+		if (comment == null) {
+			return ResponseHandler.response(null, "Comment Details Not Found", false);
+		}
+		comment.setCommentDesc(postCommentEditRequest.getCommentDesc());
+		commentDetailsRepository.save(comment);
+		return ResponseHandler.response(null, "Comment Edited Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentList(PostCommentListRequest postCommentListRequest) {
+		if (postCommentListRequest.getPostId() == null) {
+			return ResponseHandler.response(null, "Please Provide PostId", false);
+		}
+		List<Object[]> commentDetails = commentDetailsRepository.postCommentList(postCommentListRequest.getPostId());
+		if (commentDetails.size() == 0) {
+			return ResponseHandler.response(null, "Comments List Not Found", false);
+		}
+		JSONObject response = new JSONObject();
+		commentDetails.forEach(data -> {
+			JSONObject subResponse = new JSONObject();
+			subResponse.put("commentId", data[0] != null ? data[0] : "");
+			JSONObject userResponse = new JSONObject();
+			if (data[6] != null) {
+				userResponse.put("userId", data[7] != null ? data[7] : "");
+				userResponse.put("userName", (data[3] != null && data[3] != " ") ? data[3].toString() : "");
+				userResponse.put("roleId", data[4] != null ? data[4] : "");
+				userResponse.put("emailId", data[5] != null ? data[5].toString() : "");
+				userResponse.put("locationId", data[6] != null ? data[6] : "");
+			}
+			subResponse.put("commentedUserData", userResponse);
+			subResponse.put("comment", data[1] != null ? data[1].toString() : "");
+			subResponse.put("commentedOn", data[2] != null ? data[2].toString() : "");
+			response.append("commentList", subResponse);
+		});
+		return ResponseHandler.response(response.toMap(), "Comment Details Fetched Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentReplyList(
+			PostCommentReplyListRequest postCommentReplyListRequest) {
+		if (postCommentReplyListRequest.getCommentId() == null) {
+			return ResponseHandler.response(null, "Please Provide Comment Id", false);
+		}
+		List<Object[]> postCommentList = commentDetailsRepository.getPostCommentReplyList(postCommentReplyListRequest.getCommentId());
+		if (postCommentList.size() == 0) {
+			return ResponseHandler.response(null, "Comment Reply List Not Found", false);
+		}
+		JSONObject response = new JSONObject();
+		postCommentList.forEach(data -> {
+			JSONObject subResponse = new JSONObject();
+			subResponse.put("commentId", data[0] != null ? data[0] : "");
+			JSONObject userResponse = new JSONObject();
+			if (data[6] != null) {
+				userResponse.put("userId", data[10] != null ? data[10] : "");
+				userResponse.put("userName", (data[6] != null && data[6] != " ") ? data[6].toString() : "");
+				userResponse.put("roleId", data[7] != null ? data[7] : "");
+				userResponse.put("emailId", data[8] != null ? data[8].toString() : "");
+				userResponse.put("locationId", data[9] != null ? data[9] : "");
+			}
+			subResponse.put("commentedUserData", userResponse);
+			subResponse.put("comment", data[1] != null ? data[1].toString() : "");
+			subResponse.put("parentCommentId", data[3]!=null?data[3]:"");
+			subResponse.put("commentedOn", data[5] != null ? data[5].toString() : "");
+			response.append("commentList", subResponse);
+			response.append("postLikesDetails", subResponse);
+		});
+		return ResponseHandler.response(response.toMap(), "Like Details Fetched Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentReply(PostCommentReplyRequest postCommentReplyRequest) {
+		if (postCommentReplyRequest.getCommentDesc() == null || postCommentReplyRequest.getParentCommentId() == null
+				|| postCommentReplyRequest.getUserId() == null) {
+			return ResponseHandler.response(null, "Please Provide parent commentId/ userId / comment Details", false);
+		}
+		CommentDetailsEntity commentDetailsEntity = new CommentDetailsEntity();
+		commentDetailsEntity.setActiveFlag(true);
+		commentDetailsEntity.setCommentDesc(postCommentReplyRequest.getCommentDesc());
+		commentDetailsEntity.setCommentedDate(Date.from(Instant.now()));
+		commentDetailsEntity.setCommentParentId(postCommentReplyRequest.getParentCommentId());
+		commentDetailsEntity.setUserId(postCommentReplyRequest.getUserId());
+		try {
+			commentDetailsRepository.save(commentDetailsEntity);
+			return ResponseHandler.response(null, "Comment Replied Successfully", true);
+		} catch (Exception e) {
+			return ResponseHandler.response(null, "Failed to Reply for Comment", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postCommentDelete(PostCommentReplyListRequest postCommentDeleteRequest) {
+		if(postCommentDeleteRequest.getCommentId()==null) {
+			return ResponseHandler.response(null, "Please Provide Comment Id", false);
+		}
+		CommentDetailsEntity comment = commentDetailsRepository
+				.getCommentDetails(postCommentDeleteRequest.getCommentId());
+		if (comment == null) {
+			return ResponseHandler.response(null, "Comment Details Not Found", false);
+		}
+		comment.setActiveFlag(false);
+		commentDetailsRepository.save(comment);
+		return ResponseHandler.response(null, "Comment Deleted Successfully", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> postListBasedOnUser(PostDetailsListRequest postDetailsListRequest) {
+		if (postDetailsListRequest.getUserId() == null) {
+			return ResponseHandler.response(null, "Please Provide User Id", false);
+		}
+		boolean archiveFlag = false;
+		if (postDetailsListRequest.getArchiveFlag() != null) {
+			archiveFlag = postDetailsListRequest.getArchiveFlag();
+		}
+		List<Object[]> postDetails = postDetailsRepository.postListBasedOnUser(postDetailsListRequest.getUserId(),
+				archiveFlag);
+		if (postDetails.size() > 0) {
+			JSONObject response = new JSONObject();
+			for (Object[] data : postDetails) {
+				response.append("postList", responseConstructor(data));
+			}
+			return ResponseHandler.response(response.toMap(), "Post Details Fetched Successfully!", true);
+		} else {
+			return ResponseHandler.response(null, "No Posts Found.", false);
+		}
 	}
 }

@@ -7,9 +7,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetPostDetailsRequest {
+public class PostCommentAddRequest {
+	
+	private String commentDesc;
 	
 	private Long postId;
 	
 	private Long userId;
+	
 }

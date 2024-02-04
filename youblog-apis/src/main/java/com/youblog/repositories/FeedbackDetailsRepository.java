@@ -16,7 +16,7 @@ public interface FeedbackDetailsRepository extends JpaRepository<FeedbackDetails
 			+ "	UD.LAST_NAME) AS userName\r\n"
 			+ "FROM FEEDBACK_DETAILS AS FD\r\n"
 			+ "LEFT JOIN USER_DETAILS AS UD ON UD.USER_ID = FD.USER_ID\r\n"
-			+ "WHERE FD.feedback_type_id = 2 and gym_id=:gymId\r\n"
+			+ "WHERE FD.feedback_type_id = 2 and FD.gym_id=:gymId\r\n"
 			+ "",nativeQuery = true)
 	public ArrayList<Object[]> getfeedbacklist(Long gymId);
 }

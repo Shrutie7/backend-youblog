@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class GetPostDetailsRequest {
+public class PostCommentListRequest {
 	
 	private Long postId;
 	
-	private Long userId;
 }
