@@ -14,11 +14,14 @@ public interface CommentDetailsRepository extends JpaRepository<CommentDetailsEn
 	@Query(value = "select * from comment_details where comment_id = :commentId and active_flag = true",nativeQuery = true)
 	public CommentDetailsEntity getCommentDetails(Long commentId);
 
-	@Query(value = "select cd.comment_id,cd.comment_desc,to_char(cd.commented_date,'dd Mon yy HH24:MI') as commentedOn,\r\n"
-			+ "concat(ud.first_name,' ',ud.last_name) as username,ud.role_id,ud.email_id,ud.location_id,ud.user_id\r\n"
-			+ "from comment_details cd \r\n"
-			+ "inner join user_details ud on ud.user_id = cd.user_id and ud.active_flag = true\r\n"
-			+ "where cd.post_id = :postId and cd.active_flag=true",nativeQuery = true)
+	@Query(value = "select cd.comment_id,cd.comment_desc,to_char(cd.commented_date,'dd Mon yy HH24:MI') as commentedOn, \r\n"
+			+ "			concat(ud.first_name,' ',ud.last_name) as username,ud.role_id,ud.email_id,ud.location_id,ud.user_id,\r\n"
+			+ "			case when reply.count is null then 0 else reply.count end from comment_details cd\r\n"
+			+ "			left join (select count(*),comment_parent_id from comment_details comd \r\n"
+			+ "			inner join user_details uud on uud.user_id = comd.user_id and uud.active_flag = true\r\n"
+			+ "			where comd.active_flag = true group by comment_parent_id)reply on reply.comment_parent_id = cd.comment_id\r\n"
+			+ "			inner join user_details ud on ud.user_id = cd.user_id and ud.active_flag = true\r\n"
+			+ "			where cd.post_id = :postId and cd.active_flag=true",nativeQuery = true)
 	public List<Object[]> postCommentList(Long postId);
 
 	@Query(value = "with recursive comment_data as(select comd.comment_id,comd.comment_desc,comd.post_id,\r\n"
