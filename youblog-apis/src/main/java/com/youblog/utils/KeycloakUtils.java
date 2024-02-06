@@ -266,7 +266,6 @@ public class KeycloakUtils {
 			return ResponseHandler.response(null, response.getBody(), false);
 		}
 		}catch (HttpClientErrorException.Unauthorized unauthorizedException) {
-			System.out.println(unauthorizedException.getLocalizedMessage());
 			return ResponseHandler.response(null, unauthorizedException.getLocalizedMessage(), false);
 		}
 	}
