@@ -33,7 +33,12 @@ public class CustomInterceptor implements HandlerInterceptor {
 				|| request.getRequestURI().contains("/categorylist")) {
 			return true;
 		}
-		if (request.getHeader("Authorization") != null) {
+		if (request.getMethod().equals("OPTIONS")) {
+			return true;
+		} else if (request.getRequestURI().equals("/captcha/get")
+				|| request.getRequestURI().equals("/captcha/validate")) {
+			return true;
+		} else if (request.getHeader("Authorization") != null) {
 			String accessToken = request.getHeader("Authorization").substring(6);
 			ResponseEntity<Map<String, Object>> validation = keycloakUtils.keycloakAuthorizeUser(accessToken);
 			if (Boolean.valueOf(validation.getBody().get("status").toString())) {
