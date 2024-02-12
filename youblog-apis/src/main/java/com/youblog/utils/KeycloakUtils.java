@@ -249,11 +249,13 @@ public class KeycloakUtils {
 	}
 
 	public ResponseEntity<Map<String, Object>> keycloakAuthorizeUser(String token) {
+		System.out.println("inside keycloak authorize user method..");
 		final String keycloakUrl = keyValue.getAuthServerUrl() + "/realms/" + keyValue.getYtclonerealm()
 				+ "/protocol/openid-connect/userinfo";
-
-		HttpHeaders headers = new HttpHeaders();
-		headers.set(AUTHORIZATION, BEARER +token);
+		System.out.println(keycloakUrl);
+		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
+		headers.add("Content-Type", "application/json");
+		headers.add("Authorization", "Bearer " + token);
 		HttpEntity<UserDTO> request = new HttpEntity<>(headers);
 		try {
 		ResponseEntity<String> response = restTemplate.exchange(keycloakUrl, HttpMethod.GET, request, String.class);

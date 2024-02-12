@@ -43,4 +43,7 @@ public class PlanDetailsEntity {
 	
 	@Column(name="gym_type_id")
 	private Long gymTypeId;
+	
+	@Column(name="features")
+	private String features;
 }
