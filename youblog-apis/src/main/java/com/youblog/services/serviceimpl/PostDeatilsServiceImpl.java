@@ -482,9 +482,8 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			subResponse.put("parentCommentId", data[3] != null ? data[3] : "");
 			subResponse.put("commentedOn", data[5] != null ? data[5].toString() : "");
 			response.append("commentList", subResponse);
-			response.append("postLikesDetails", subResponse);
 		});
-		return ResponseHandler.response(response.toMap(), "Like Details Fetched Successfully", true);
+		return ResponseHandler.response(response.toMap(), "Comment Details Fetched Successfully", true);
 	}
 
 	@Override
