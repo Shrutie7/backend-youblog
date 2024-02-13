@@ -12,11 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.youblog.services.CaptchaService;
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 78bd50b183d0ba0cd28832d3703df934fb711ffb
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/captcha")

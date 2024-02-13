@@ -249,13 +249,11 @@ public class KeycloakUtils {
 	}
 
 	public ResponseEntity<Map<String, Object>> keycloakAuthorizeUser(String token) {
-		System.out.println("inside keycloak authorize user method..");
 		final String keycloakUrl = keyValue.getAuthServerUrl() + "/realms/" + keyValue.getYtclonerealm()
 				+ "/protocol/openid-connect/userinfo";
-		System.out.println(keycloakUrl);
-		MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-		headers.add("Content-Type", "application/json");
-		headers.add("Authorization", "Bearer " + token);
+
+		HttpHeaders headers = new HttpHeaders();
+		headers.set(AUTHORIZATION, BEARER +token);
 		HttpEntity<UserDTO> request = new HttpEntity<>(headers);
 		System.out.println(keycloakUrl);
 		try {
@@ -269,11 +267,8 @@ public class KeycloakUtils {
 			return ResponseHandler.response(null, response.getBody(), false);
 		}
 		}catch (HttpClientErrorException.Unauthorized unauthorizedException) {
-<<<<<<< HEAD
-=======
 			unauthorizedException.printStackTrace();
 			log.info(unauthorizedException.getMessage());
->>>>>>> 78bd50b183d0ba0cd28832d3703df934fb711ffb
 			return ResponseHandler.response(null, unauthorizedException.getLocalizedMessage(), false);
 		}
 	}
