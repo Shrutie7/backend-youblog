@@ -257,6 +257,7 @@ public class KeycloakUtils {
 		headers.add("Content-Type", "application/json");
 		headers.add("Authorization", "Bearer " + token);
 		HttpEntity<UserDTO> request = new HttpEntity<>(headers);
+		System.out.println(keycloakUrl);
 		try {
 		ResponseEntity<String> response = restTemplate.exchange(keycloakUrl, HttpMethod.GET, request, String.class);
 
@@ -268,6 +269,11 @@ public class KeycloakUtils {
 			return ResponseHandler.response(null, response.getBody(), false);
 		}
 		}catch (HttpClientErrorException.Unauthorized unauthorizedException) {
+<<<<<<< HEAD
+=======
+			unauthorizedException.printStackTrace();
+			log.info(unauthorizedException.getMessage());
+>>>>>>> 78bd50b183d0ba0cd28832d3703df934fb711ffb
 			return ResponseHandler.response(null, unauthorizedException.getLocalizedMessage(), false);
 		}
 	}

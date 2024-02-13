@@ -26,7 +26,7 @@ public interface PostDetailsRepository extends JpaRepository<PostDetailsEntity, 
 			+ "on bookmarkStatus.post_id = pd.post_id and bookmarkStatus.user_id = :userId\r\n"
 			+ "left join (select cd.post_id,count(*) as commCount from comment_details cd \r\n"
 			+ "inner join user_details ud on ud.user_id = cd.user_id and ud.active_flag = true\r\n"
-			+ "where cd.post_id = 1 and cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
+			+ "where cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
 			+ "where pd.active_flag = true and pd.archive_flag= false and :categoryId = any(pd.category_id) and pd.user_id in \r\n"
 			+ "(with recursive userids as (select user_id,parent_user_id,gym_id,role_id from user_details \r\n"
 			+ " where gym_id = (select ud.gym_id from user_details ud where ud.user_id = :userId) and active_flag=true  union all \r\n"
@@ -51,7 +51,7 @@ public interface PostDetailsRepository extends JpaRepository<PostDetailsEntity, 
 			+ "			on bookmarkStatus.post_id = pd.post_id and bookmarkStatus.user_id = :userId\r\n"
 			+ "			left join (select cd.post_id,count(*) as commCount from comment_details cd \r\n"
 			+ "			inner join user_details ud on ud.user_id = cd.user_id and ud.active_flag = true\r\n"
-			+ "			where cd.post_id = 1 and cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
+			+ "			where cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
 			+ "			where pd.active_flag = true and pd.archive_flag= false and pd.user_id in \r\n"
 			+ "			(with recursive userids as (select user_id,parent_user_id,gym_id,role_id from user_details \r\n"
 			+ "			 where gym_id = (select ud.gym_id from user_details ud where ud.user_id = :userId) and active_flag=true  union all \r\n"
@@ -76,7 +76,7 @@ public interface PostDetailsRepository extends JpaRepository<PostDetailsEntity, 
 			+ "			on bookmarkStatus.post_id = pd.post_id and bookmarkStatus.user_id = :userId\r\n"
 			+ "			left join (select cd.post_id,count(*) as commCount from comment_details cd \r\n"
 			+ "			inner join user_details ud on ud.user_id = cd.user_id and ud.active_flag = true\r\n"
-			+ "			where cd.post_id = 1 and cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
+			+ "			where cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
 			+ "			where pd.active_flag = true and pd.archive_flag= false and :categoryId = any(pd.category_id) and (pd.user_id in \r\n"
 			+ "(select user_id from user_details ud where ud.gym_id = \r\n"
 			+ "(select gym_id from gym_details gd where owner_id = :userId limit 1)\r\n"
@@ -99,7 +99,7 @@ public interface PostDetailsRepository extends JpaRepository<PostDetailsEntity, 
 			+ "			on bookmarkStatus.post_id = pd.post_id and bookmarkStatus.user_id = :userId\r\n"
 			+ "left join (select cd.post_id,count(*) as commCount from comment_details cd \r\n"
 			+ "			inner join user_details ud on ud.user_id = cd.user_id and ud.active_flag = true\r\n"
-			+ "			where cd.post_id = 1 and cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
+			+ "			where cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
 			+ "			where pd.active_flag = true and pd.archive_flag= false and (pd.user_id in \r\n"
 			+ "(select user_id from user_details ud where ud.gym_id = \r\n"
 			+ "(select gym_id from gym_details gd where owner_id = :userId limit 1)\r\n"
@@ -122,7 +122,7 @@ public interface PostDetailsRepository extends JpaRepository<PostDetailsEntity, 
 			+ "			on bookmarkStatus.post_id = pd.post_id and bookmarkStatus.user_id = :userId\r\n"
 			+ "			left join (select cd.post_id,count(*) as commCount from comment_details cd \r\n"
 			+ "			inner join user_details ud on ud.user_id = cd.user_id and ud.active_flag = true\r\n"
-			+ "			where cd.post_id = 1 and cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
+			+ "			where cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
 			+ "			where pd.post_id = :postId",nativeQuery = true)
 	public List<Object[]> getPostDetails(Long postId,Long userId);
 	
@@ -142,7 +142,7 @@ public interface PostDetailsRepository extends JpaRepository<PostDetailsEntity, 
 			+ "			on bookmarkStatus.post_id = pd.post_id and bookmarkStatus.user_id = :userId\r\n"
 			+ "			left join (select cd.post_id,count(*) as commCount from comment_details cd \r\n"
 			+ "			inner join user_details ud on ud.user_id = cd.user_id and ud.active_flag = true\r\n"
-			+ "			where cd.post_id = 1 and cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
+			+ "			where cd.active_flag = true group by cd.post_id) commentCount on commentCount.post_id = pd.post_id\r\n"
 			+ "			where pd.user_id = :userId and pd.active_flag = true and pd.archive_flag = :archiveFlag",nativeQuery = true)
 	public List<Object[]> postListBasedOnUser(Long userId,Boolean archiveFlag);
 	
