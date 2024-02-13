@@ -17,5 +17,5 @@ public class PlanCreateRequest {
 	private Long gymTypeId;
 	private Long planDuration;
 	private Integer[] categoryId;	
-
+	private String features;
 }

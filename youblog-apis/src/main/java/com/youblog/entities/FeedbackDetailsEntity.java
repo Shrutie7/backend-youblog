@@ -29,7 +29,7 @@ public Long feedbackId;
 public Long userId;
 
 @Column(name="rating")
-public Long rating;
+public Double rating;
 
 @Column(name="trainer_user_id")
 public Long trainerUserId;

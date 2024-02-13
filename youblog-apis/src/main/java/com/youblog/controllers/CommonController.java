@@ -20,7 +20,6 @@ import com.youblog.payloads.PlanCreateRequest;
 import com.youblog.payloads.PlanDeleteRequest;
 import com.youblog.payloads.PlanEditRequest;
 import com.youblog.payloads.PlanListRequest;
-import com.youblog.payloads.PlanPurchaseRequest;
 import com.youblog.services.CategoryDetailsService;
 import com.youblog.services.FeedbackService;
 import com.youblog.services.GymDetailsService;

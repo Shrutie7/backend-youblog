@@ -80,14 +80,17 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		} catch (Exception e) {
 			return ResponseHandler.response(null, "please provide valid request", false);
 		}
-		BasicDBObject metaData = new BasicDBObject();
-		metaData.put("title", request.get("title").toString());
 		ObjectId id = null;
-		try {
-			id = gridFsTemplate.store(postMedia.getInputStream(),
-					request.get("title").toString() + Date.from(Instant.now()), postMedia.getContentType(), metaData);
-		} catch (Exception e) {
-			return ResponseHandler.response("Cause : " + e.getLocalizedMessage(), "Failed to Create Post.", false);
+		if (!postMedia.isEmpty()) {
+			BasicDBObject metaData = new BasicDBObject();
+			metaData.put("title", request.get("title").toString());
+			try {
+				id = gridFsTemplate.store(postMedia.getInputStream(),
+						request.get("title").toString() + Date.from(Instant.now()), postMedia.getContentType(),
+						metaData);
+			} catch (Exception e) {
+				return ResponseHandler.response("Cause : " + e.getLocalizedMessage(), "Failed to Create Post.", false);
+			}
 		}
 		try {
 			PostDetailsEntity postDetailsEntity = new PostDetailsEntity();
@@ -106,7 +109,9 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			postDetailsEntity.setUpdatedDate(Date.from(Instant.now()));
 			postDetailsEntity.setUpdatedUserId(Long.valueOf(request.get("userId").toString()));
 			postDetailsEntity.setArchiveFlag(false);
-			postDetailsEntity.setContent(id.toString());
+			if (id != null) {
+				postDetailsEntity.setContent(id.toString());
+			}
 			postDetailsEntity.setTitle(request.get("title").toString());
 			postDetailsRepository.save(postDetailsEntity);
 			return ResponseHandler.response(null, "Post Created Successfully", true);
@@ -190,6 +195,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		subResponse.put("likesCount", data[20] != null ? data[20] : 0);
 		subResponse.put("likeStatus", data[21] != null ? data[21] : false);
 		subResponse.put("bookmarkStatus", data[22] != null ? data[22] : false);
+		subResponse.put("commentsCount", data[23] != null ? data[23] : false);
 		return subResponse.toMap();
 	}
 
@@ -201,8 +207,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 	}
 
 	@Override
-	public void downloadMedia(String id, HttpServletResponse response)
-			throws IOException {
+	public void downloadMedia(String id, HttpServletResponse response) throws IOException {
 		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(id)));
 		response.setContentType(file.getMetadata().getString("_contentType").split("/")[1]);
 		response.setHeader("Content-Disposition", "attachment; filename=" + file.getMetadata().getString("title") + "."
@@ -242,6 +247,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		postDetailsEntity.setDecription(updatePostDetailsRequest.getDescription());
 		postDetailsEntity.setUpdatedUserId(updatePostDetailsRequest.getUserId());
 		if (updatePostDetailsRequest.getArchiveFlag() != null) {
+			System.out.println(updatePostDetailsRequest.getArchiveFlag());
 			postDetailsEntity.setArchiveFlag(updatePostDetailsRequest.getArchiveFlag());
 		}
 		if (updatePostDetailsRequest.getActiveFlag() != null) {
@@ -443,6 +449,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			subResponse.put("commentedUserData", userResponse);
 			subResponse.put("comment", data[1] != null ? data[1].toString() : "");
 			subResponse.put("commentedOn", data[2] != null ? data[2].toString() : "");
+			subResponse.put("replyCount",data[8]!=null?data[8]:0);
 			response.append("commentList", subResponse);
 		});
 		return ResponseHandler.response(response.toMap(), "Comment Details Fetched Successfully", true);
@@ -454,7 +461,8 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		if (postCommentReplyListRequest.getCommentId() == null) {
 			return ResponseHandler.response(null, "Please Provide Comment Id", false);
 		}
-		List<Object[]> postCommentList = commentDetailsRepository.getPostCommentReplyList(postCommentReplyListRequest.getCommentId());
+		List<Object[]> postCommentList = commentDetailsRepository
+				.getPostCommentReplyList(postCommentReplyListRequest.getCommentId());
 		if (postCommentList.size() == 0) {
 			return ResponseHandler.response(null, "Comment Reply List Not Found", false);
 		}
@@ -472,12 +480,11 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			}
 			subResponse.put("commentedUserData", userResponse);
 			subResponse.put("comment", data[1] != null ? data[1].toString() : "");
-			subResponse.put("parentCommentId", data[3]!=null?data[3]:"");
+			subResponse.put("parentCommentId", data[3] != null ? data[3] : "");
 			subResponse.put("commentedOn", data[5] != null ? data[5].toString() : "");
 			response.append("commentList", subResponse);
-			response.append("postLikesDetails", subResponse);
 		});
-		return ResponseHandler.response(response.toMap(), "Like Details Fetched Successfully", true);
+		return ResponseHandler.response(response.toMap(), "Comment Details Fetched Successfully", true);
 	}
 
 	@Override
@@ -502,7 +509,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> postCommentDelete(PostCommentReplyListRequest postCommentDeleteRequest) {
-		if(postCommentDeleteRequest.getCommentId()==null) {
+		if (postCommentDeleteRequest.getCommentId() == null) {
 			return ResponseHandler.response(null, "Please Provide Comment Id", false);
 		}
 		CommentDetailsEntity comment = commentDetailsRepository
