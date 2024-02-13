@@ -1,7 +1,11 @@
 package com.youblog.services.serviceimpl;
 
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +28,10 @@ import com.youblog.utils.ResponseHandler;
 public class PlanDetailsServiceImpl implements PlanDetailsService {
 
 	@Autowired
-	PlanDetailsRepository planDetailsRepository;
+	PlanDetailsRepository plandetailsrepo;
 
 	@Autowired
-	UserDetailsRepository userDetailsRepository;
+	UserDetailsRepository userdetailsrepo;
 
 	@Override
 	public ResponseEntity<Map<String, Object>> createPlan(PlanCreateRequest planCreateRequest) {
@@ -40,7 +44,8 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 		plan.setGymTypeId(planCreateRequest.getGymTypeId());
 		plan.setCategoryId(planCreateRequest.getCategoryId());
 		plan.setActiveFlag(true);
-		planDetailsRepository.save(plan);
+		plan.setFeatures(planCreateRequest.getFeatures());
+		plandetailsrepo.save(plan);
 
 		return ResponseHandler.response(null, "Plan created successfully", true);
 
@@ -50,7 +55,7 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 	public ResponseEntity<Map<String, Object>> planList(PlanListRequest planListRequest) {
 
 		if (planListRequest.getGymTypeId() != null) {
-			ArrayList<Object[]> getplanlist = planDetailsRepository.getPlanList(planListRequest.getGymTypeId());
+			ArrayList<Object[]> getplanlist = plandetailsrepo.getplanlist(planListRequest.getGymTypeId());
 			ArrayList<Map<String, Object>> planList = new ArrayList<>();
 
 			Map<String, Object> ListOfPlan = new HashMap<>();
@@ -67,9 +72,25 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 					res.put("planDuration", ele[2].toString() != null ? ele[2].toString() : "");
 					res.put("planPrice", ele[3].toString() != null ? ele[3].toString() : "");
 					res.put("planDescription", ele[4].toString() != null ? ele[4].toString() : "N/A");
+					String[] features = null;
+					
+					if(ele[5]!=null) {
+						features = ele[5].toString().split(".-.");
+
+					}
+					List<Map<String,Object>> featuresarr = new ArrayList<>();
+					if(features!=null) {
+						for(int i =0 ; i<features.length; i++) {
+							Map<String, Object> hm = new HashMap<>();
+							hm.put("features", features[i]);
+							featuresarr.add(hm);
+						}
+					}
+				
+					res.put("listOfFeatures", featuresarr);
 					planList.add(res);
 				});
-				ListOfPlan.put("ListOfPlans", planList);
+				ListOfPlan.put("ListOfPlans", planList); 	
 				return ResponseHandler.response(ListOfPlan, "plan list found", true);
 			}
 		} else {
@@ -83,10 +104,10 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 
 		if (planEditRequest.getPlanId() != null) {
 
-//			Long checkuserplanmap =  planDetailsRepository.checkuserplanmapping(planEditRequest.getPlanId());
+			Boolean checkuserplanmap =  plandetailsrepo.checkuserplanmapping(planEditRequest.getPlanId());
 
-//			if(checkuserplanmap != null ) {
-			PlanDetailsEntity getplandetails = planDetailsRepository.editPlan(planEditRequest.getPlanId());
+			if(!checkuserplanmap) {
+			PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(planEditRequest.getPlanId());
 
 			if (getplandetails == null) {
 				return ResponseHandler.response(null, "plan cannot be edited", false);
@@ -97,15 +118,15 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 				getplandetails.setPlanDuration(planEditRequest.getPlanDuration());
 				getplandetails.setPlanPrice(planEditRequest.getPlanPrice());
 				getplandetails.setCategoryId(planEditRequest.getCategoryId());
-
-				planDetailsRepository.save(getplandetails);
+				getplandetails.setFeatures(planEditRequest.getFeatures());
+				plandetailsrepo.save(getplandetails);
 
 				return ResponseHandler.response(null, "plan updated successfully", true);
 			}
-//			}
-//			else {
-//				return ResponseHandler.response(null,"Plan cannot be updated since already mapped to some user", false);
-//			}
+			}
+			else {
+				return ResponseHandler.response(null,"Plan cannot be updated since already mapped to some user", false);
+			}
 
 		}
 
@@ -120,10 +141,10 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 
 		if (planDeleteRequest.getPlanId() != null) {
 
-//			Long checkuserplanmap =  planDetailsRepository.checkuserplanmapping(planDeleteRequest.getPlanId());
-//			System.out.println(checkuserplanmap);
-//			if(checkuserplanmap != null ) {
-			PlanDetailsEntity getplandetails = planDetailsRepository.deletePlan(planDeleteRequest.getPlanId());
+			Boolean checkuserplanmap =  plandetailsrepo.checkuserplanmapping(planDeleteRequest.getPlanId());
+
+			if(!checkuserplanmap) {
+			PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(planDeleteRequest.getPlanId());
 
 			if (getplandetails == null) {
 				return ResponseHandler.response(null, "plan cannot be deleted", false);
@@ -131,14 +152,14 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 			} else {
 
 				getplandetails.setActiveFlag(false);
-				planDetailsRepository.save(getplandetails);
+				plandetailsrepo.save(getplandetails);
 
 				return ResponseHandler.response(null, "plan deleted successfully", true);
 			}
-//			}
-//			else {
-//				return ResponseHandler.response(null,"Plan cannot be deleted since already mapped to some user", false);
-//			}
+			}
+			else {
+				return ResponseHandler.response(null,"Plan cannot be deleted since already mapped to some user", false);
+			}
 
 		}
 
@@ -153,7 +174,7 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 
 		if (planGetRequest.getPlanId() != null) {
 
-			ArrayList<Object[]> getdetails = planDetailsRepository.getPlan(planGetRequest.getPlanId());
+			ArrayList<Object[]> getdetails = plandetailsrepo.getplan(planGetRequest.getPlanId());
 
 			if (getdetails != null) {
 
@@ -165,7 +186,10 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 					hm.put("planDescription", ele[3].toString() != null ? ele[3].toString() : "N/A");
 					hm.put("categoryId", ele[4]);
 					hm.put("gymTypeId", ele[5].toString() != null ? ele[5].toString() : "N/A");
+					String[] features = ele[5].toString().split(":)");
+					hm.put("features", features.toString() != null ? features.toString() : "N/A");
 				});
+
 				return ResponseHandler.response(hm, "Plan details fetched", true);
 			} else {
 				return ResponseHandler.response(null, "Plan not found for given plan Id", false);
@@ -182,41 +206,35 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 
 		if (planCheckExpiryRequest.getUserId() != null) {
 			Boolean flag = false;
-
-			Object[] getexpirydetails = planDetailsRepository.planExpiryCheck(planCheckExpiryRequest.getUserId());
-
-			System.out.println(getexpirydetails);
-
-			if (getexpirydetails == null) {
-				return ResponseHandler.response(null, "plan expiry check failed", false);
+			for (Object[] getexpirydetails : plandetailsrepo.planexpirycheck(planCheckExpiryRequest.getUserId())) {
+				System.out.println(getexpirydetails);
+				if (getexpirydetails == null) {
+					return ResponseHandler.response(null, "plan expiry check failed", false);
+				}
+				else {
+					Date currentDate = Date.from(Instant.now());
+					Date date = (Date)getexpirydetails[0];
+					Calendar cal = new Calendar.Builder().setInstant(date).build();
+					Long duration = Long.parseLong(getexpirydetails[1].toString()) ;
+					cal.add(Calendar.DATE, duration.intValue()-1);
+					date = cal.getTime();
+					flag = date.compareTo(currentDate)<0;
+					
+					// Add the duration to the plan purchased date
+					/*
+					 * LocalDate newDate = currentDate.plusMonths(duration); DateTimeFormatter
+					 * formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+					 * System.out.println("Current Date: " + formatter.format(currentDate));
+					 * System.out.println("New Date after adding " + duration + " months: " +
+					 * formatter.format(newDate));
+					 */
+				}
 			}
+			return ResponseHandler.response(flag, "plan expiry check successfull", true);
 
-			else {
-
-//				import java.time.LocalDate;
-//				import java.time.format.DateTimeFormatter;
-//
-//				public class DateCalculator {
-//				    public static void main(String[] args) {
-//				        // Get today's date
-//				        LocalDate currentDate = LocalDate.now();
-//
-//				        // Assuming you have a given month (as an integer)
-//				        int givenMonth = 3;  // Replace this with your desired month
-//
-//				        // Add the given month to the current date
-//				        LocalDate newDate = currentDate.plusMonths(givenMonth);
-//
-//				        // Display the results
-//				        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-//				        System.out.println("Current Date: " + formatter.format(currentDate));
-//				        System.out.println("New Date after adding " + givenMonth + " months: " + formatter.format(newDate));
-//				    }
-//				}				
-				return ResponseHandler.response(flag, "plan expiry check successfull", true);
-			}
 		} else {
 			return ResponseHandler.response(null, "please provide userId", false);
 		}
 	}
+
 }

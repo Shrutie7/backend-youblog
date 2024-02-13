@@ -23,4 +23,5 @@ public class PlanCreateRequest {
 
 	private Integer[] categoryId;
 
+	private String features;
 }

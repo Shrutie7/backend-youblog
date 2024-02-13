@@ -22,4 +22,6 @@ public class PlanEditRequest {
 	private String planDescription;
 
 	private Integer[] categoryId;
+
+	private String features;
 }

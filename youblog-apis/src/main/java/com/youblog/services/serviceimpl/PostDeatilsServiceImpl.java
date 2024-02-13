@@ -247,6 +247,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		postDetailsEntity.setDecription(updatePostDetailsRequest.getDescription());
 		postDetailsEntity.setUpdatedUserId(updatePostDetailsRequest.getUserId());
 		if (updatePostDetailsRequest.getArchiveFlag() != null) {
+			System.out.println(updatePostDetailsRequest.getArchiveFlag());
 			postDetailsEntity.setArchiveFlag(updatePostDetailsRequest.getArchiveFlag());
 		}
 		if (updatePostDetailsRequest.getActiveFlag() != null) {
