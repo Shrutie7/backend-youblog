@@ -1,4 +1,5 @@
 package com.youblog.entities;
+
 import java.util.Date;
 
 import jakarta.persistence.Column;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,8 +20,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "COMMENT_DETAILS")
 
-
-public class CommentDetailsEntity { 
+public class CommentDetailsEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,4 +45,4 @@ public class CommentDetailsEntity {
 	@Column(name = "COMMENTED_DATE")
 	private Date commentedDate;
 
-	}
+}

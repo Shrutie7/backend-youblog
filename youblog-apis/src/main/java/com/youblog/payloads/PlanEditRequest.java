@@ -11,11 +11,15 @@ import lombok.ToString;
 @ToString
 public class PlanEditRequest {
 
-	
-    private Long planId;
-    private String planName;
-    private Long planDuration;
-    private Long planPrice;
-    private String planDescription;
-    private Integer[] categoryId;
+	private Long planId;
+
+	private String planName;
+
+	private Long planDuration;
+
+	private Long planPrice;
+
+	private String planDescription;
+
+	private Integer[] categoryId;
 }

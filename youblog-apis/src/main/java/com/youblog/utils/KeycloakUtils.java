@@ -253,20 +253,20 @@ public class KeycloakUtils {
 				+ "/protocol/openid-connect/userinfo";
 
 		HttpHeaders headers = new HttpHeaders();
-		headers.set(AUTHORIZATION, BEARER +token);
+		headers.set(AUTHORIZATION, BEARER + token);
 		HttpEntity<UserDTO> request = new HttpEntity<>(headers);
 		System.out.println(keycloakUrl);
 		try {
-		ResponseEntity<String> response = restTemplate.exchange(keycloakUrl, HttpMethod.GET, request, String.class);
+			ResponseEntity<String> response = restTemplate.exchange(keycloakUrl, HttpMethod.GET, request, String.class);
 
-		if (response.getStatusCode().is2xxSuccessful()) {
-			log.info("Authorization Successful");
-			return ResponseHandler.response(null, "Authorized successfully", true);
-		} else {
-			log.info("Failed to authorize user. Response: " + response.getBody());
-			return ResponseHandler.response(null, response.getBody(), false);
-		}
-		}catch (HttpClientErrorException.Unauthorized unauthorizedException) {
+			if (response.getStatusCode().is2xxSuccessful()) {
+				log.info("Authorization Successful");
+				return ResponseHandler.response(null, "Authorized successfully", true);
+			} else {
+				log.info("Failed to authorize user. Response: " + response.getBody());
+				return ResponseHandler.response(null, response.getBody(), false);
+			}
+		} catch (HttpClientErrorException.Unauthorized unauthorizedException) {
 			unauthorizedException.printStackTrace();
 			log.info(unauthorizedException.getMessage());
 			return ResponseHandler.response(null, unauthorizedException.getLocalizedMessage(), false);

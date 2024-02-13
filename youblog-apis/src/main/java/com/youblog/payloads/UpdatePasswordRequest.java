@@ -10,9 +10,14 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class UpdatePasswordRequest {
+
 	private Long userId;
+
 	private String emailId;
+
 	private String currentPassword;
+
 	private String newPassword;
+
 	private String confirmNewPassword;
 }

@@ -19,25 +19,24 @@ import cn.apiclub.captcha.backgrounds.FlatColorBackgroundProducer;
 import cn.apiclub.captcha.gimpy.RippleGimpyRenderer;
 import cn.apiclub.captcha.noise.CurvedLineNoiseProducer;
 import lombok.extern.slf4j.Slf4j;
+
 @Component
 @Slf4j
 public class CaptchaUtilities {
-	
+
 	public static final int CAPTCHA_WIDTH = 230;
 	public static final int CAPTCHA_HEIGHT = 115;
 	private SecureRandom random = new SecureRandom();
 	private Map<String, String> captcha = new HashMap<>();
-	
-	
+
 	private String nextCaptchId() {
 		return new BigInteger(125, random).toString();
 	}
-	
+
 	public String[] generateCaptchaImage() {
 		Captcha captcha = new Captcha.Builder(CAPTCHA_WIDTH, CAPTCHA_HEIGHT).addText()
 				.addBackground(new FlatColorBackgroundProducer())
-				.addNoise(new CurvedLineNoiseProducer(Color.CYAN, 6.0f))
-				.gimp(new RippleGimpyRenderer()).addBorder()
+				.addNoise(new CurvedLineNoiseProducer(Color.CYAN, 6.0f)).gimp(new RippleGimpyRenderer()).addBorder()
 				.build();
 		String captchaPngImage = null;
 		ByteArrayOutputStream byteArray = new ByteArrayOutputStream();

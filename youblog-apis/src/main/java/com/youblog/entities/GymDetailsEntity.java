@@ -18,24 +18,24 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class GymDetailsEntity {
-	
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="gym_id")
-	private Long gym_id;
-	
-	@Column(name="gym_name")
-	private String gym_name;
-	
-	@Column(name="location_id")
-	private Long location_id;
-	
-	@Column(name="owner_id")
-	private Long owner_id;
-	
-	@Column(name="gym_address")
-	private String gym_address;
+	@Column(name = "gym_id")
+	private Long gymId;
 
-	@Column(name="contact")
+	@Column(name = "gym_name")
+	private String gymName;
+
+	@Column(name = "location_id")
+	private Long locationId;
+
+	@Column(name = "owner_id")
+	private Long ownerId;
+
+	@Column(name = "gym_address")
+	private String gymAddress;
+
+	@Column(name = "contact")
 	private String contact;
 }

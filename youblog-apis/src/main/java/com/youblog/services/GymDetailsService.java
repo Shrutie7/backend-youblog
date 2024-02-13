@@ -8,5 +8,5 @@ import com.youblog.payloads.GymCreateRequest;
 
 public interface GymDetailsService {
 
-	public ResponseEntity<Map<String, Object>> creategym(GymCreateRequest usrequest);
+	public ResponseEntity<Map<String, Object>> createGym(GymCreateRequest gymCreateRequest);
 }

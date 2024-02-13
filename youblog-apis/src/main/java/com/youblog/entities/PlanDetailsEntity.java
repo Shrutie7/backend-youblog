@@ -20,27 +20,27 @@ import lombok.ToString;
 public class PlanDetailsEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="plan_id")
+	@Column(name = "plan_id")
 	private Long planId;
-	
-	@Column(name="plan_name")
+
+	@Column(name = "plan_name")
 	private String planName;
-	
-	@Column(name="plan_price")
+
+	@Column(name = "plan_price")
 	private Long planPrice;
-	
-	@Column(name="plan_description")
+
+	@Column(name = "plan_description")
 	private String planDescription;
-	
-	@Column(name="category_id")
+
+	@Column(name = "category_id")
 	private Integer[] categoryId;
-	
-	@Column(name="plan_duration")
+
+	@Column(name = "plan_duration")
 	private Long planDuration;
-	
-	@Column(name="active_flag")
+
+	@Column(name = "active_flag")
 	private Boolean activeFlag;
-	
-	@Column(name="gym_type_id")
+
+	@Column(name = "gym_type_id")
 	private Long gymTypeId;
 }

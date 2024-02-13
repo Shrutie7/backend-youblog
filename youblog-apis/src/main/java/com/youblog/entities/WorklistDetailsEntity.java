@@ -4,7 +4,6 @@ import java.util.Date;
 import java.util.Map;
 
 import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.annotations.Type;
 import org.hibernate.type.SqlTypes;
 
 import jakarta.persistence.Column;
@@ -17,13 +16,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 @Entity
 @Table(name = "WORKLIST_DETAILS")
-public class WorklistDetailsEntity { 
+public class WorklistDetailsEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +41,7 @@ public class WorklistDetailsEntity {
 
 	@Column(name = "INITIATED_DATA")
 	@JdbcTypeCode(SqlTypes.JSON)
-	private Map<String,Object> initiatedData;
+	private Map<String, Object> initiatedData;
 
 	@Column(name = "INITIATED_DATE")
 	private Date initiatedDate;
@@ -52,4 +52,4 @@ public class WorklistDetailsEntity {
 	@Column(name = "ACTED_DATE")
 	private Date actedDate;
 
-	}
+}

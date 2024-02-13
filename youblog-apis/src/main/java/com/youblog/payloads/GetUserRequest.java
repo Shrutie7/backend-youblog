@@ -11,6 +11,6 @@ import lombok.ToString;
 @ToString
 public class GetUserRequest {
 
-	
 	private String emailId;
+	
 }

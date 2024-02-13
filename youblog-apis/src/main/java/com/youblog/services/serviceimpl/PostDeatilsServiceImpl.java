@@ -448,7 +448,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			subResponse.put("commentedUserData", userResponse);
 			subResponse.put("comment", data[1] != null ? data[1].toString() : "");
 			subResponse.put("commentedOn", data[2] != null ? data[2].toString() : "");
-			subResponse.put("replyCount",data[8]!=null?data[8]:0);
+			subResponse.put("replyCount", data[8] != null ? data[8] : 0);
 			response.append("commentList", subResponse);
 		});
 		return ResponseHandler.response(response.toMap(), "Comment Details Fetched Successfully", true);

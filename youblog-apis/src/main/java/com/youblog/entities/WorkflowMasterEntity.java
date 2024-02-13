@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -17,8 +18,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "WORKFLOW_MASTER")
 
-
-public class WorkflowMasterEntity { 
+public class WorkflowMasterEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,4 +34,4 @@ public class WorkflowMasterEntity {
 	@Column(name = "ACTION_ROLE_ID")
 	private Long actionRoleId;
 
-	}
+}

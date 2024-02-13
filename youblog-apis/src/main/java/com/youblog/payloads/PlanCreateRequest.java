@@ -10,12 +10,17 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class PlanCreateRequest {
-	
+
 	private String planName;
+
 	private Long planPrice;
+
 	private String planDescription;
+
 	private Long gymTypeId;
+
 	private Long planDuration;
-	private Integer[] categoryId;	
+
+	private Integer[] categoryId;
 
 }

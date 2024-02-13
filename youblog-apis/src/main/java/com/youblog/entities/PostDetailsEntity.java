@@ -1,4 +1,5 @@
 package com.youblog.entities;
+
 import java.util.Date;
 
 import jakarta.persistence.Column;
@@ -11,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -18,8 +20,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "POST_DETAILS")
 
-
-public class PostDetailsEntity { 
+public class PostDetailsEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,19 +44,19 @@ public class PostDetailsEntity {
 
 	@Column(name = "DECRIPTION")
 	private String decription;
-	
+
 	@Column(name = "ACTIVE_FLAG")
 	private Boolean activeFlag;
 
 	@Column(name = "ARCHIVE_FLAG")
 	private Boolean archiveFlag;
-	
+
 	@Column(name = "UPDATED_DATE")
 	private Date updatedDate;
-	
+
 	@Column(name = "UPDATED_USER_ID")
 	private Long updatedUserId;
-	
+
 	@Column(name = "REMARKS")
 	private String remarks;
 

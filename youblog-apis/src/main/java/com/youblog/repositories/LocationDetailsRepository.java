@@ -7,15 +7,15 @@ import org.springframework.data.jpa.repository.Query;
 
 import com.youblog.entities.LocationDetailsEntity;
 
-public interface LocationDetailsRepository extends JpaRepository<LocationDetailsEntity, Long>{
-	
-	@Query(value="select location_id,location_name from location_details where state = :state and city=:city",nativeQuery = true)
-	public ArrayList<Object[]>getlocationaddress (String state,String city);
+public interface LocationDetailsRepository extends JpaRepository<LocationDetailsEntity, Long> {
 
-	@Query(value="select distinct city from location_details where state = :state",nativeQuery = true)
-	public ArrayList<Object[]> getcitylist(String state);
-	
-	@Query(value="select distinct state from location_details;",nativeQuery = true)
-	public ArrayList<Object[]> getstatelist();
-	
+	@Query(value = "select location_id,location_name from location_details where state = :state and city=:city", nativeQuery = true)
+	public ArrayList<Object[]> getLocationAddress(String state, String city);
+
+	@Query(value = "select distinct city from location_details where state = :state", nativeQuery = true)
+	public ArrayList<Object[]> getCityList(String state);
+
+	@Query(value = "select distinct state from location_details;", nativeQuery = true)
+	public ArrayList<Object[]> getStateList();
+
 }

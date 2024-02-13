@@ -12,14 +12,17 @@ import lombok.ToString;
 public class GymCreateRequest {
 
 	private String gymName;
+	
 	private String doorNo;
+	
 	private String streetLane;
+	
 	private String pincode;
+	
 	private String contact;
+	
 	private Long locationId;
+	
 	private Long ownerId;
-	
-	
-	
-	
+
 }

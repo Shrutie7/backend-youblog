@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,8 +20,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "POST_SAVE_DETAILS")
 
-
-public class PostSaveDetailsEntity { 
+public class PostSaveDetailsEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +39,4 @@ public class PostSaveDetailsEntity {
 	@Column(name = "POST_SAVED_DATE")
 	private Date postSavedDate;
 
-	}
+}

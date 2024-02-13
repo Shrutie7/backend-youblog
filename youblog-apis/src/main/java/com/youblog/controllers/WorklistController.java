@@ -16,26 +16,27 @@ import com.youblog.payloads.GetWorklistDetails;
 import com.youblog.payloads.WorklistCreateRequest;
 import com.youblog.payloads.WorklistUpdateRequest;
 import com.youblog.services.WorklistService;
+
 @CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/worklist")
 public class WorklistController {
-	
+
 	@Autowired
 	private WorklistService worklistService;
-	
+
 	@PostMapping("/initiate")
 	public ResponseEntity<Map<String, Object>> initiateWorkList(
 			@RequestBody WorklistCreateRequest worklistCreateRequest) {
 		return worklistService.initiateWorkList(worklistCreateRequest);
 	}
-	
+
 	@PostMapping("/update")
 	public ResponseEntity<Map<String, Object>> updateWorkList(
 			@RequestBody WorklistUpdateRequest worklistUpdateRequest) {
 		return worklistService.updateWorkList(worklistUpdateRequest);
 	}
-	
+
 	@PostMapping("/getDetails")
 	public ResponseEntity<Map<String, Object>> getWorklistData(
 			@RequestBody GetWorklistDataRequest getWorklistDataRequest) {
@@ -48,12 +49,14 @@ public class WorklistController {
 	}
 
 	@GetMapping("/completed")
-	public ResponseEntity<Map<String, Object>> getCompletedWorklist(@RequestBody GetWorklistDetails getWorklistDetails) {
+	public ResponseEntity<Map<String, Object>> getCompletedWorklist(
+			@RequestBody GetWorklistDetails getWorklistDetails) {
 		return worklistService.getCompletedWorklist(getWorklistDetails);
 	}
 
 	@GetMapping("/requested")
-	public ResponseEntity<Map<String, Object>> getRequestedWorklist(@RequestBody GetWorklistDetails getWorklistDetails) {
+	public ResponseEntity<Map<String, Object>> getRequestedWorklist(
+			@RequestBody GetWorklistDetails getWorklistDetails) {
 		return worklistService.getRequestedWorklist(getWorklistDetails);
 	}
 }
