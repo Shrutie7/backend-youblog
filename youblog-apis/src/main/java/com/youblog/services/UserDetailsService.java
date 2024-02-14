@@ -11,22 +11,19 @@ import com.youblog.payloads.UpdatePasswordRequest;
 import com.youblog.payloads.UpdateUserRequest;
 import com.youblog.payloads.UserDetailsRequest;
 
-
 public interface UserDetailsService {
-	
-	
-	public ResponseEntity<Map<String, Object>> createUser(UserDetailsRequest usrequest);
 
-	public ResponseEntity<Map<String, Object>> getUser(GetUserRequest usreq);
-	
-	public ResponseEntity<Map<String, Object>> updateUser(UpdateUserRequest usreq);
-	
-	
-	public ResponseEntity<Map<String, Object>> updateUserPassword(UpdatePasswordRequest usreq);
-	
-	public ResponseEntity<Map<String,Object>> getUserList();
-	
-	public ResponseEntity<Map<String,Object>> getTrainerList(TrainerListRequest usreq);
-	
-	public ResponseEntity<Map<String,Object>> planpurchase(PlanPurchaseRequest usreq);
+	public ResponseEntity<Map<String, Object>> createUser(UserDetailsRequest userDetailsRequest);
+
+	public ResponseEntity<Map<String, Object>> getUser(GetUserRequest getUserRequest);
+
+	public ResponseEntity<Map<String, Object>> updateUser(UpdateUserRequest updateUserRequest);
+
+	public ResponseEntity<Map<String, Object>> updateUserPassword(UpdatePasswordRequest updatePasswordRequest);
+
+	public ResponseEntity<Map<String, Object>> getUserList();
+
+	public ResponseEntity<Map<String, Object>> getTrainerList(TrainerListRequest trainerList);
+
+	public ResponseEntity<Map<String, Object>> planPurchase(PlanPurchaseRequest planPurchaseRequest);
 }

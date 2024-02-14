@@ -24,41 +24,41 @@ import com.youblog.services.UserDetailsService;
 @CrossOrigin(origins = "*")
 public class UserDetailsController {
 	@Autowired
-	private UserDetailsService userdetailsservice;
-	
+	private UserDetailsService userDetailsService;
+
 	@PostMapping("/create")
-	public ResponseEntity<Map<String, Object>> createUser (@RequestBody UserDetailsRequest usreq ) {
-		return userdetailsservice.createUser(usreq);
-
+	public ResponseEntity<Map<String, Object>> createUser(@RequestBody UserDetailsRequest userDetailsRequest) {
+		return userDetailsService.createUser(userDetailsRequest);
 	}
+
 	@PostMapping("/getuser")
-	public ResponseEntity<Map<String, Object>> getUser(@RequestBody GetUserRequest usreq ) {
-		return userdetailsservice.getUser(usreq);
+	public ResponseEntity<Map<String, Object>> getUser(@RequestBody GetUserRequest getUserRequest) {
+		return userDetailsService.getUser(getUserRequest);
+	}
 
-	}
 	@PostMapping("/update")
-	public ResponseEntity<Map <String,Object>> updateUser(@RequestBody UpdateUserRequest usreq){
-		return userdetailsservice.updateUser(usreq);
+	public ResponseEntity<Map<String, Object>> updateUser(@RequestBody UpdateUserRequest updateUserRequest) {
+		return userDetailsService.updateUser(updateUserRequest);
 	}
-	
+
 	@PostMapping("/updatePassword")
-	public ResponseEntity<Map <String,Object>> updatePassword(@RequestBody UpdatePasswordRequest usreq){
-		return userdetailsservice.updateUserPassword(usreq);
+	public ResponseEntity<Map<String, Object>> updatePassword(
+			@RequestBody UpdatePasswordRequest updatePasswordRequest) {
+		return userDetailsService.updateUserPassword(updatePasswordRequest);
 	}
-	
+
 	@GetMapping("/list")
-	public ResponseEntity<Map<String,Object>> userList(){
-		return userdetailsservice.getUserList();
+	public ResponseEntity<Map<String, Object>> getUserList() {
+		return userDetailsService.getUserList();
 	}
-	
+
 	@PostMapping("/trainerlist")
-	public ResponseEntity<Map<String,Object>> trainerList(@RequestBody TrainerListRequest usreq){
-		return userdetailsservice.getTrainerList(usreq);
+	public ResponseEntity<Map<String, Object>> trainerList(@RequestBody TrainerListRequest trainerListRequest) {
+		return userDetailsService.getTrainerList(trainerListRequest);
 	}
-	
-	
+
 	@PostMapping("/plan/purchase")
-	public ResponseEntity<Map<String,Object>> planpurchase(@RequestBody PlanPurchaseRequest usreq){
-		return userdetailsservice.planpurchase(usreq);
+	public ResponseEntity<Map<String, Object>> planPurchase(@RequestBody PlanPurchaseRequest planPurchaseRequest) {
+		return userDetailsService.planPurchase(planPurchaseRequest);
 	}
 }

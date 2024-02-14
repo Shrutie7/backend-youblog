@@ -9,8 +9,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Locationaddressrequest {
+public class GymAddressRequest {
 
-	private String state;
-	private String city;
+	private Long locationId;
+
 }

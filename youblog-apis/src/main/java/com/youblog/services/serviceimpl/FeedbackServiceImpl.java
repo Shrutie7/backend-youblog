@@ -18,23 +18,23 @@ import com.youblog.utils.ResponseHandler;
 @Service
 public class FeedbackServiceImpl implements FeedbackService {
 	@Autowired
-	FeedbackDetailsRepository feedbackdetailsrepo;
+	FeedbackDetailsRepository feedbackDetailsRepository;
 
 	@Override
-	public ResponseEntity<Map<String, Object>> createFeedback(FeedbackCreateRequest usreq) {
+	public ResponseEntity<Map<String, Object>> createFeedback(FeedbackCreateRequest feedbackCreateRequest) {
 
 		FeedbackDetailsEntity use = new FeedbackDetailsEntity();
 
-		System.out.println(usreq.getRating());
-		if (usreq.getRating() != null) {
-			use.setFeedbackTypeId(usreq.getFeedbackTypeId());
-			use.setRating(usreq.getRating());
-			use.setGymId(usreq.getGymId());
-			use.setUserId(usreq.getUserId());
-			use.setTrainerUserId(usreq.getTrainerId());
-			use.setMessage(usreq.getMessage());
+		System.out.println(feedbackCreateRequest.getRating());
+		if (feedbackCreateRequest.getRating() != null) {
+			use.setFeedbackTypeId(feedbackCreateRequest.getFeedbackTypeId());
+			use.setRating(feedbackCreateRequest.getRating());
+			use.setGymId(feedbackCreateRequest.getGymId());
+			use.setUserId(feedbackCreateRequest.getUserId());
+			use.setTrainerUserId(feedbackCreateRequest.getTrainerId());
+			use.setMessage(feedbackCreateRequest.getMessage());
 
-			feedbackdetailsrepo.save(use);
+			feedbackDetailsRepository.save(use);
 
 			return ResponseHandler.response(null, "feedback created successfully", true);
 		} else {
@@ -44,9 +44,9 @@ public class FeedbackServiceImpl implements FeedbackService {
 	}
 
 	@Override
-	public ResponseEntity<Map<String, Object>> getfeedbacklist(FeedbackListRequest usreq) {
-		if (usreq.getGymId() != null) {
-			ArrayList<Object[]> getfeedback = feedbackdetailsrepo.getfeedbacklist(usreq.getGymId());
+	public ResponseEntity<Map<String, Object>> feedbackList(FeedbackListRequest feedbackListRequest) {
+		if (feedbackListRequest.getGymId() != null) {
+			ArrayList<Object[]> getfeedback = feedbackDetailsRepository.getFeedbackList(feedbackListRequest.getGymId());
 			ArrayList<Map<String, Object>> feedbackDetailsList = new ArrayList<>();
 			if (getfeedback != null) {
 				Map<String, Object> hm = new HashMap<>();

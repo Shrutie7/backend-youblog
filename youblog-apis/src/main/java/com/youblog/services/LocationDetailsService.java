@@ -4,19 +4,17 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
-import com.youblog.payloads.Citylistrequest;
-import com.youblog.payloads.Gymaddressrequest;
-import com.youblog.payloads.Locationaddressrequest;
+import com.youblog.payloads.CityListRequest;
+import com.youblog.payloads.GymAddressRequest;
+import com.youblog.payloads.LocationAddressRequest;
 
 public interface LocationDetailsService {
 
-	
-	public ResponseEntity<Map<String,Object>> getstatelist();
-	
-	public ResponseEntity<Map<String,Object>> getcitylist(Citylistrequest usreq);
+	public ResponseEntity<Map<String, Object>> stateList();
 
-	
-	public ResponseEntity<Map<String,Object>> getlocationaddresslist(Locationaddressrequest usreq);
-	
-	public ResponseEntity<Map<String,Object>> getgymaddresslist(Gymaddressrequest usreq);
+	public ResponseEntity<Map<String, Object>> cityList(CityListRequest cityListRequest);
+
+	public ResponseEntity<Map<String, Object>> getLocationAddressList(LocationAddressRequest locationAddressRequest);
+
+	public ResponseEntity<Map<String, Object>> getGymAddressList(GymAddressRequest gymAddressRequest);
 }

@@ -11,7 +11,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-
 @Entity
 @Table(name = "location_details")
 @Data
@@ -21,15 +20,15 @@ import lombok.ToString;
 public class LocationDetailsEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="location_id")
-	private Long location_id;
+	@Column(name = "location_id")
+	private Long locationId;
 
-	@Column(name="location_name")
-	private String location_name;
-	
-	@Column(name="state")
+	@Column(name = "location_name")
+	private String locationName;
+
+	@Column(name = "state")
 	private String state;
-	
-	@Column(name="city")
+
+	@Column(name = "city")
 	private String city;
 }

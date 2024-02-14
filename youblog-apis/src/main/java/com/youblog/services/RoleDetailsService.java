@@ -5,5 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 public interface RoleDetailsService {
-	public ResponseEntity<Map<String,Object>> getRoleList();
+
+	public ResponseEntity<Map<String, Object>> roleList();
+
 }

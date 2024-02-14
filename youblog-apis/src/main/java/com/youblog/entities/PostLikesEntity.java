@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,8 +20,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "POST_LIKES")
 
-
-public class PostLikesEntity { 
+public class PostLikesEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,4 +39,4 @@ public class PostLikesEntity {
 	@Column(name = "LIKED_ON_DATE")
 	private Date likedOnDate;
 
-	}
+}

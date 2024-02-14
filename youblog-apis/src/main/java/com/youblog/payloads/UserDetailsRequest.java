@@ -12,16 +12,27 @@ import lombok.ToString;
 public class UserDetailsRequest {
 
 	private String userName;
+
 	private String emailId;
+
 	private String firstName;
+
 	private String lastName;
+
 	private String gender;
+
 	private String password;
+
 	private String confirmPassword;
+
 	private Long roleId;
+
 	private Long parentUserId;
+
 	private Long locationId;
+
 	private Long categoryId;
+
 	private Long gymId;
 
 }

@@ -12,12 +12,11 @@ import com.youblog.utils.ResponseHandler;
 
 @ControllerAdvice
 public class CustomExceptionHandler {
-	
+
 	@ExceptionHandler(NoHandlerFoundException.class)
 	@ResponseStatus(value = HttpStatus.NOT_FOUND)
 	@ResponseBody
 	public ResponseEntity<?> requestHandlingNoHandlerFound() {
-		return ResponseHandler.response(null,"Invalid path", false);
+		return ResponseHandler.response(null, "Invalid path", false);
 	}
 }
-

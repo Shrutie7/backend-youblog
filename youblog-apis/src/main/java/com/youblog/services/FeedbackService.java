@@ -9,8 +9,8 @@ import com.youblog.payloads.FeedbackListRequest;
 
 public interface FeedbackService {
 
-	public ResponseEntity<Map<String,Object>> createFeedback(FeedbackCreateRequest usreq);
-	
-	public ResponseEntity<Map<String,Object>> getfeedbacklist(FeedbackListRequest usreq);
+	public ResponseEntity<Map<String, Object>> createFeedback(FeedbackCreateRequest feedbackCreateRequest);
+
+	public ResponseEntity<Map<String, Object>> feedbackList(FeedbackListRequest feedbackListRequest);
 
 }

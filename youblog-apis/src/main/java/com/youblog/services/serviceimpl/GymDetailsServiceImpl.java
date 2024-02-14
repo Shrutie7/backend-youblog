@@ -12,27 +12,26 @@ import com.youblog.repositories.GymDetailsRepository;
 import com.youblog.services.GymDetailsService;
 import com.youblog.utils.ResponseHandler;
 
-
 @Service
 public class GymDetailsServiceImpl implements GymDetailsService {
 
 	@Autowired
-	GymDetailsRepository gymdetailsrepo;
+	GymDetailsRepository gymDetailsRepository;
 
 	@Override
-	public ResponseEntity<Map<String, Object>> creategym(GymCreateRequest usrequest) {
+	public ResponseEntity<Map<String, Object>> createGym(GymCreateRequest gymCreateRequest) {
 
-			GymDetailsEntity gym = new GymDetailsEntity();
-			gym.setGym_name(usrequest.getGymName());
-			gym.setContact(usrequest.getContact());
-			gym.setLocation_id(usrequest.getLocationId());
-			gym.setOwner_id(usrequest.getOwnerId());
-			String address = "";
-			address = usrequest.getDoorNo() + "," + usrequest.getStreetLane() + "," + usrequest.getPincode();
-			gym.setGym_address(address);
-			gymdetailsrepo.save(gym);
-			return ResponseHandler.response(null, "gym created successfully", true);
-		
+		GymDetailsEntity gym = new GymDetailsEntity();
+		gym.setGymName(gymCreateRequest.getGymName());
+		gym.setContact(gymCreateRequest.getContact());
+		gym.setLocationId(gymCreateRequest.getLocationId());
+		gym.setOwnerId(gymCreateRequest.getOwnerId());
+		String address = "";
+		address = gymCreateRequest.getDoorNo() + "," + gymCreateRequest.getStreetLane() + ","
+				+ gymCreateRequest.getPincode();
+		gym.setGymAddress(address);
+		gymDetailsRepository.save(gym);
+		return ResponseHandler.response(null, "gym created successfully", true);
 
 	}
 
