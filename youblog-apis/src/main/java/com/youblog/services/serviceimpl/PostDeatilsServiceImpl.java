@@ -81,7 +81,7 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 			return ResponseHandler.response(null, "please provide valid request", false);
 		}
 		ObjectId id = null;
-		if (!postMedia.isEmpty()) {
+		if (postMedia != null) {
 			BasicDBObject metaData = new BasicDBObject();
 			metaData.put("title", request.get("title").toString());
 			try {
@@ -165,8 +165,12 @@ public class PostDeatilsServiceImpl implements PostDetailsService {
 		subResponse.put("postId", data[0] != null ? data[0] : "");
 		subResponse.put("title", data[1] != null ? data[1].toString() : "");
 		subResponse.put("contentUrl", data[2] != null ? "/post/get/media/" + data[2] : "");
-		GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(data[2])));
-		subResponse.put("contentType", file.getMetadata().getString("_contentType").split("/")[0]);
+		if (data[2] != null) {
+			GridFSFile file = gridFsTemplate.findOne(Query.query(Criteria.where("_id").is(data[2])));
+			subResponse.put("contentType", file.getMetadata().getString("_contentType").split("/")[0]);
+		} else {
+			subResponse.put("contentType", "");
+		}
 		subResponse.put("categoryId", data[4] != null ? data[4] : "");
 		subResponse.put("postedDate", data[5] != null ? data[5].toString() : "");
 		subResponse.put("updatedDate", data[10] != null ? data[10].toString() : "");

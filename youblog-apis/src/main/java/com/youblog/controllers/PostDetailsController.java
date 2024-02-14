@@ -39,7 +39,7 @@ public class PostDetailsController {
 	private PostDetailsService postDetailsService;
 
 	@PostMapping("/create")
-	public ResponseEntity<Map<String, Object>> postCreate(@RequestPart("content") MultipartFile postMedia,
+	public ResponseEntity<Map<String, Object>> postCreate(@RequestPart(name = "content",required = false) MultipartFile postMedia,
 			@RequestPart("jsonData") String jsonData) {
 		return postDetailsService.postCreate(postMedia, jsonData);
 	}
