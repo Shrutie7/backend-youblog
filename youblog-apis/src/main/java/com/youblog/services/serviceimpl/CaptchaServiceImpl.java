@@ -1,6 +1,5 @@
 package com.youblog.services.serviceimpl;
 
-
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,7 @@ public class CaptchaServiceImpl implements CaptchaService {
 		obj.put("captchaImage", data[0]);
 		obj.put("captchaId", data[1]);
 		obj.put("captchaEncoded", encode);
-		return ResponseHandler.response(obj,"Capatcha generated successfully.", true);
+		return ResponseHandler.response(obj, "Capatcha generated successfully.", true);
 	}
 
 	@Override
@@ -40,10 +39,10 @@ public class CaptchaServiceImpl implements CaptchaService {
 		System.out.println(captchaData);
 		JSONObject request = new JSONObject(captchaData);
 		if (request.get("captchaId") == null) {
-			return ResponseHandler.response(null,"Please Provide Captcha Id", false);
+			return ResponseHandler.response(null, "Please Provide Captcha Id", false);
 		}
 		if (request.get("captchaAnswer") == null) {
-			return ResponseHandler.response(null,"Please Provide Captcha Answer", false);
+			return ResponseHandler.response(null, "Please Provide Captcha Answer", false);
 		}
 		Map<String, String> captcha = captchaUtilities.storeAnswerInMap(null, null);
 		if (captcha.get(request.get("captchaId")) != null) {
@@ -52,17 +51,17 @@ public class CaptchaServiceImpl implements CaptchaService {
 				log.debug("Login to authenticate..." + finalCaptcha);
 				if (finalCaptcha.equals(request.get("captchaAnswer"))) {
 					captcha.remove(request.get("captchaId"));
-					return ResponseHandler.response(null,"Validated Successfully", true);
+					return ResponseHandler.response(null, "Validated Successfully", true);
 				} else {
 					captcha.remove(request.get("captchaId"));
-					return ResponseHandler.response(null,"Please Provide Valid Captcha", false);
+					return ResponseHandler.response(null, "Please Provide Valid Captcha", false);
 				}
 			} else {
 				captcha.remove(request.get("captchaId"));
-				return ResponseHandler.response(null,"Please Provide new Captcha", false);
+				return ResponseHandler.response(null, "Please Provide new Captcha", false);
 			}
-		}else {
-			return ResponseHandler.response(null,"Please Provide new Captcha", false);
+		} else {
+			return ResponseHandler.response(null, "Please Provide new Captcha", false);
 		}
 	}
 

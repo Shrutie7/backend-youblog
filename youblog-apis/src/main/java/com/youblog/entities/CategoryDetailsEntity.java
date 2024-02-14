@@ -18,11 +18,17 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 public class CategoryDetailsEntity {
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name="category_id")
-private Long category_id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "category_id")
+	private Long categoryId;
 
-@Column(name="category_name")
-private String category_name;
+	@Column(name = "category_name")
+	private String categoryName;
+
+	@Column(name = "user_details_flag")
+	private Boolean userDetailsFlag;
+
+	@Column(name = "post_details_flag")
+	private Boolean postDetailsFlag;
 }

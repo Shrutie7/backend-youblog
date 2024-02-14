@@ -11,34 +11,37 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.youblog.payloads.Citylistrequest;
-import com.youblog.payloads.Gymaddressrequest;
-import com.youblog.payloads.Locationaddressrequest;
+import com.youblog.payloads.CityListRequest;
+import com.youblog.payloads.GymAddressRequest;
+import com.youblog.payloads.LocationAddressRequest;
 import com.youblog.services.LocationDetailsService;
 
 @RestController
 @RequestMapping("/location")
 @CrossOrigin(origins = "*")
 public class LocationDetailsController {
+
 	@Autowired
-	private LocationDetailsService locationdetailsservice;
+	private LocationDetailsService locationDetailsService;
+
 	@GetMapping("/state")
-	public ResponseEntity<Map<String,Object>> stateList(){
-		return locationdetailsservice.getstatelist();
-		}
-	
+	public ResponseEntity<Map<String, Object>> stateList() {
+		return locationDetailsService.stateList();
+	}
+
 	@PostMapping("/city")
-	public ResponseEntity<Map<String,Object>> cityList(@RequestBody Citylistrequest usreq){
-		return locationdetailsservice.getcitylist(usreq);
-		}
-	
+	public ResponseEntity<Map<String, Object>> cityList(@RequestBody CityListRequest cityListRequest) {
+		return locationDetailsService.cityList(cityListRequest);
+	}
+
 	@PostMapping("/address")
-	public ResponseEntity<Map<String,Object>> addressList(@RequestBody Locationaddressrequest usreq){
-		return locationdetailsservice.getlocationaddresslist(usreq);
-		}
-	
+	public ResponseEntity<Map<String, Object>> getLocationAddressList(
+			@RequestBody LocationAddressRequest locationAddressRequest) {
+		return locationDetailsService.getLocationAddressList(locationAddressRequest);
+	}
+
 	@PostMapping("/gymaddress")
-	public ResponseEntity<Map<String, Object>> gymaddressList(@RequestBody Gymaddressrequest usreq){
-		return locationdetailsservice.getgymaddresslist(usreq);
+	public ResponseEntity<Map<String, Object>> getGymAddressList(@RequestBody GymAddressRequest gymAddressRequest) {
+		return locationDetailsService.getGymAddressList(gymAddressRequest);
 	}
 }

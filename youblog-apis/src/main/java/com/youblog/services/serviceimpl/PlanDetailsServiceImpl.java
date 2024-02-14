@@ -13,11 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.youblog.entities.PlanDetailsEntity;
-import com.youblog.payloads.PLanGetRequest;
 import com.youblog.payloads.PlanCheckExpiryRequest;
 import com.youblog.payloads.PlanCreateRequest;
 import com.youblog.payloads.PlanDeleteRequest;
 import com.youblog.payloads.PlanEditRequest;
+import com.youblog.payloads.PlanGetRequest;
 import com.youblog.payloads.PlanListRequest;
 import com.youblog.repositories.PlanDetailsRepository;
 import com.youblog.repositories.UserDetailsRepository;
@@ -34,17 +34,17 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 	UserDetailsRepository userdetailsrepo;
 
 	@Override
-	public ResponseEntity<Map<String, Object>> createPlan(PlanCreateRequest usreq) {
+	public ResponseEntity<Map<String, Object>> createPlan(PlanCreateRequest planCreateRequest) {
 
 		PlanDetailsEntity plan = new PlanDetailsEntity();
-		plan.setPlanName(usreq.getPlanName());
-		plan.setPlanDescription(usreq.getPlanDescription());
-		plan.setPlanDuration(usreq.getPlanDuration());
-		plan.setPlanPrice(usreq.getPlanPrice());
-		plan.setGymTypeId(usreq.getGymTypeId());
-		plan.setCategoryId(usreq.getCategoryId());
+		plan.setPlanName(planCreateRequest.getPlanName());
+		plan.setPlanDescription(planCreateRequest.getPlanDescription());
+		plan.setPlanDuration(planCreateRequest.getPlanDuration());
+		plan.setPlanPrice(planCreateRequest.getPlanPrice());
+		plan.setGymTypeId(planCreateRequest.getGymTypeId());
+		plan.setCategoryId(planCreateRequest.getCategoryId());
 		plan.setActiveFlag(true);
-		plan.setFeatures(usreq.getFeatures());
+		plan.setFeatures(planCreateRequest.getFeatures());
 		plandetailsrepo.save(plan);
 
 		return ResponseHandler.response(null, "Plan created successfully", true);
@@ -52,10 +52,10 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 	}
 
 	@Override
-	public ResponseEntity<Map<String, Object>> getplanlist(PlanListRequest usreq) {
+	public ResponseEntity<Map<String, Object>> planList(PlanListRequest planListRequest) {
 
-		if (usreq.getGymTypeId() != null) {
-			ArrayList<Object[]> getplanlist = plandetailsrepo.getplanlist(usreq.getGymTypeId());
+		if (planListRequest.getGymTypeId() != null) {
+			ArrayList<Object[]> getplanlist = plandetailsrepo.getplanlist(planListRequest.getGymTypeId());
 			ArrayList<Map<String, Object>> planList = new ArrayList<>();
 
 			Map<String, Object> ListOfPlan = new HashMap<>();
@@ -100,25 +100,25 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 	}
 
 	@Override
-	public ResponseEntity<Map<String, Object>> editPlan(PlanEditRequest usreq) {
+	public ResponseEntity<Map<String, Object>> editPlan(PlanEditRequest planEditRequest) {
 
-		if (usreq.getPlanId() != null) {
+		if (planEditRequest.getPlanId() != null) {
 
-			Boolean checkuserplanmap =  plandetailsrepo.checkuserplanmapping(usreq.getPlanId());
+			Boolean checkuserplanmap =  plandetailsrepo.checkuserplanmapping(planEditRequest.getPlanId());
 
 			if(!checkuserplanmap) {
-			PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(usreq.getPlanId());
+			PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(planEditRequest.getPlanId());
 
 			if (getplandetails == null) {
 				return ResponseHandler.response(null, "plan cannot be edited", false);
 
 			} else {
-				getplandetails.setPlanName(usreq.getPlanName());
-				getplandetails.setPlanDescription(usreq.getPlanDescription());
-				getplandetails.setPlanDuration(usreq.getPlanDuration());
-				getplandetails.setPlanPrice(usreq.getPlanPrice());
-				getplandetails.setCategoryId(usreq.getCategoryId());
-				getplandetails.setFeatures(usreq.getFeatures());
+				getplandetails.setPlanName(planEditRequest.getPlanName());
+				getplandetails.setPlanDescription(planEditRequest.getPlanDescription());
+				getplandetails.setPlanDuration(planEditRequest.getPlanDuration());
+				getplandetails.setPlanPrice(planEditRequest.getPlanPrice());
+				getplandetails.setCategoryId(planEditRequest.getCategoryId());
+				getplandetails.setFeatures(planEditRequest.getFeatures());
 				plandetailsrepo.save(getplandetails);
 
 				return ResponseHandler.response(null, "plan updated successfully", true);
@@ -137,14 +137,14 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 	}
 
 	@Override
-	public ResponseEntity<Map<String, Object>> deletePlan(PlanDeleteRequest usreq) {
+	public ResponseEntity<Map<String, Object>> deletePlan(PlanDeleteRequest planDeleteRequest) {
 
-		if (usreq.getPlanId() != null) {
+		if (planDeleteRequest.getPlanId() != null) {
 
-			Boolean checkuserplanmap =  plandetailsrepo.checkuserplanmapping(usreq.getPlanId());
+			Boolean checkuserplanmap =  plandetailsrepo.checkuserplanmapping(planDeleteRequest.getPlanId());
 
 			if(!checkuserplanmap) {
-			PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(usreq.getPlanId());
+			PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(planDeleteRequest.getPlanId());
 
 			if (getplandetails == null) {
 				return ResponseHandler.response(null, "plan cannot be deleted", false);
@@ -170,11 +170,11 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 	}
 
 	@Override
-	public ResponseEntity<Map<String, Object>> getplan(PLanGetRequest usreq) {
+	public ResponseEntity<Map<String, Object>> getPlan(PlanGetRequest planGetRequest) {
 
-		if (usreq.getPlanId() != null) {
+		if (planGetRequest.getPlanId() != null) {
 
-			ArrayList<Object[]> getdetails = plandetailsrepo.getplan(usreq.getPlanId());
+			ArrayList<Object[]> getdetails = plandetailsrepo.getplan(planGetRequest.getPlanId());
 
 			if (getdetails != null) {
 
@@ -202,11 +202,11 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 	}
 
 	@Override
-	public ResponseEntity<Map<String, Object>> planexpirycheck(PlanCheckExpiryRequest usreq) {
+	public ResponseEntity<Map<String, Object>> checkPlanExpiry(PlanCheckExpiryRequest planCheckExpiryRequest) {
 
-		if (usreq.getUserId() != null) {
+		if (planCheckExpiryRequest.getUserId() != null) {
 			Boolean flag = false;
-			for (Object[] getexpirydetails : plandetailsrepo.planexpirycheck(usreq.getUserId())) {
+			for (Object[] getexpirydetails : plandetailsrepo.planexpirycheck(planCheckExpiryRequest.getUserId())) {
 				System.out.println(getexpirydetails);
 				if (getexpirydetails == null) {
 					return ResponseHandler.response(null, "plan expiry check failed", false);

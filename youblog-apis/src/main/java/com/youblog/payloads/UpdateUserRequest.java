@@ -12,14 +12,23 @@ import lombok.ToString;
 public class UpdateUserRequest {
 
 	private Long userId;
+
 	private String userName;
+
 	private String firstName;
+
 	private String lastName;
+
 	private String gender;
+
 	private String emailId;
+
 	private Long parentUserId;
+
 	private Long locationId;
+
 	private Boolean activeFlag;
+
 	private Long gymId;
-	
+
 }

@@ -13,5 +13,6 @@ import lombok.ToString;
 public class PlanPurchaseRequest {
 
 	private Long userId;
+
 	private Long planId;
 }

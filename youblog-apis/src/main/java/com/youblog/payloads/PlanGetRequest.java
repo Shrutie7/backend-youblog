@@ -6,9 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
-public class Gymaddressrequest {
-private Long location_id;
+public class PlanGetRequest {
+
+	private Long planId;
 }

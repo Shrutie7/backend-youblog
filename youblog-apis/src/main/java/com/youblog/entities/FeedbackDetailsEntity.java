@@ -19,30 +19,27 @@ import lombok.ToString;
 @ToString
 public class FeedbackDetailsEntity {
 
-	
-@Id
+	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name="feedback_id")
-public Long feedbackId;
+	@Column(name = "feedback_id")
+	public Long feedbackId;
 
-@Column(name="user_id")
-public Long userId;
+	@Column(name = "user_id")
+	public Long userId;
 
-@Column(name="rating")
-public Double rating;
+	@Column(name = "rating")
+	public Double rating;
 
-@Column(name="trainer_user_id")
-public Long trainerUserId;
+	@Column(name = "trainer_user_id")
+	public Long trainerUserId;
 
-@Column(name="feedback_type_id")
-public Long feedbackTypeId;
+	@Column(name = "feedback_type_id")
+	public Long feedbackTypeId;
 
-@Column(name="gym_id")
-public Long gymId;
-	
+	@Column(name = "gym_id")
+	public Long gymId;
 
-@Column(name="message")
-public String message;
-	
-	
+	@Column(name = "message")
+	public String message;
+
 }

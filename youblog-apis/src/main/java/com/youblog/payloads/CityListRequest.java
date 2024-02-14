@@ -9,6 +9,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class Citylistrequest {
+public class CityListRequest {
+
 	private String state;
+
 }

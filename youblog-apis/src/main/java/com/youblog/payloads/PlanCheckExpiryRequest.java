@@ -11,6 +11,5 @@ import lombok.ToString;
 @ToString
 public class PlanCheckExpiryRequest {
 
-	
 	private Long userId;
 }

@@ -10,11 +10,11 @@ import lombok.ToString;
 @NoArgsConstructor
 @ToString
 
-
 public class FeedbackListRequest {
 
-	
 	private Long feedbackTypeId;
+
 	private Long trainerUserId;
+
 	private Long gymId;
 }

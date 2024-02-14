@@ -1,53 +1,30 @@
 package com.youblog.repositories;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.youblog.entities.PlanDetailsEntity;
 import com.youblog.entities.UserDetailsEntity;
-import com.youblog.payloads.GetUserRequest;
 
 @Repository
-
-//int[] arr = new int [5]; -- array allocate memory while initializing only cant change at run time
-//ArrayList<Integer> arraylist = new ArrayList<>(); --dynamic allocate memory at run time 
-
-
-//Long here is datatype of pkey
 public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, Long> {
-	
-	@Query(value = "select * from user_details where email_id = :email",nativeQuery = true)
-	public  UserDetailsEntity checkemail(String email);
-	
-	@Query(value="\r\n"
-			+ "			SELECT UD.USER_NAME,\r\n"
-			+ "				UD.EMAIL_ID,\r\n"
-			+ "				UD.FIRST_NAME,\r\n"
-			+ "				UD.LAST_NAME,\r\n"
-			+ "				UD.ROLE_ID,\r\n"
-			+ "				UD.GENDER,\r\n"
-			+ "				RD.ROLE_NAME,\r\n"
-			+ "			 UD.USER_ID,	\r\n"
-			+ "			 UD.GYM_ID,\r\n"
-			+ "				UD.PARENT_USER_ID,\r\n"
+
+	@Query(value = "select * from user_details where email_id = :email", nativeQuery = true)
+	public UserDetailsEntity checkEmail(String email);
+
+	@Query(value = "\r\n" + "			SELECT UD.USER_NAME,\r\n" + "				UD.EMAIL_ID,\r\n"
+			+ "				UD.FIRST_NAME,\r\n" + "				UD.LAST_NAME,\r\n" + "				UD.ROLE_ID,\r\n"
+			+ "				UD.GENDER,\r\n" + "				RD.ROLE_NAME,\r\n" + "			 UD.USER_ID,	\r\n"
+			+ "			 UD.GYM_ID,\r\n" + "				UD.PARENT_USER_ID,\r\n"
 			+ "				USD.USER_NAME AS PARENT_USER_NAME,\r\n"
 			+ "				USD.FIRST_NAME AS PARENT_FIRST_NAME,\r\n"
-			+ "				USD.LAST_NAME AS PARENT_LAST_NAME,\r\n"
-			+ "				USD.ROLE_ID AS PARENT_ROLE_ID,\r\n"
-			+ "				LD.LOCATION_ID,\r\n"
-			+ "				LD.STATE,\r\n"
-			+ "				LD.CITY,\r\n"
-			+ "				LD.LOCATION_NAME,\r\n"
-			+ "				PD.PLAN_ID,\r\n"
-			+ "				PD.PLAN_NAME,\r\n"
-			+ "				TO_CHAR(UD.PLAN_PURCHASED_DATE,\r\n"
-			+ "			\r\n"
-			+ "					'DD Mon YY') AS PLAN_START_DATE,\r\n"
-			+ "					\r\n"
+			+ "				USD.LAST_NAME AS PARENT_LAST_NAME,\r\n" + "				USD.ROLE_ID AS PARENT_ROLE_ID,\r\n"
+			+ "				LD.LOCATION_ID,\r\n" + "				LD.STATE,\r\n" + "				LD.CITY,\r\n"
+			+ "				LD.LOCATION_NAME,\r\n" + "				PD.PLAN_ID,\r\n"
+			+ "				PD.PLAN_NAME,\r\n" + "				TO_CHAR(UD.PLAN_PURCHASED_DATE,\r\n"
+			+ "			\r\n" + "					'DD Mon YY') AS PLAN_START_DATE,\r\n" + "					\r\n"
 			+ "				case when GD.gym_name ='YouFit Gyms Elite' then 2 else case when gd.gym_name = 'YouFit Gyms Pro' then 1 end end as gym_type_id \r\n"
 			+ "			FROM USER_DETAILS AS UD\r\n"
 			+ "			LEFT JOIN ROLE_DETAILS AS RD ON UD.ROLE_ID = RD.ROLE_ID\r\n"
@@ -55,43 +32,26 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 			+ "			LEFT JOIN LOCATION_DETAILS AS LD ON LD.LOCATION_ID = UD.LOCATION_ID\r\n"
 			+ "			LEFT JOIN PLAN_DETAILS AS PD ON PD.PLAN_ID = UD.PLAN_ID\r\n"
 			+ "			LEFT JOIN gym_details AS GD ON GD.gym_id = UD.gym_id\r\n"
-			+ "			WHERE UD.EMAIL_ID = :email",nativeQuery = true)
+			+ "			WHERE UD.EMAIL_ID = :email", nativeQuery = true)
 	public ArrayList<Object[]> getUserDetails(String email);
-	
-	
-	@Query(value="select * from user_details where user_id = :userId and active_flag = true",nativeQuery = true)
+
+	@Query(value = "select * from user_details where user_id = :userId and active_flag = true", nativeQuery = true)
 	public UserDetailsEntity updateUserDetails(Long userId);
-	
-	@Query(value="select * from user_details where user_id = :userId and active_flag = true",nativeQuery = true)
-	public UserDetailsEntity getUserDetails(Long userId);
-	
-	@Query(value="select * from user_details where active_flag = true",nativeQuery = true)
+
+	@Query(value = "select * from user_details where active_flag = true", nativeQuery = true)
 	public ArrayList<UserDetailsEntity> getUserList();
 
-	@Query(value="SELECT ROUND(AVG(FD.RATING),\r\n"
-			+ "\r\n"
-			+ "								2) AS rating,\r\n"
-			+ "	CONCAT(UD.FIRST_NAME,\r\n"
-			+ "\r\n"
-			+ "		' ',\r\n"
-			+ "		UD.LAST_NAME) AS trainerName,\r\n"
-			+ "	UD.USER_ID,\r\n"
-			+ "	UD.CATEGORY_ID,\r\n"
-			+ "	CD.CATEGORY_NAME\r\n"
-			+ "FROM USER_DETAILS AS UD\r\n"
-			+ "LEFT JOIN FEEDBACK_DETAILS AS FD ON UD.USER_ID = FD.TRAINER_USER_ID\r\n"
-			+ "LEFT JOIN CATEGORY_DETAILS AS CD ON CD.CATEGORY_ID = UD.CATEGORY_ID\r\n"
-			+ "WHERE ROLE_ID = 3\r\n"
-			+ "	AND PARENT_USER_ID =:ownerId\r\n"
-			+ "GROUP BY CONCAT(UD.FIRST_NAME,\r\n"
-			+ "\r\n"
+	@Query(value = "SELECT ROUND(AVG(FD.RATING),\r\n" + "\r\n" + "								2) AS rating,\r\n"
+			+ "	CONCAT(UD.FIRST_NAME,\r\n" + "\r\n" + "		' ',\r\n" + "		UD.LAST_NAME) AS trainerName,\r\n"
+			+ "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n" + "	CD.CATEGORY_NAME\r\n"
+			+ "FROM USER_DETAILS AS UD\r\n" + "LEFT JOIN FEEDBACK_DETAILS AS FD ON UD.USER_ID = FD.TRAINER_USER_ID\r\n"
+			+ "LEFT JOIN CATEGORY_DETAILS AS CD ON CD.CATEGORY_ID = UD.CATEGORY_ID\r\n" + "WHERE ROLE_ID = 3\r\n"
+			+ "	AND PARENT_USER_ID =:ownerId\r\n" + "GROUP BY CONCAT(UD.FIRST_NAME,\r\n" + "\r\n"
 			+ "										' ',\r\n"
-			+ "										UD.LAST_NAME),\r\n"
-			+ "	UD.USER_ID,\r\n"
-			+ "	UD.CATEGORY_ID,\r\n"
-			+ "	CD.CATEGORY_NAME",nativeQuery = true)
+			+ "										UD.LAST_NAME),\r\n" + "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n"
+			+ "	CD.CATEGORY_NAME", nativeQuery = true)
 	public ArrayList<Object[]> getTrainerList(Long ownerId);
-	
-	@Query(value="select * from user_details where user_id = :userId",nativeQuery = true)
-	public UserDetailsEntity planpurchase(Long userId);
+
+	@Query(value = "select * from user_details where user_id = :userId", nativeQuery = true)
+	public UserDetailsEntity planPurchase(Long userId);
 }

@@ -6,10 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @ToString
-public class PLanGetRequest {
+public class LocationAddressRequest {
 
-	private Long planId;
+	private String state;
+	
+	private String city;
 }
