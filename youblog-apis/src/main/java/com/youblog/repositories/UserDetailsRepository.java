@@ -25,7 +25,8 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 			+ "				LD.LOCATION_NAME,\r\n" + "				PD.PLAN_ID,\r\n"
 			+ "				PD.PLAN_NAME,\r\n" + "				TO_CHAR(UD.PLAN_PURCHASED_DATE,\r\n"
 			+ "			\r\n" + "					'DD Mon YY') AS PLAN_START_DATE,\r\n" + "					\r\n"
-			+ "				case when GD.gym_name ='YouFit Gyms Elite' then 2 else case when gd.gym_name = 'YouFit Gyms Pro' then 1 end end as gym_type_id \r\n"
+			+ "				case when GD.gym_name ='YouFit Gyms Elite' then 2 else case when gd.gym_name = 'YouFit Gyms Pro' then 1 end end as gym_type_id, \r\n"
+			+ "			PD.PLAN_DURATION, to_char(UD.PLAN_PURCHASED_DATE + INTERVAL '1 MONTH' * pd.plan_duration, 'DD Mon YY') as plan_end_date\r\n"
 			+ "			FROM USER_DETAILS AS UD\r\n"
 			+ "			LEFT JOIN ROLE_DETAILS AS RD ON UD.ROLE_ID = RD.ROLE_ID\r\n"
 			+ "			LEFT JOIN USER_DETAILS AS USD ON USD.USER_ID = UD.PARENT_USER_ID\r\n"
@@ -41,7 +42,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 	@Query(value = "select * from user_details where active_flag = true", nativeQuery = true)
 	public ArrayList<UserDetailsEntity> getUserList();
 
-	@Query(value = "SELECT ROUND(AVG(FD.RATING),\r\n" + "\r\n" + "								2) AS rating,\r\n"
+	@Query(value = "SELECT ROUND(cast(AVG(FD.RATING) as numeric),2) AS rating,\r\n"
 			+ "	CONCAT(UD.FIRST_NAME,\r\n" + "\r\n" + "		' ',\r\n" + "		UD.LAST_NAME) AS trainerName,\r\n"
 			+ "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n" + "	CD.CATEGORY_NAME\r\n"
 			+ "FROM USER_DETAILS AS UD\r\n" + "LEFT JOIN FEEDBACK_DETAILS AS FD ON UD.USER_ID = FD.TRAINER_USER_ID\r\n"

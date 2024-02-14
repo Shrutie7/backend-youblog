@@ -28,10 +28,11 @@ public class CustomInterceptor implements HandlerInterceptor {
 		} else if (request.getRequestURI().equals("/captcha/get")
 				|| request.getRequestURI().equals("/captcha/validate")
 				|| request.getRequestURI().contains("/location/")
-				|| request.getRequestURI().contains("/categorylist")
+				|| request.getRequestURI().contains("/user/category/list")
 				|| request.getRequestURI().contains("/users/create")
 				|| request.getRequestURI().contains("/post/get/media/")
-				|| request.getRequestURI().contains("/post/download/media/")) {
+				|| request.getRequestURI().contains("/post/download/media/")
+				) {
 			return true;
 		} else if (request.getHeader("Authorization") != null) {
 			String accessToken = request.getHeader("Authorization").substring(6);

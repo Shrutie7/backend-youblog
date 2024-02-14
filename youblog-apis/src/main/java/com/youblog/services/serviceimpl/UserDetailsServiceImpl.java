@@ -133,7 +133,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 					planDetails.put("planId", ele[18] != null ? ele[18].toString() : "N/A");
 					planDetails.put("planName", ele[19] != null ? ele[19].toString() : "N/A");
 					planDetails.put("planStartDate", ele[20] != null ? ele[20].toString() : "N/A");
-
+					planDetails.put("planEndDate", ele[23] != null ? ele[23].toString() : "N/A");
+					planDetails.put("planDuration", ele[22] != null ? ele[22].toString() : "N/A");
 					hm.put("planDetails", planDetails);
 
 					hm.put("gymtypeId", ele[21] != null ? ele[21] : "");

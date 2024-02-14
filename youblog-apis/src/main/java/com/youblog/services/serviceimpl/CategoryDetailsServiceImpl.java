@@ -65,4 +65,26 @@ public class CategoryDetailsServiceImpl implements CategoryDetailsService {
 		return ResponseHandler.response(data, "category list found", true);
 	}
 
+	@Override
+	public ResponseEntity<Map<String, Object>> categoryListFilter() {
+		Map<String, Object> data = new HashMap<>();
+		List<CategoryDetailsEntity> categoryList = categoryDetailsRepository.getCategoryListFilter();
+		List<Map<String, Object>> categories = new ArrayList<>();
+
+		if (categoryList == null) {
+			data.put("categoryDetailsList", categories);
+			return ResponseHandler.response(data, "category details not found", false);
+		} else
+
+			categoryList.forEach(ele -> {
+				Map<String, Object> catlist = new HashMap<>();
+				catlist.put("categoryId", ele.getCategoryId());
+				catlist.put("categoryName", ele.getCategoryName());
+
+				categories.add(catlist);
+			});
+		data.put("categoryDetailsList", categories);
+		return ResponseHandler.response(data, "category list found", true);
+	}
+
 }

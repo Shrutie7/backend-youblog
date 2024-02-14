@@ -50,6 +50,13 @@ public class CommonController {
 	public ResponseEntity<Map<String, Object>> categoryList() {
 		return categoryDetailsService.categoryList();
 	}
+	
+
+	@GetMapping("/categorylist/filter")
+	public ResponseEntity<Map<String, Object>> categoryListFilter() {
+		return categoryDetailsService.categoryListFilter();
+	}
+
 
 	@GetMapping("/rolelist")
 	public ResponseEntity<Map<String, Object>> roleList() {
@@ -103,7 +110,7 @@ public class CommonController {
 		return planDetailsService.checkPlanExpiry(planCheckExpiryRequest);
 	}
 
-	@GetMapping("/user/category/list")
+	@PostMapping("/user/category/list")
 	public ResponseEntity<Map<String, Object>> userCategoryList(@RequestBody CategoryListRequest categoryListRequest) {
 		return categoryDetailsService.userCategoryList(categoryListRequest);
 	}

@@ -17,4 +17,10 @@ public interface LocationDetailsService {
 	public ResponseEntity<Map<String, Object>> getLocationAddressList(LocationAddressRequest locationAddressRequest);
 
 	public ResponseEntity<Map<String, Object>> getGymAddressList(GymAddressRequest gymAddressRequest);
+
+	public ResponseEntity<Map<String, Object>> getGymAddressListFilter(GymAddressRequest gymAddressRequest);
+
+	public ResponseEntity<Map<String, Object>> getLocationAddressListFilter(
+			LocationAddressRequest locationAddressRequest);
+
 }
