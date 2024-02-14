@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import com.youblog.entities.ImageDetailsEntity;
 import com.youblog.entities.UserDetailsEntity;
 import com.youblog.payloads.GetUserRequest;
 import com.youblog.payloads.PlanPurchaseRequest;
@@ -17,6 +19,7 @@ import com.youblog.payloads.TrainerListRequest;
 import com.youblog.payloads.UpdatePasswordRequest;
 import com.youblog.payloads.UpdateUserRequest;
 import com.youblog.payloads.UserDetailsRequest;
+import com.youblog.repositories.ImageDetailsRepository;
 import com.youblog.repositories.UserDetailsRepository;
 import com.youblog.services.UserDetailsService;
 import com.youblog.utils.KeycloakUtils;
@@ -30,6 +33,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
 	KeycloakUtils keycloakUtilities;
+
+	@Autowired
+	ImageDetailsRepository imageDetailsRepository;
 
 	@Override
 	public ResponseEntity<Map<String, Object>> createUser(UserDetailsRequest userDetailsRequest) {
@@ -87,16 +93,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			System.out.println(getdetails);
 			if (getdetails != null) {
 				Map<String, Object> hm = new HashMap<>();
-//				hm.put("firstName", getdetails.getFirstName());
-//				hm.put("lastName",getdetails.getLastName());
-//				hm.put("gender", getdetails.getGender());
-//				hm.put("emailId", getdetails.getEmailId());
-//				hm.put("userId", getdetails.getUserId());
-//				hm.put("userName", getdetails.getUserName());
-//				hm.put("roleId",getdetails.getRoleId());
-
 				getdetails.forEach(ele -> {
-
 					hm.put("userName", ele[0] != null ? ele[0].toString() : "N/A");
 					hm.put("emailId", ele[1] != null ? ele[1].toString() : "N/A");
 					hm.put("firstName", ele[2] != null ? ele[2].toString() : "N/A");
@@ -106,7 +103,16 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 					hm.put("roleName", ele[6] != null ? ele[6].toString() : "N/A");
 					hm.put("userId", ele[7] != null ? ele[7].toString() : "N/A");
 					hm.put("gymId", ele[8] != null ? ele[8].toString() : "");
-
+					if (ele[24] != null) {
+						Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(ele[24].toString());
+						if (!image.isEmpty()) {
+							hm.put("image", image.get().getImage() != null ? image.get().getImage() : "");
+						} else {
+							hm.put("image", "");
+						}
+					} else {
+						hm.put("image", "");
+					}
 					Map<String, Object> parentdetails = new HashMap<>();
 
 					if (ele[9] != null) {
@@ -165,6 +171,22 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				getdetails.setLocationId(updateUserRequest.getLocationId());// post approval of worklist
 				getdetails.setActiveFlag(updateUserRequest.getActiveFlag()); // post approval of worklist
 				getdetails.setGymId(updateUserRequest.getGymId());
+				if (updateUserRequest.getImage() != null) {
+					if (getdetails.getImageId() == null) {
+						ImageDetailsEntity imageDetails = new ImageDetailsEntity();
+						imageDetails.setTitle(getdetails.getEmailId());
+						imageDetails.setImage(updateUserRequest.getImage());
+						ImageDetailsEntity image = imageDetailsRepository.save(imageDetails);
+						getdetails.setImageId(image.getId());
+					} else {
+						Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(getdetails.getImageId());
+						if (!image.isEmpty()) {
+							ImageDetailsEntity img = image.get();
+							img.setImage(updateUserRequest.getImage());
+							imageDetailsRepository.save(img);
+						}
+					}
+				}
 				userDetailsRepository.save(getdetails);
 				return ResponseHandler.response(null, "user updated successfully", true);
 			} else {
@@ -248,16 +270,21 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 				getTrainerList.forEach(ele -> {
 					Map<String, Object> res = new HashMap<>();
-
 					res.put("userId", ele[2] != null ? ele[2].toString() : "");
-
-//					String fullName =  "";
-//					fullName = ele.getFirstName() + " " + ele.getLastName();
-
 					res.put("trainerName", ele[1] != null ? ele[1].toString() : "N/A");
 					res.put("rating", ele[0] != null ? ele[0].toString() : "");
 					res.put("categoryId", ele[3] != null ? ele[3].toString() : "");
 					res.put("categoryName", ele[4] != null ? ele[4].toString() : "");
+					if (ele[5] != null) {
+						Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(ele[5].toString());
+						if (!image.isEmpty()) {
+							res.put("image", image.get().getImage() != null ? image.get().getImage() : "");
+						} else {
+							res.put("image", "");
+						}
+					} else {
+						res.put("image", "");
+					}
 					trainerlist.add(res);
 
 				});

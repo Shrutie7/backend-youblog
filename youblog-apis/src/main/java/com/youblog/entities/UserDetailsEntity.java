@@ -64,4 +64,7 @@ public class UserDetailsEntity {
 	
 	@Column(name="category_id")
 	private Long categoryId;
+	
+	@Column(name = "image_id")
+	private String imageId;
 }
