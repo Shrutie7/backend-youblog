@@ -61,7 +61,7 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 			Map<String, Object> ListOfPlan = new HashMap<>();
 			if (getplanlist.size() == 0) {
 
-				ListOfPlan.put("ListOfPlans", planList);
+				ListOfPlan.put("listOfPlans", planList);
 				return ResponseHandler.response(ListOfPlan, "plan list cannot be found", false);
 
 			} else {
@@ -90,7 +90,7 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 					res.put("listOfFeatures", featuresarr);
 					planList.add(res);
 				});
-				ListOfPlan.put("ListOfPlans", planList); 	
+				ListOfPlan.put("listOfPlans", planList); 	
 				return ResponseHandler.response(ListOfPlan, "plan list found", true);
 			}
 		} else {
