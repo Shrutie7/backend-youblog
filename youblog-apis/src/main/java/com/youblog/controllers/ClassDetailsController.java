@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.youblog.payloads.ClassMasterCreateRequest;
+import com.youblog.payloads.ClassMasterDeleteRequest;
 import com.youblog.services.ClassDetailsService;
 
 @RestController
@@ -30,5 +31,10 @@ public class ClassDetailsController {
 	@GetMapping("/master/list")
 	public ResponseEntity<Map<String,Object>> classMasterList(){
 		return classDetailsService.classMasterList();
+	}
+	
+	@PostMapping("/master/delete")
+	public ResponseEntity<Map<String,Object>> classMasterDelete(@RequestBody ClassMasterDeleteRequest classMasterDeleteRequest){
+		return classDetailsService.classMasterDelete(classMasterDeleteRequest);
 	}
 }
