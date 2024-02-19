@@ -25,15 +25,6 @@ public class CustomInterceptor implements HandlerInterceptor {
 			throws Exception {
 		if (request.getMethod().equals("OPTIONS")) {
 			return true;
-		} else if (request.getRequestURI().equals("/captcha/get")
-				|| request.getRequestURI().equals("/captcha/validate")
-				|| request.getRequestURI().contains("/location/")
-				|| request.getRequestURI().contains("/user/category/list")
-				|| request.getRequestURI().contains("/users/create")
-				|| request.getRequestURI().contains("/post/get/media/")
-				|| request.getRequestURI().contains("/post/download/media/")
-				) {
-			return true;
 		} else if (request.getHeader("Authorization") != null) {
 			String accessToken = request.getHeader("Authorization").substring(6);
 			ResponseEntity<Map<String, Object>> validation = keycloakUtils.keycloakAuthorizeUser(accessToken);
@@ -47,9 +38,17 @@ public class CustomInterceptor implements HandlerInterceptor {
 				response.setStatus(401);
 				return false;
 			}
+		} else if (request.getRequestURI().equals("/captcha/get") || request.getRequestURI().equals("/captcha/validate")
+				|| request.getRequestURI().contains("/location/")
+				|| request.getRequestURI().contains("/user/category/list")
+				|| request.getRequestURI().contains("/users/create")
+				|| request.getRequestURI().contains("/post/get/media/")
+				|| request.getRequestURI().contains("/post/download/media/")
+				|| request.getRequestURI().contains("/class/")) {
+			return true;
 		} else {
-			String responseData = "{\r\n" + "\t\"status\": false,\r\n" + "\t\"message\":\"Please provide the token\",\r\n"
-					+ "\t\"data\": null\r\n" + "}";
+			String responseData = "{\r\n" + "\t\"status\": false,\r\n"
+					+ "\t\"message\":\"Please provide the token\",\r\n" + "\t\"data\": null\r\n" + "}";
 			response.getWriter().write(responseData);
 			response.setHeader("Content-Type", "application/json");
 			response.setStatus(401);

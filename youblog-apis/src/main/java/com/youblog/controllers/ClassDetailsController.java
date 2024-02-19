@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.youblog.payloads.ClassDetailsCreateRequest;
+import com.youblog.payloads.ClassDetailsListRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
 import com.youblog.services.ClassDetailsService;
@@ -36,5 +38,20 @@ public class ClassDetailsController {
 	@PostMapping("/master/delete")
 	public ResponseEntity<Map<String,Object>> classMasterDelete(@RequestBody ClassMasterDeleteRequest classMasterDeleteRequest){
 		return classDetailsService.classMasterDelete(classMasterDeleteRequest);
+	}
+	
+	@GetMapping("/time/details/list")
+	public ResponseEntity<Map<String,Object>> getTimeDetails(){
+		return classDetailsService.getTimeDetails();
+	}
+	
+	@PostMapping("/create")
+	public ResponseEntity<Map<String,Object>> classDetailsCreate(@RequestBody ClassDetailsCreateRequest classDetailsCreateRequest){
+		return classDetailsService.classDetailsCreate(classDetailsCreateRequest);
+	}
+	
+	@PostMapping("/list")
+	public ResponseEntity<Map<String,Object>> classDetailsList(@RequestBody ClassDetailsListRequest classDetailsListRequest){
+		return classDetailsService.classDetailsList(classDetailsListRequest);
 	}
 }

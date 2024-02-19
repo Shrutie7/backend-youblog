@@ -7,7 +7,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ClassMasterDeleteRequest {
+public class ClassDetailsListRequest {
 	
-	private Long classMasterId;
+	private Long gymId;
+	
 }
