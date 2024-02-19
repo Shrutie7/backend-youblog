@@ -18,6 +18,7 @@ import com.youblog.entities.ClassDetailsEntity;
 import com.youblog.entities.ClassMasterEntity;
 import com.youblog.entities.TimeDetailsEntity;
 import com.youblog.payloads.ClassDetailsCreateRequest;
+import com.youblog.payloads.ClassDetailsGetRequest;
 import com.youblog.payloads.ClassDetailsListRequest;
 import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
@@ -166,6 +167,18 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 			return ResponseHandler.response(responseObject.toMap(), "Class List Details For Trainer Fetched Successfully", true);
 		}else {
 			return ResponseHandler.response(responseObject.toMap(), "Class List Details For Trainer Not Found", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> classDetailsGet(ClassDetailsGetRequest classDetailsGetRequest) {
+		String response = classDetailsRepository.classDetailsGet(classDetailsGetRequest.getClassDetailsId());
+		JSONObject responseObject = new JSONObject();
+		if(response!=null) {
+			responseObject = new JSONObject(response);
+			return ResponseHandler.response(responseObject.toMap(), "Class Details Fetched Successfully", true);
+		}else {
+			return ResponseHandler.response(responseObject.toMap(), "Class Details Not Found", false);
 		}
 	}
 

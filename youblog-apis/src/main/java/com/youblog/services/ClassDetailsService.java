@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.ResponseEntity;
 
 import com.youblog.payloads.ClassDetailsCreateRequest;
+import com.youblog.payloads.ClassDetailsGetRequest;
 import com.youblog.payloads.ClassDetailsListRequest;
 import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
@@ -26,5 +27,7 @@ public interface ClassDetailsService {
 
 	public ResponseEntity<Map<String, Object>> classDetailsListTrainer(
 			ClassDetailsListTrainerRequest classDetailsListTrainerRequest);
+
+	public ResponseEntity<Map<String, Object>> classDetailsGet(ClassDetailsGetRequest classDetailsGetRequest);
 
 }
