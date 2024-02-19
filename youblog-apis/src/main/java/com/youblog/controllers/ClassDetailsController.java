@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.youblog.payloads.ClassDetailsCreateRequest;
 import com.youblog.payloads.ClassDetailsListRequest;
+import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
 import com.youblog.services.ClassDetailsService;
@@ -54,4 +55,11 @@ public class ClassDetailsController {
 	public ResponseEntity<Map<String,Object>> classDetailsList(@RequestBody ClassDetailsListRequest classDetailsListRequest){
 		return classDetailsService.classDetailsList(classDetailsListRequest);
 	}
+	
+	@PostMapping("/list/trainer")
+	public ResponseEntity<Map<String,Object>> classDetailsListTrainer(@RequestBody ClassDetailsListTrainerRequest classDetailsListTrainerRequest){
+		return classDetailsService.classDetailsListTrainer(classDetailsListTrainerRequest);
+	}
+	
+	
 }

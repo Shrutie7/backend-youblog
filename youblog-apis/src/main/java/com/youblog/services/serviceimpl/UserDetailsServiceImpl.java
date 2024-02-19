@@ -255,9 +255,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public ResponseEntity<Map<String, Object>> getTrainerList(TrainerListRequest trainerListRequest) {
 
-		if (trainerListRequest.getOwnerId() != null) {
+		if (trainerListRequest.getGymId() != null) {
 
-			ArrayList<Object[]> getTrainerList = userDetailsRepository.getTrainerList(trainerListRequest.getOwnerId());
+			ArrayList<Object[]> getTrainerList = userDetailsRepository.getTrainerList(trainerListRequest.getGymId());
 
 			ArrayList<Map<String, Object>> trainerlist = new ArrayList<>();
 
@@ -272,7 +272,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 					Map<String, Object> res = new HashMap<>();
 					res.put("userId", ele[2] != null ? ele[2].toString() : "");
 					res.put("trainerName", ele[1] != null ? ele[1].toString() : "N/A");
-					res.put("rating", ele[0] != null ? ele[0].toString() : "");
+					res.put("rating", ele[0] != null ? ele[0].toString() : 0);
 					res.put("categoryId", ele[3] != null ? ele[3].toString() : "");
 					res.put("categoryName", ele[4] != null ? ele[4].toString() : "");
 					if (ele[5] != null) {

@@ -47,11 +47,11 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 			+ "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n" + "	CD.CATEGORY_NAME,ud.image_id\r\n"
 			+ "FROM USER_DETAILS AS UD\r\n" + "LEFT JOIN FEEDBACK_DETAILS AS FD ON UD.USER_ID = FD.TRAINER_USER_ID\r\n"
 			+ "LEFT JOIN CATEGORY_DETAILS AS CD ON CD.CATEGORY_ID = UD.CATEGORY_ID\r\n" + "WHERE ROLE_ID = 3\r\n"
-			+ "	AND PARENT_USER_ID =:ownerId\r\n" + "GROUP BY CONCAT(UD.FIRST_NAME,\r\n" + "\r\n"
-			+ "										' ',\r\n"
-			+ "										UD.LAST_NAME),\r\n" + "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n"
+			+ "	AND ud.gym_id =:gymId\r\n" + "GROUP BY CONCAT(UD.FIRST_NAME,\r\n" + "\r\n"
+			+ "	' ',\r\n"
+			+ "	UD.LAST_NAME),\r\n" + "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n"
 			+ "	CD.CATEGORY_NAME", nativeQuery = true)
-	public ArrayList<Object[]> getTrainerList(Long ownerId);
+	public ArrayList<Object[]> getTrainerList(Long gymId);
 
 	@Query(value = "select * from user_details where user_id = :userId", nativeQuery = true)
 	public UserDetailsEntity planPurchase(Long userId);

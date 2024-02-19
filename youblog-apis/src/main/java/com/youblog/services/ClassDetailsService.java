@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 
 import com.youblog.payloads.ClassDetailsCreateRequest;
 import com.youblog.payloads.ClassDetailsListRequest;
+import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
 
@@ -22,5 +23,8 @@ public interface ClassDetailsService {
 	public ResponseEntity<Map<String, Object>> classDetailsCreate(ClassDetailsCreateRequest classDetailsCreateRequest);
 
 	public ResponseEntity<Map<String, Object>> classDetailsList(ClassDetailsListRequest classDetailsListRequest);
+
+	public ResponseEntity<Map<String, Object>> classDetailsListTrainer(
+			ClassDetailsListTrainerRequest classDetailsListTrainerRequest);
 
 }

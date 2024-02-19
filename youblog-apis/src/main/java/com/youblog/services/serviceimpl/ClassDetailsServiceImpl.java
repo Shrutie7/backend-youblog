@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import com.youblog.entities.ClassMasterEntity;
 import com.youblog.entities.TimeDetailsEntity;
 import com.youblog.payloads.ClassDetailsCreateRequest;
 import com.youblog.payloads.ClassDetailsListRequest;
+import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
 import com.youblog.repositories.ClassDetailsRepository;
@@ -143,8 +145,28 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 	@Override
 	public ResponseEntity<Map<String, Object>> classDetailsList(ClassDetailsListRequest classDetailsListRequest) {
 		Date currentDate = Date.from(Instant.now());
-		
-		return null;
+		String response = classDetailsRepository.classDetailsList(classDetailsListRequest.getGymId(),currentDate);
+		JSONObject responseObject = new JSONObject(response);
+		JSONArray arr = responseObject.getJSONArray("classList");
+		if(!arr.isEmpty()) {
+			return ResponseHandler.response(responseObject.toMap(), "Class List Details Fetched Successfully", true);
+		}else {
+			return ResponseHandler.response(responseObject.toMap(), "Class List Not Found", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> classDetailsListTrainer(
+			ClassDetailsListTrainerRequest classDetailsListTrainerRequest) {
+		Date currentDate = Date.from(Instant.now());
+		String response = classDetailsRepository.classDetailsListTrainer(classDetailsListTrainerRequest.getTrainerId(),currentDate);
+		JSONObject responseObject = new JSONObject(response);
+		JSONArray arr = responseObject.getJSONArray("classListTrainer");
+		if(!arr.isEmpty()) {
+			return ResponseHandler.response(responseObject.toMap(), "Class List Details For Trainer Fetched Successfully", true);
+		}else {
+			return ResponseHandler.response(responseObject.toMap(), "Class List Details For Trainer Not Found", false);
+		}
 	}
 
 }
