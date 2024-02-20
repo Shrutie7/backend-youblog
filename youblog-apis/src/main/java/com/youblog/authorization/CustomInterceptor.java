@@ -43,7 +43,8 @@ public class CustomInterceptor implements HandlerInterceptor {
 				|| request.getRequestURI().contains("/user/category/list")
 				|| request.getRequestURI().contains("/users/create")
 				|| request.getRequestURI().contains("/post/get/media/")
-				|| request.getRequestURI().contains("/post/download/media/")) {
+				|| request.getRequestURI().contains("/post/download/media/")
+				|| request.getRequestURI().contains("/class/")) {
 			return true;
 		} else {
 			String responseData = "{\r\n" + "\t\"status\": false,\r\n"

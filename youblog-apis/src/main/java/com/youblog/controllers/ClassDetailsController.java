@@ -15,6 +15,7 @@ import com.youblog.payloads.ClassDetailsCreateRequest;
 import com.youblog.payloads.ClassDetailsGetRequest;
 import com.youblog.payloads.ClassDetailsListRequest;
 import com.youblog.payloads.ClassDetailsListTrainerRequest;
+import com.youblog.payloads.ClassDetailsUpdateRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
 import com.youblog.services.ClassDetailsService;
@@ -65,5 +66,10 @@ public class ClassDetailsController {
 	@PostMapping("/get")
 	public ResponseEntity<Map<String,Object>> classDetailsGet(@RequestBody ClassDetailsGetRequest classDetailsGetRequest){
 		return classDetailsService.classDetailsGet(classDetailsGetRequest);
+	}
+	
+	@PostMapping("/update")
+	public ResponseEntity<Map<String,Object>> classDetailsUpdate(@RequestBody ClassDetailsUpdateRequest classDetailsUpdateRequest){
+		return classDetailsService.classDetailsUpdate(classDetailsUpdateRequest);
 	}
 }

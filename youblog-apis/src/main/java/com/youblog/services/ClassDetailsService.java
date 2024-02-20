@@ -8,6 +8,7 @@ import com.youblog.payloads.ClassDetailsCreateRequest;
 import com.youblog.payloads.ClassDetailsGetRequest;
 import com.youblog.payloads.ClassDetailsListRequest;
 import com.youblog.payloads.ClassDetailsListTrainerRequest;
+import com.youblog.payloads.ClassDetailsUpdateRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
 
@@ -29,5 +30,7 @@ public interface ClassDetailsService {
 			ClassDetailsListTrainerRequest classDetailsListTrainerRequest);
 
 	public ResponseEntity<Map<String, Object>> classDetailsGet(ClassDetailsGetRequest classDetailsGetRequest);
+
+	public ResponseEntity<Map<String, Object>> classDetailsUpdate(ClassDetailsUpdateRequest classDetailsUpdateRequest);
 
 }
