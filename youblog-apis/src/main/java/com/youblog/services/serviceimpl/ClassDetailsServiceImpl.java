@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import com.youblog.entities.ClassDetailsEntity;
 import com.youblog.entities.ClassMasterEntity;
 import com.youblog.entities.TimeDetailsEntity;
+import com.youblog.entities.UserClassMappingEntity;
 import com.youblog.payloads.ClassDetailsCreateRequest;
 import com.youblog.payloads.ClassDetailsGetRequest;
 import com.youblog.payloads.ClassDetailsListRequest;
@@ -26,15 +27,19 @@ import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassDetailsUpdateRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
+import com.youblog.payloads.ClassUserLeaveRequest;
+import com.youblog.payloads.ClassUserMappingRequest;
 import com.youblog.repositories.ClassDetailsRepository;
 import com.youblog.repositories.ClassMasterRepository;
 import com.youblog.repositories.TimeDetailsRepository;
+import com.youblog.repositories.UserClassMappingRepository;
 import com.youblog.services.ClassDetailsService;
 import com.youblog.utils.DateParser;
 import com.youblog.utils.QueryExec;
 import com.youblog.utils.ResponseHandler;
 import com.youblog.utils.SqlCustomException;
 
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
@@ -53,7 +58,11 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 	@Autowired
 	private QueryExec queryExec;
 
+	@Autowired
+	private UserClassMappingRepository userClassMappingRepository;
+
 	@Override
+	@Transactional
 	public ResponseEntity<Map<String, Object>> classMasterCreate(ClassMasterCreateRequest classMasterCreateRequest) {
 		List<ClassMasterEntity> classes = new ArrayList<>();
 		if (!classMasterCreateRequest.getClassList().isEmpty()) {
@@ -237,13 +246,13 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 			return ResponseHandler.response(null, "Please Provide class details id", false);
 		}
 	}
-	
+
 	public void deleteClassForAllUsers(Long classDetailsId) throws SqlCustomException {
 		String sqlQuery = "update user_class_mapping set active_flag = false where class_details_id = " + classDetailsId
 				+ " and active_flag = true";
 		queryExec.updateQuery(sqlQuery);
 	}
-	
+
 	@Scheduled(cron = "@daily")
 	public void revokeTempClassDetails() {
 		Calendar calendar = Calendar.getInstance();
@@ -252,7 +261,7 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 		log.info("Yesterday's weekday (numeric): " + yesterdayWeekday);
 		String[] weekdays = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 		String yesterdayWeekdayText = weekdays[(yesterdayWeekday - 1) % 7];
-		log.info("yesterday's weekday: "+yesterdayWeekdayText);
+		log.info("yesterday's weekday: " + yesterdayWeekdayText);
 		List<ClassDetailsEntity> tempChangedClasses = classDetailsRepository
 				.tempChangedClasses(yesterdayWeekdayText.toLowerCase());
 		List<ClassDetailsEntity> tempCancelledClasses = classDetailsRepository
@@ -291,5 +300,55 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 			});
 			classDetailsRepository.saveAll(deleteClasses);
 		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> classUserMapping(ClassUserMappingRequest classUserMappingRequest) {
+		Boolean checkForTime = userClassMappingRepository.checkForTime(classUserMappingRequest.getUserId(),
+				classUserMappingRequest.getClassDetailsId());
+		if (checkForTime) {
+			UserClassMappingEntity userClassMappingEntity = new UserClassMappingEntity();
+			userClassMappingEntity.setActiveFlag(true);
+			userClassMappingEntity.setUserId(classUserMappingRequest.getUserId());
+			userClassMappingEntity.setClassDetailsId(classUserMappingRequest.getClassDetailsId());
+			userClassMappingRepository.save(userClassMappingEntity);
+			return ResponseHandler.response(null, "Class Joined Succesfully", true);
+		} else {
+			return ResponseHandler.response(null, "Can't able to join class. Class Timings are Overlapping", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> classUserLeave(ClassUserLeaveRequest classUserLeaveRequest) {
+		if (classUserLeaveRequest.getUserClassMappingId() != null) {
+			UserClassMappingEntity userClassMapping = userClassMappingRepository
+					.getActiveMapping(classUserLeaveRequest.getUserClassMappingId());
+			if (userClassMapping == null) {
+				return ResponseHandler.response(null, "User Class Mapping Not Found", false);
+			}
+			if (userClassMapping.getUserId() == classUserLeaveRequest.getUserId()) {
+				userClassMapping.setActiveFlag(false);
+				userClassMappingRepository.save(userClassMapping);
+				return ResponseHandler.response(null, "Leaved from class succesfully.", true);
+			}
+			return ResponseHandler.response(null, "Don't have permission to remove class for others", false);
+		} else {
+			return ResponseHandler.response(null, "Please provide Class Mapping Id", false);
+		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> classUsersList(ClassDetailsGetRequest classUsersListRequest) {
+		if(classUsersListRequest.getClassDetailsId()==null) {
+			return ResponseHandler.response(null, "Please Provide Class Details Id", false);
+		}
+		List<Object[]> classUsers = userClassMappingRepository.classUsersList(classUsersListRequest.getClassDetailsId());
+		JSONObject response = new JSONObject();
+		if(classUsers.isEmpty()) {
+			response.put("usersList", new ArrayList<>());
+			return ResponseHandler.response(response.toMap(), "No Users Found for This class", false);
+		}
+		
+		return null;
 	}
 }

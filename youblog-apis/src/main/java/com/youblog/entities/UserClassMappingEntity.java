@@ -34,10 +34,4 @@ public class UserClassMappingEntity {
 	@Column(name = "ACTIVE_FLAG")
 	private Boolean activeFlag;
 
-	@Column(name = "TEMP_FLAG")
-	private Boolean tempFlag;
-
-	@Column(name = "RANGE_FLAG")
-	private Boolean rangeFlag;
-
 	}

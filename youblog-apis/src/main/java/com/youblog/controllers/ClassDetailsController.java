@@ -2,6 +2,8 @@ package com.youblog.controllers;
 
 import java.util.Map;
 
+import javax.print.DocFlavor.READER;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,6 +20,8 @@ import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassDetailsUpdateRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
+import com.youblog.payloads.ClassUserLeaveRequest;
+import com.youblog.payloads.ClassUserMappingRequest;
 import com.youblog.services.ClassDetailsService;
 
 @RestController
@@ -71,5 +75,20 @@ public class ClassDetailsController {
 	@PostMapping("/update")
 	public ResponseEntity<Map<String,Object>> classDetailsUpdate(@RequestBody ClassDetailsUpdateRequest classDetailsUpdateRequest){
 		return classDetailsService.classDetailsUpdate(classDetailsUpdateRequest);
+	}
+	
+	@PostMapping("/user/mapping")
+	public ResponseEntity<Map<String,Object>> classUserMapping(@RequestBody ClassUserMappingRequest classUserMappingRequest){
+		return classDetailsService.classUserMapping(classUserMappingRequest);
+	}
+	
+	@PostMapping("/user/leave")
+	public ResponseEntity<Map<String,Object>> classUserLeave(@RequestBody ClassUserLeaveRequest classUserLeaveRequest){
+		return classDetailsService.classUserLeave(classUserLeaveRequest);
+	}
+	
+	@PostMapping("/users/list")
+	public ResponseEntity<Map<String,Object>> classUsersList(@RequestBody ClassDetailsGetRequest classUsersListRequest){
+		return classDetailsService.classUsersList(classUsersListRequest);
 	}
 }

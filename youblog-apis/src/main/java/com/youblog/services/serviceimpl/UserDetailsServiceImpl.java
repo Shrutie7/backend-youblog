@@ -48,8 +48,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			String accesstoken = token.get("access_token");
 			ResponseEntity<Map<String, Object>> flag = keycloakUtilities.keycloakUserCreator(
 					userDetailsRequest.getEmailId(), userDetailsRequest.getPassword(),
-					userDetailsRequest.getFirstName(), userDetailsRequest.getLastName(),
-					userDetailsRequest.getEmailId(), true, accesstoken);
+					userDetailsRequest.getFirstName().trim(), userDetailsRequest.getLastName().trim(),
+					userDetailsRequest.getEmailId().trim(), true, accesstoken);
 
 			if (!Boolean.valueOf(flag.getBody().get("status").toString())) {
 
@@ -57,13 +57,13 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			}
 			try {
 				UserDetailsEntity use = new UserDetailsEntity();
-				use.setEmailId(userDetailsRequest.getEmailId().toLowerCase());
-				use.setFirstName(userDetailsRequest.getFirstName());
-				use.setLastName(userDetailsRequest.getLastName());
+				use.setEmailId(userDetailsRequest.getEmailId().toLowerCase().trim());
+				use.setFirstName(userDetailsRequest.getFirstName().trim());
+				use.setLastName(userDetailsRequest.getLastName().trim());
 				use.setLocationId(userDetailsRequest.getLocationId());
 				use.setParentUserId(userDetailsRequest.getParentUserId());
 				use.setRoleId(userDetailsRequest.getRoleId());
-				use.setUserName(userDetailsRequest.getUserName());
+				use.setUserName(userDetailsRequest.getUserName().trim());
 				use.setGender(userDetailsRequest.getGender());
 				use.setActiveFlag(true);
 				use.setCategoryId(userDetailsRequest.getCategoryId());
@@ -71,7 +71,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				userDetailsRepository.save(use);
 			} catch (Exception e) {
 //				e.printStackTrace();
-				keycloakUtilities.keycloakUserDelete(userDetailsRequest.getEmailId(), accesstoken);
+				keycloakUtilities.keycloakUserDelete(userDetailsRequest.getEmailId().trim(), accesstoken);
 
 				return ResponseHandler.response(null, "user cannot be created because " + e.getLocalizedMessage(),
 						false);
@@ -163,8 +163,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			UserDetailsEntity getdetails = userDetailsRepository.updateUserDetails(updateUserRequest.getUserId());
 
 			if (getdetails != null) {
-				getdetails.setFirstName(updateUserRequest.getFirstName());
-				getdetails.setLastName(updateUserRequest.getLastName());
+				getdetails.setFirstName(updateUserRequest.getFirstName().trim());
+				getdetails.setLastName(updateUserRequest.getLastName().trim());
 				getdetails.setGender(updateUserRequest.getGender());
 				getdetails.setUserName(updateUserRequest.getUserName());
 				getdetails.setParentUserId(updateUserRequest.getParentUserId());// post approval of worklist
@@ -203,14 +203,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 		if (updatePasswordRequest.getEmailId() != null) {
 			if (updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getConfirmNewPassword())) {
-				boolean validate = keycloakUtilities.validatePassword(updatePasswordRequest.getEmailId(),
+				boolean validate = keycloakUtilities.validatePassword(updatePasswordRequest.getEmailId().trim(),
 						updatePasswordRequest.getCurrentPassword());
 
 				if (validate) {
 					Map<String, String> token = keycloakUtilities.getAdminToken();
 					String accesstoken = token.get("access_token");
 					ResponseEntity<Map<String, Object>> keycloak = keycloakUtilities.updatePassword(
-							updatePasswordRequest.getEmailId(), updatePasswordRequest.getNewPassword(), accesstoken);
+							updatePasswordRequest.getEmailId().trim(), updatePasswordRequest.getNewPassword(), accesstoken);
 
 					return ResponseHandler.response(null, keycloak.getBody().get("message").toString(),
 							Boolean.valueOf(keycloak.getBody().get("status").toString()));
