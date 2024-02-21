@@ -20,6 +20,7 @@ import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassDetailsUpdateRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
+import com.youblog.payloads.ClassUserDataListRquest;
 import com.youblog.payloads.ClassUserLeaveRequest;
 import com.youblog.payloads.ClassUserMappingRequest;
 import com.youblog.services.ClassDetailsService;
@@ -92,4 +93,8 @@ public class ClassDetailsController {
 		return classDetailsService.classUsersList(classUsersListRequest);
 	}
 	
+	@PostMapping("/user/data/list")
+	public ResponseEntity<Map<String,Object>> classUserDataList(@RequestBody ClassUserDataListRquest classUserDataListRquest){
+		return classDetailsService.classUserDataList(classUserDataListRquest);
+	}
 }

@@ -28,6 +28,7 @@ import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassDetailsUpdateRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
+import com.youblog.payloads.ClassUserDataListRquest;
 import com.youblog.payloads.ClassUserLeaveRequest;
 import com.youblog.payloads.ClassUserMappingRequest;
 import com.youblog.repositories.ClassDetailsRepository;
@@ -404,5 +405,24 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 			response.append("usersList", subResponse);
 		});
 		return ResponseHandler.response(response.toMap(), "Users List for class fetched successfully.", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> classUserDataList(ClassUserDataListRquest classUserDataListRquest) {
+		Date currentDate = Date.from(Instant.now());
+		if (classUserDataListRquest.getUserId() != null) {
+			String response = classDetailsRepository.classUserDataList(currentDate,
+					classUserDataListRquest.getUserId());
+			JSONObject responseObject = new JSONObject(response);
+			JSONArray arr = responseObject.getJSONArray("classList");
+			if (!arr.isEmpty()) {
+				return ResponseHandler.response(responseObject.toMap(), "Class List Details Fetched Successfully",
+						true);
+			} else {
+				return ResponseHandler.response(responseObject.toMap(), "Class List Not Found", false);
+			}
+		} else {
+			return ResponseHandler.response(null, "Please Provide user id", false);
+		}
 	}
 }

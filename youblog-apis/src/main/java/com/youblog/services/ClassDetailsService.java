@@ -11,6 +11,7 @@ import com.youblog.payloads.ClassDetailsListTrainerRequest;
 import com.youblog.payloads.ClassDetailsUpdateRequest;
 import com.youblog.payloads.ClassMasterCreateRequest;
 import com.youblog.payloads.ClassMasterDeleteRequest;
+import com.youblog.payloads.ClassUserDataListRquest;
 import com.youblog.payloads.ClassUserLeaveRequest;
 import com.youblog.payloads.ClassUserMappingRequest;
 
@@ -40,5 +41,7 @@ public interface ClassDetailsService {
 	public ResponseEntity<Map<String, Object>> classUserLeave(ClassUserLeaveRequest classUserLeaveRequest);
 
 	public ResponseEntity<Map<String, Object>> classUsersList(ClassDetailsGetRequest classUsersListRequest);
+
+	public ResponseEntity<Map<String, Object>> classUserDataList(ClassUserDataListRquest classUserDataListRquest);
 
 }
