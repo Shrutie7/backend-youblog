@@ -25,7 +25,10 @@ public interface UserClassMappingRepository extends JpaRepository<UserClassMappi
 	@Query(value = "select ucm.user_class_mapping_id,ud.user_id,ucm.class_details_id,concat(ud.first_name,' ',ud.last_name) as user_name,\r\n"
 			+ "ud.email_id,ud.gender,ud.role_id,ud.gym_id,ud.parent_user_id,ud.image_id from user_class_mapping ucm\r\n"
 			+ "inner join user_details ud on ud.user_id = ucm.user_id and ud.active_flag = true\r\n"
-			+ "where ucm.class_details_id = :classDetailsId and ucm.active_flag = true",nativeQuery = true)
+			+ "where ucm.class_details_id = :classDetailsId and ucm.active_flag = true", nativeQuery = true)
 	public List<Object[]> classUsersList(Long classDetailsId);
+
+	@Query(value = "select * from user_class_mapping where user_id = :userId and class_details_id = :classDetailsId", nativeQuery = true)
+	public UserClassMappingEntity getUserClassMapping(Long userId, Long classDetailsId);
 
 }

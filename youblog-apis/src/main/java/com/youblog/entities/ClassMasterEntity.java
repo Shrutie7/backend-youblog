@@ -1,5 +1,7 @@
 package com.youblog.entities;
 
+import java.util.Date;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -30,5 +32,8 @@ public class ClassMasterEntity {
 
 	@Column(name = "ACTIVE_FLAG")
 	private Boolean activeFlag;
+	
+	@Column(name = "created_date")
+	private Date createdDate;
 
 	}

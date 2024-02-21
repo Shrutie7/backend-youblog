@@ -11,4 +11,5 @@ public class ClassDetailsListRequest {
 	
 	private Long gymId;
 	
+	private Long userId;
 }

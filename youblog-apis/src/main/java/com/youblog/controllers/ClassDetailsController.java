@@ -91,4 +91,5 @@ public class ClassDetailsController {
 	public ResponseEntity<Map<String,Object>> classUsersList(@RequestBody ClassDetailsGetRequest classUsersListRequest){
 		return classDetailsService.classUsersList(classUsersListRequest);
 	}
+	
 }

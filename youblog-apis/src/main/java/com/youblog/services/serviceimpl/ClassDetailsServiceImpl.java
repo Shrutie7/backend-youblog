@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import com.youblog.entities.ClassDetailsEntity;
 import com.youblog.entities.ClassMasterEntity;
+import com.youblog.entities.ImageDetailsEntity;
 import com.youblog.entities.TimeDetailsEntity;
 import com.youblog.entities.UserClassMappingEntity;
 import com.youblog.payloads.ClassDetailsCreateRequest;
@@ -31,6 +32,7 @@ import com.youblog.payloads.ClassUserLeaveRequest;
 import com.youblog.payloads.ClassUserMappingRequest;
 import com.youblog.repositories.ClassDetailsRepository;
 import com.youblog.repositories.ClassMasterRepository;
+import com.youblog.repositories.ImageDetailsRepository;
 import com.youblog.repositories.TimeDetailsRepository;
 import com.youblog.repositories.UserClassMappingRepository;
 import com.youblog.services.ClassDetailsService;
@@ -61,6 +63,9 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 	@Autowired
 	private UserClassMappingRepository userClassMappingRepository;
 
+	@Autowired
+	private ImageDetailsRepository imageDetailsRepository;
+
 	@Override
 	@Transactional
 	public ResponseEntity<Map<String, Object>> classMasterCreate(ClassMasterCreateRequest classMasterCreateRequest) {
@@ -70,6 +75,7 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 				ClassMasterEntity classMaster = new ClassMasterEntity();
 				classMaster.setActiveFlag(true);
 				classMaster.setClassName(master.getClassName());
+				classMaster.setCreatedDate(Date.from(Instant.now()));
 				classes.add(classMaster);
 			});
 			classMasterRepository.saveAll(classes);
@@ -87,6 +93,7 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 				JSONObject subResponse = new JSONObject();
 				subResponse.put("classId", data.getClassMasterId());
 				subResponse.put("className", data.getClassName());
+				subResponse.put("createdOn", DateParser.dateToString("dd MMM yy HH:mm", data.getCreatedDate()));
 				response.append("classList", subResponse);
 			});
 			return ResponseHandler.response(response.toMap(), "Classes List Fetched Successfully", true);
@@ -182,13 +189,24 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 	@Override
 	public ResponseEntity<Map<String, Object>> classDetailsList(ClassDetailsListRequest classDetailsListRequest) {
 		Date currentDate = Date.from(Instant.now());
-		String response = classDetailsRepository.classDetailsList(classDetailsListRequest.getGymId(), currentDate);
-		JSONObject responseObject = new JSONObject(response);
-		JSONArray arr = responseObject.getJSONArray("classList");
-		if (!arr.isEmpty()) {
-			return ResponseHandler.response(responseObject.toMap(), "Class List Details Fetched Successfully", true);
+
+		if (classDetailsListRequest.getGymId() != null) {
+			if (classDetailsListRequest.getUserId() != null) {
+				String response = classDetailsRepository.classDetailsList(classDetailsListRequest.getGymId(),
+						currentDate, classDetailsListRequest.getUserId());
+				JSONObject responseObject = new JSONObject(response);
+				JSONArray arr = responseObject.getJSONArray("classList");
+				if (!arr.isEmpty()) {
+					return ResponseHandler.response(responseObject.toMap(), "Class List Details Fetched Successfully",
+							true);
+				} else {
+					return ResponseHandler.response(responseObject.toMap(), "Class List Not Found", false);
+				}
+			} else {
+				return ResponseHandler.response(null, "Please Provide user id", false);
+			}
 		} else {
-			return ResponseHandler.response(responseObject.toMap(), "Class List Not Found", false);
+			return ResponseHandler.response(null, "Please Provide Gym id", false);
 		}
 	}
 
@@ -228,6 +246,12 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 			if (classDetails != null) {
 				if (classDetailsUpdateRequest.getActiveFlag() != null) {
 					classDetails.setActiveFlag(classDetailsUpdateRequest.getActiveFlag());
+					if (!classDetailsUpdateRequest.getActiveFlag()) {
+						try {
+							deleteClassForAllUsers(classDetailsUpdateRequest.getClassDetailsId());
+						} catch (SqlCustomException e) {
+						}
+					}
 				}
 				if (classDetailsUpdateRequest.getTempCancelFlag() != null) {
 					classDetails.setTempCancelFlag(classDetailsUpdateRequest.getTempCancelFlag());
@@ -307,11 +331,18 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 		Boolean checkForTime = userClassMappingRepository.checkForTime(classUserMappingRequest.getUserId(),
 				classUserMappingRequest.getClassDetailsId());
 		if (checkForTime) {
-			UserClassMappingEntity userClassMappingEntity = new UserClassMappingEntity();
-			userClassMappingEntity.setActiveFlag(true);
-			userClassMappingEntity.setUserId(classUserMappingRequest.getUserId());
-			userClassMappingEntity.setClassDetailsId(classUserMappingRequest.getClassDetailsId());
-			userClassMappingRepository.save(userClassMappingEntity);
+			UserClassMappingEntity user = userClassMappingRepository.getUserClassMapping(
+					classUserMappingRequest.getUserId(), classUserMappingRequest.getClassDetailsId());
+			if (user == null) {
+				UserClassMappingEntity userClassMappingEntity = new UserClassMappingEntity();
+				userClassMappingEntity.setActiveFlag(true);
+				userClassMappingEntity.setUserId(classUserMappingRequest.getUserId());
+				userClassMappingEntity.setClassDetailsId(classUserMappingRequest.getClassDetailsId());
+				userClassMappingRepository.save(userClassMappingEntity);
+			} else {
+				user.setActiveFlag(true);
+				userClassMappingRepository.save(user);
+			}
 			return ResponseHandler.response(null, "Class Joined Succesfully", true);
 		} else {
 			return ResponseHandler.response(null, "Can't able to join class. Class Timings are Overlapping", false);
@@ -339,16 +370,39 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> classUsersList(ClassDetailsGetRequest classUsersListRequest) {
-		if(classUsersListRequest.getClassDetailsId()==null) {
+		if (classUsersListRequest.getClassDetailsId() == null) {
 			return ResponseHandler.response(null, "Please Provide Class Details Id", false);
 		}
-		List<Object[]> classUsers = userClassMappingRepository.classUsersList(classUsersListRequest.getClassDetailsId());
+		List<Object[]> classUsers = userClassMappingRepository
+				.classUsersList(classUsersListRequest.getClassDetailsId());
 		JSONObject response = new JSONObject();
-		if(classUsers.isEmpty()) {
+		if (classUsers.isEmpty()) {
 			response.put("usersList", new ArrayList<>());
 			return ResponseHandler.response(response.toMap(), "No Users Found for This class", false);
 		}
-		
-		return null;
+		classUsers.forEach(data -> {
+			JSONObject subResponse = new JSONObject();
+			subResponse.put("userClassMappingId", data[0]);
+			subResponse.put("userId", data[1]);
+			subResponse.put("classDetailsId", data[2]);
+			subResponse.put("userName", data[3] != null ? data[3] : "");
+			subResponse.put("emailId", data[4]);
+			subResponse.put("gender", data[5]);
+			subResponse.put("roleId", data[6]);
+			subResponse.put("gymId", data[7]);
+			subResponse.put("trainerId", data[8]);
+			if (data[9] != null) {
+				Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(data[9].toString());
+				if (!image.isEmpty()) {
+					subResponse.put("image", image.get().getImage() != null ? image.get().getImage() : "");
+				} else {
+					subResponse.put("image", "");
+				}
+			} else {
+				subResponse.put("image", "");
+			}
+			response.append("usersList", subResponse);
+		});
+		return ResponseHandler.response(response.toMap(), "Users List for class fetched successfully.", true);
 	}
 }
