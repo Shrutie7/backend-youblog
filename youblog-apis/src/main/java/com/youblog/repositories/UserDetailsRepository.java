@@ -54,5 +54,5 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 	public ArrayList<Object[]> getTrainerList(Long gymId);
 
 	@Query(value = "select * from user_details where user_id = :userId", nativeQuery = true)
-	public UserDetailsEntity planPurchase(Long userId);
+	public UserDetailsEntity findByUserId(Long userId);
 }

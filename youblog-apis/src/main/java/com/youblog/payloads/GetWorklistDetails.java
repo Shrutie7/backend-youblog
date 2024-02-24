@@ -1,5 +1,13 @@
 package com.youblog.payloads;
 
-public class GetWorklistDetails {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class GetWorklistDetails {
+	
+	private Long userId;
 }

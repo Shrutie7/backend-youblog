@@ -29,5 +29,8 @@ public interface GymDetailsRepository extends JpaRepository<GymDetailsEntity, Lo
 			+ "			AND ACTIVE_FLAG = TRUE\r\n"
 			+ "		GROUP BY GYM_ID) as ud on ud.gym_id = gd.gym_id where location_id =:locationId and ud.trainer_count=true;",nativeQuery = true)
 	 public List<Object[]> getgymAddressListFilter(Long locationId);
+	 
+	 @Query(value = "select * from gym_details where gym_id = :gymId",nativeQuery = true)
+	 public GymDetailsEntity findByGymId(Long gymId);
 
 }
