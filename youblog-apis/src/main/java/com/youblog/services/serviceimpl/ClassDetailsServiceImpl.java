@@ -138,10 +138,10 @@ public class ClassDetailsServiceImpl implements ClassDetailsService {
 			timeList.forEach(data -> {
 				JSONObject subResponse = new JSONObject();
 				subResponse.put("timeDetailsId", data.getTimeDetailsId());
-				subResponse.put("timings", (data.getStartTime() < 12 ? data.getStartTime() + "AM"
-						: data.getStartTime() == 12 ? data.getStartTime() + "PM" : data.getStartTime() - 12 + "PM")
-						+ " - " + (data.getEndTime() < 12 ? data.getEndTime() + "AM"
-								: data.getEndTime() == 12 ? data.getEndTime() + "PM" : data.getEndTime() - 12 + "PM"));
+				subResponse.put("timings", (data.getStartTime() < 12 ? data.getStartTime() + " AM"
+						: data.getStartTime() == 12 ? data.getStartTime() + " PM" : data.getStartTime() - 12 + " PM")
+						+ " - " + (data.getEndTime() < 12 ? data.getEndTime() + " AM"
+								: data.getEndTime() == 12 ? data.getEndTime() + " PM" : data.getEndTime() - 12 + " PM"));
 				response.append("timeList", subResponse);
 			});
 			return ResponseHandler.response(response.toMap(), "Time List Fetched Successfully", true);

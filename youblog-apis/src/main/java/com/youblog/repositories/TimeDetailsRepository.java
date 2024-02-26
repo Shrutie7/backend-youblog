@@ -11,7 +11,7 @@ import com.youblog.entities.TimeDetailsEntity;
 @Repository
 public interface TimeDetailsRepository extends JpaRepository<TimeDetailsEntity, Long> {
 
-	@Query(value = "select * from time_details where active_flag = true",nativeQuery = true)
+	@Query(value = "select * from time_details where active_flag = true order by time_details_id asc",nativeQuery = true)
 	public List<TimeDetailsEntity> getTimeDetails(); 
 
 	}
