@@ -4,9 +4,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,8 +26,10 @@ import com.youblog.payloads.UserDetailsRequest;
 import com.youblog.payloads.WorklistCreateRequest;
 import com.youblog.repositories.ImageDetailsRepository;
 import com.youblog.repositories.UserDetailsRepository;
+import com.youblog.repositories.WorklistDetailsRepository;
 import com.youblog.services.UserDetailsService;
 import com.youblog.services.WorklistService;
+import com.youblog.utils.DateParser;
 import com.youblog.utils.KeycloakUtils;
 import com.youblog.utils.ResponseHandler;
 import com.youblog.utils.WorklistConstants;
@@ -47,6 +51,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	@Autowired
 	private WorklistServiceImpl worklistServiceImpl;
+
+	@Autowired
+	private WorklistDetailsRepository worklistDetailsRepository;
 
 	private static final Long WORK_FLOW_MASTER_ID_USER_CANCEL_SUB = Long
 			.valueOf(WorklistConstants.WORK_FLOW_MASTER_ID_USER_CANCEL_SUB);
@@ -101,6 +108,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 				}
 				use.setCategoryId(userDetailsRequest.getCategoryId());
 				use.setGymId(userDetailsRequest.getGymId());
+				use.setWorklistStatus("P");
 				UserDetailsEntity user = userDetailsRepository.save(use);
 				if (userDetailsRequest.getRoleId() == 3 || userDetailsRequest.getRoleId() == 2) {
 					WorklistCreateRequest worklistRequest = new WorklistCreateRequest();
@@ -143,6 +151,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 					hm.put("roleName", ele[6] != null ? ele[6].toString() : "N/A");
 					hm.put("userId", ele[7] != null ? ele[7].toString() : "N/A");
 					hm.put("gymId", ele[8] != null ? ele[8].toString() : "");
+					hm.put("worklistStatus", ele[25] != null ? ele[25] : "C");
 					if (ele[24] != null) {
 						Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(ele[24].toString());
 						if (!image.isEmpty()) {
@@ -153,6 +162,46 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 					} else {
 						hm.put("image", "");
 					}
+					JSONObject worklist = new JSONObject();
+					if (ele[25].toString().equals("P")) {
+						List<Object[]> worklistDetails = worklistDetailsRepository.getRequestUserWorklistData("P",
+								Long.valueOf(ele[7].toString()),
+								Integer.valueOf(ele[4].toString()) == 2 ? WORK_FLOW_MASTER_ID_OWNER_REGISTER
+										: WORK_FLOW_MASTER_ID_TRAINER_REGISTER);
+						worklistDetails.forEach(data -> {
+							JSONObject initiatedUserDetails = new JSONObject();
+							worklist.put("worklistDetailsId", data[0]);
+							initiatedUserDetails.put("userId", data[3]);
+							initiatedUserDetails.put("userName", data[8] != " " ? data[8] : "");
+							initiatedUserDetails.put("emailId", data[9]);
+							initiatedUserDetails.put("roleId", data[10]);
+							initiatedUserDetails.put("categoryId", data[11] != null ? data[11] : "");
+							initiatedUserDetails.put("activeFlag", data[13]);
+							if (data[12] != null) {
+								Optional<ImageDetailsEntity> image = imageDetailsRepository
+										.findById(data[12].toString());
+								if (!image.isEmpty()) {
+									initiatedUserDetails.put("image",
+											image.get().getImage() != null ? image.get().getImage() : "");
+								} else {
+									initiatedUserDetails.put("image", "");
+								}
+							} else {
+								initiatedUserDetails.put("image", "");
+							}
+							worklist.put("pendingWith", initiatedUserDetails);
+							worklist.put("workflowMasterId", data[2]);
+							worklist.put("initiatedUserId", data[1]);
+							worklist.put("initiatedData", data[4] != null ? new JSONObject(data[4].toString()) : "");
+							worklist.put("initiatedDate",
+									data[5] != null ? DateParser.dateToString("dd MMM yy HH:mm", (Date) data[5]) : "");
+							worklist.put("actedDate",
+									data[7] != null ? DateParser.dateToString("dd MMM yy HH:mm", (Date) data[7]) : "");
+							worklist.put("worklistStatus", data[6]);
+						});
+					}
+					hm.put("worklistData", worklist.toMap());
+
 					Map<String, Object> parentdetails = new HashMap<>();
 
 					if (ele[9] != null) {

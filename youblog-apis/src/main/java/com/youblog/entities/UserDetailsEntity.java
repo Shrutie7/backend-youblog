@@ -67,4 +67,7 @@ public class UserDetailsEntity {
 	
 	@Column(name = "image_id")
 	private String imageId;
+	
+	@Column(name = "worklist_status")
+	private String worklistStatus;
 }

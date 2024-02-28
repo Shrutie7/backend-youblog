@@ -26,7 +26,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 			+ "				PD.PLAN_NAME,\r\n" + "				TO_CHAR(UD.PLAN_PURCHASED_DATE,\r\n"
 			+ "			\r\n" + "					'DD Mon YY') AS PLAN_START_DATE,\r\n" + "					\r\n"
 			+ "				case when GD.gym_name ='YouFit Gyms Elite' then 2 else case when gd.gym_name = 'YouFit Gyms Pro' then 1 end end as gym_type_id, \r\n"
-			+ "			PD.PLAN_DURATION, to_char(UD.PLAN_PURCHASED_DATE + INTERVAL '1 MONTH' * pd.plan_duration, 'DD Mon YY') as plan_end_date,ud.image_id\r\n"
+			+ "			PD.PLAN_DURATION, to_char(UD.PLAN_PURCHASED_DATE + INTERVAL '1 MONTH' * pd.plan_duration, 'DD Mon YY') as plan_end_date,ud.image_id,ud.worklist_status\r\n"
 			+ "			FROM USER_DETAILS AS UD\r\n"
 			+ "			LEFT JOIN ROLE_DETAILS AS RD ON UD.ROLE_ID = RD.ROLE_ID\r\n"
 			+ "			LEFT JOIN USER_DETAILS AS USD ON USD.USER_ID = UD.PARENT_USER_ID\r\n"
