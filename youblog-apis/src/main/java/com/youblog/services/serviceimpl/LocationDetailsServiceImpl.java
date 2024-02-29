@@ -2,8 +2,10 @@ package com.youblog.services.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -118,7 +120,7 @@ public class LocationDetailsServiceImpl implements LocationDetailsService {
 			Map<String, Object> data = new HashMap<>();
 			ArrayList<Object[]> getgymaddress = gymDetailsRepository
 					.getGymAddressList(gymAddressRequest.getLocationId());
-			ArrayList<Map<String, Object>> gymaddresslist = new ArrayList<>();
+			Set<Map<String, Object>> gymaddresslist = new HashSet<>();
 			if (getgymaddress == null) {
 				data.put("gymAddressList", new ArrayList<>());
 				return ResponseHandler.response(data, "gym address list not found", false);
@@ -148,7 +150,8 @@ public class LocationDetailsServiceImpl implements LocationDetailsService {
 			Map<String, Object> data = new HashMap<>();
 			List<Object[]> getgymaddress = gymDetailsRepository
 					.getgymAddressListFilter(gymAddressRequest.getLocationId());
-			ArrayList<Map<String, Object>> gymaddresslist = new ArrayList<>();
+			List<Object[]> worklistGyms = gymDetailsRepository.getWorklistGyms(gymAddressRequest.getLocationId());
+			Set<Map<String, Object>> gymaddresslist = new HashSet<>();
 			if (getgymaddress == null) {
 				data.put("gymAddressList", new ArrayList<>());
 				return ResponseHandler.response(data, "gym address list not found", false);
@@ -163,8 +166,15 @@ public class LocationDetailsServiceImpl implements LocationDetailsService {
 					gymaddresslist1.put("ownerId", ele[3].toString());
 					gymaddresslist.add(gymaddresslist1);
 				});
+				worklistGyms.forEach(ele -> {
+					Map<String, Object> gymaddresslist1 = new HashMap<>();
+					gymaddresslist1.put("gymId", ele[0].toString());
+					gymaddresslist1.put("gymName", ele[1].toString());
+					gymaddresslist1.put("gymAddress", ele[2].toString());
+					gymaddresslist1.put("ownerId", ele[3].toString());
+					gymaddresslist.add(gymaddresslist1);
+				});
 				data.put("gymAddressList", gymaddresslist);
-
 				return ResponseHandler.response(data, "gym address list found", true);
 			}
 		} else {

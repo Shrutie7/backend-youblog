@@ -33,4 +33,10 @@ public interface GymDetailsRepository extends JpaRepository<GymDetailsEntity, Lo
 	 @Query(value = "select * from gym_details where gym_id = :gymId",nativeQuery = true)
 	 public GymDetailsEntity findByGymId(Long gymId);
 
+	 @Query(value = "select gd.gym_id,gd.gym_name,gd.gym_address,gd.owner_id from worklist_details wd\r\n"
+	 		+ "inner join gym_details gd on gd.owner_id = wd.action_user_id and gd.location_id = :locationId\r\n"
+	 		+ "where wd.workflow_master_id in (1,2,4,6) and wd.worklist_status = 'P'\r\n"
+	 		+ "group by gd.gym_id,gd.gym_name,gd.gym_address,gd.owner_id",nativeQuery = true)
+	public List<Object[]> getWorklistGyms(Long locationId);
+
 }

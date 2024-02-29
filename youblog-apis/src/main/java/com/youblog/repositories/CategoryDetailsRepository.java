@@ -23,4 +23,10 @@ public interface CategoryDetailsRepository extends JpaRepository<CategoryDetails
 			+ "where cd.user_details_flag = true) and \n"
 			+ "cd.user_details_flag = true",nativeQuery = true)
 	public List<CategoryDetailsEntity> userCategoryList(Long gymId);
+
+	@Query(value = "select cd.* from worklist_details wd \r\n"
+			+ "	inner join user_details ud on ud.user_id = wd.initiated_user_id and ud.role_id = 3 and ud.gym_id = :gymId\r\n"
+			+ "	inner join category_details cd on cd.category_id = ud.category_id and cd.user_details_flag = true\r\n"
+			+ "	where wd.workflow_master_id in (4,6) and wd.worklist_status = 'P'",nativeQuery = true)
+	public List<CategoryDetailsEntity> worklistCategories(Long gymId);
 }

@@ -2,6 +2,7 @@ package com.youblog.services.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -52,8 +53,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 	@Override
 	public ResponseEntity<Map<String, Object>> feedbackList(FeedbackListRequest feedbackListRequest) {
 		if (feedbackListRequest.getGymId() != null) {
-			ArrayList<Object[]> getfeedback = feedbackDetailsRepository.getFeedbackList(feedbackListRequest.getGymId());
-			ArrayList<Map<String, Object>> feedbackDetailsList = new ArrayList<>();
+			List<Object[]> getfeedback = feedbackDetailsRepository.getFeedbackList(feedbackListRequest.getGymId());
+			List<Map<String, Object>> feedbackDetailsList = new ArrayList<>();
 			if (getfeedback != null) {
 				Map<String, Object> hm = new HashMap<>();
 				getfeedback.forEach(ele -> {
@@ -70,8 +71,8 @@ public class FeedbackServiceImpl implements FeedbackService {
 					} else {
 						hm.put("image", "");
 					}
+					feedbackDetailsList.add(hm);
 				});
-				feedbackDetailsList.add(hm);
 				return ResponseHandler.response(feedbackDetailsList, "Feedback list fetched successfully", true);
 			} else {
 				return ResponseHandler.response(null, "Feedback list is not found", false);
