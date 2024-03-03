@@ -86,6 +86,7 @@ public class WorklistServiceImpl implements WorklistService {
 			initiatedUserDetails.put("roleId", data[10]);
 			initiatedUserDetails.put("categoryId", data[11] != null ? data[11] : "");
 			initiatedUserDetails.put("activeFlag", data[13]);
+			initiatedUserDetails.put("workflowName", data[14]);
 			if (data[12] != null) {
 				Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(data[12].toString());
 				if (!image.isEmpty()) {
@@ -143,6 +144,7 @@ public class WorklistServiceImpl implements WorklistService {
 			initiatedUserDetails.put("roleId", data[10]);
 			initiatedUserDetails.put("categoryId", data[11] != null ? data[11] : "");
 			initiatedUserDetails.put("activeFlag", data[13]);
+			initiatedUserDetails.put("workflowName", data[14]);
 			if (data[12] != null) {
 				Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(data[12].toString());
 				if (!image.isEmpty()) {

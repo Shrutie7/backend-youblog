@@ -163,7 +163,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 						hm.put("image", "");
 					}
 					JSONObject worklist = new JSONObject();
-					if (ele[25].toString().equals("P")) {
+					if (ele[25]!=null && ele[25].toString().equals("P")) {
 						List<Object[]> worklistDetails = worklistDetailsRepository.getRequestUserWorklistData("P",
 								Long.valueOf(ele[7].toString()),
 								Integer.valueOf(ele[4].toString()) == 2 ? WORK_FLOW_MASTER_ID_OWNER_REGISTER
