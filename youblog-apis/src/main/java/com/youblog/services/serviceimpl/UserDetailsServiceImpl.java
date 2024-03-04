@@ -118,7 +118,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 									: WORK_FLOW_MASTER_ID_TRAINER_REGISTER);
 					worklistRequest
 							.setActionUserId(worklistServiceImpl.actionUserId(user.getRoleId(), user.getUserId()));
-					worklistService.initiateWorkList(worklistRequest);
+					return worklistService.initiateWorkList(worklistRequest);
 				}
 			} catch (Exception e) {
 				keycloakUtilities.keycloakUserDelete(userDetailsRequest.getEmailId().trim(), accesstoken);
@@ -163,7 +163,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 						hm.put("image", "");
 					}
 					JSONObject worklist = new JSONObject();
-					if (ele[25]!=null && ele[25].toString().equals("P")) {
+					if (ele[25] != null && ele[25].toString().equals("P")) {
 						List<Object[]> worklistDetails = worklistDetailsRepository.getRequestUserWorklistData("P",
 								Long.valueOf(ele[7].toString()),
 								Integer.valueOf(ele[4].toString()) == 2 ? WORK_FLOW_MASTER_ID_OWNER_REGISTER
@@ -410,6 +410,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public ResponseEntity<Map<String, Object>> cancelMembership(CancelMembershipRequest cancelMembershipRequest) {
 		if (cancelMembershipRequest.getUserId() != null) {
+			UserDetailsEntity user = userDetailsRepository.findByUserId(cancelMembershipRequest.getUserId());
+			user.setWorklistStatus("P");
 			WorklistCreateRequest worklistRequest = new WorklistCreateRequest();
 			worklistRequest.setActionUserId(worklistServiceImpl.actionUserId(cancelMembershipRequest.getRoleId(),
 					cancelMembershipRequest.getUserId()));
@@ -418,8 +420,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			worklistRequest
 					.setWorkflowMasterId(cancelMembershipRequest.getRoleId() == 4 ? WORK_FLOW_MASTER_ID_USER_CANCEL_SUB
 							: WORK_FLOW_MASTER_ID_TRAINER_RESIGN);
-			worklistService.initiateWorkList(worklistRequest);
-			return ResponseHandler.response(null, "Worklist Initiated Successfully", true);
+			userDetailsRepository.save(user);
+			return worklistService.initiateWorkList(worklistRequest);
 		} else {
 			return ResponseHandler.response(null, "Please Provide User Id", false);
 		}
@@ -428,6 +430,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Override
 	public ResponseEntity<Map<String, Object>> changeGymLocation(ChangeGymLocationRequest changeGymLocationRequest) {
 		if (changeGymLocationRequest.getUserId() != null) {
+			UserDetailsEntity user = userDetailsRepository.findByUserId(changeGymLocationRequest.getUserId());
+			user.setWorklistStatus("P");
 			WorklistCreateRequest worklistRequest = new WorklistCreateRequest();
 			worklistRequest.setActionUserId(worklistServiceImpl.actionUserId(changeGymLocationRequest.getRoleId(),
 					changeGymLocationRequest.getUserId()));
@@ -436,8 +440,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			worklistRequest
 					.setWorkflowMasterId(changeGymLocationRequest.getRoleId() == 4 ? WORK_FLOW_MASTER_ID_USER_RELOCATE
 							: WORK_FLOW_MASTER_ID_TRAINER_RELOCATE);
-			worklistService.initiateWorkList(worklistRequest);
-			return ResponseHandler.response(null, "Worklist Initiated Successfully", true);
+			userDetailsRepository.save(user);
+			return worklistService.initiateWorkList(worklistRequest);
 		} else {
 			return ResponseHandler.response(null, "Please Provide User Id", false);
 		}

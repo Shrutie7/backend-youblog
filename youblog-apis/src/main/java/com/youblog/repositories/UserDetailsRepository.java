@@ -1,6 +1,7 @@
 package com.youblog.repositories;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -42,17 +43,22 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 	@Query(value = "select * from user_details where active_flag = true", nativeQuery = true)
 	public ArrayList<UserDetailsEntity> getUserList();
 
-	@Query(value = "SELECT ROUND(cast(AVG(FD.RATING) as numeric),2) AS rating,\r\n"
-			+ "	CONCAT(UD.FIRST_NAME,\r\n" + "\r\n" + "		' ',\r\n" + "		UD.LAST_NAME) AS trainerName,\r\n"
-			+ "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n" + "	CD.CATEGORY_NAME,ud.image_id\r\n"
-			+ "FROM USER_DETAILS AS UD\r\n" + "LEFT JOIN FEEDBACK_DETAILS AS FD ON UD.USER_ID = FD.TRAINER_USER_ID\r\n"
+	@Query(value = "SELECT ROUND(cast(AVG(FD.RATING) as numeric),2) AS rating,\r\n" + "	CONCAT(UD.FIRST_NAME,\r\n"
+			+ "\r\n" + "		' ',\r\n" + "		UD.LAST_NAME) AS trainerName,\r\n" + "	UD.USER_ID,\r\n"
+			+ "	UD.CATEGORY_ID,\r\n" + "	CD.CATEGORY_NAME,ud.image_id\r\n" + "FROM USER_DETAILS AS UD\r\n"
+			+ "LEFT JOIN FEEDBACK_DETAILS AS FD ON UD.USER_ID = FD.TRAINER_USER_ID\r\n"
 			+ "LEFT JOIN CATEGORY_DETAILS AS CD ON CD.CATEGORY_ID = UD.CATEGORY_ID\r\n" + "WHERE ROLE_ID = 3\r\n"
-			+ "	AND ud.gym_id =:gymId\r\n" + "GROUP BY CONCAT(UD.FIRST_NAME,\r\n" + "\r\n"
-			+ "	' ',\r\n"
+			+ "	AND ud.gym_id =:gymId\r\n" + "GROUP BY CONCAT(UD.FIRST_NAME,\r\n" + "\r\n" + "	' ',\r\n"
 			+ "	UD.LAST_NAME),\r\n" + "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n"
 			+ "	CD.CATEGORY_NAME", nativeQuery = true)
 	public ArrayList<Object[]> getTrainerList(Long gymId);
 
 	@Query(value = "select * from user_details where user_id = :userId", nativeQuery = true)
 	public UserDetailsEntity findByUserId(Long userId);
+
+	@Query(value = "select * from user_details where category_id = :categoryId and gym_id = :gymId order by user_id desc limit 1", nativeQuery = true)
+	public UserDetailsEntity findNewTrainer(Long categoryId, Long gymId);
+
+	@Query(value = "select * from user_details where parent_user_id = :userId and active_flag = true", nativeQuery = true)
+	public List<UserDetailsEntity> findUsersUnderTrainer(Long userId);
 }

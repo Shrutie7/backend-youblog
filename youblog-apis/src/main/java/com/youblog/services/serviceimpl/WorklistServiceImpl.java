@@ -25,6 +25,7 @@ import com.youblog.repositories.UserDetailsRepository;
 import com.youblog.repositories.WorklistDetailsRepository;
 import com.youblog.services.WorklistService;
 import com.youblog.utils.DateParser;
+import com.youblog.utils.KeycloakUtils;
 import com.youblog.utils.ResponseHandler;
 
 @Service
@@ -42,6 +43,21 @@ public class WorklistServiceImpl implements WorklistService {
 	@Autowired
 	private ImageDetailsRepository imageDetailsRepository;
 
+	@Autowired
+	private KeycloakUtils keycloakUtils;
+
+	private static final int WORK_FLOW_MASTER_ID_USER_CANCEL_SUB = 1;
+
+	public static final int WORK_FLOW_MASTER_ID_TRAINER_RESIGN = 4;
+
+	public static final int WORK_FLOW_MASTER_ID_TRAINER_REGISTER = 5;
+
+	public static final int WORK_FLOW_MASTER_ID_OWNER_REGISTER = 7;
+
+	public static final int WORK_FLOW_MASTER_ID_USER_RELOCATE = 2;
+
+	public static final int WORK_FLOW_MASTER_ID_TRAINER_RELOCATE = 6;
+
 	@Override
 	public ResponseEntity<Map<String, Object>> initiateWorkList(WorklistCreateRequest worklistCreateRequest) {
 		WorklistDetailsEntity worklistDetails = new WorklistDetailsEntity();
@@ -52,13 +68,77 @@ public class WorklistServiceImpl implements WorklistService {
 		worklistDetails.setInitiatedUserId(worklistCreateRequest.getInitiatedUserId());
 		worklistDetails.setWorkflowMasterId(worklistCreateRequest.getWorkflowMasterId());
 		worklistDetailsRepository.save(worklistDetails);
-		return ResponseHandler.response(null, "Worklist Initiated Successfully", true);
+		return ResponseHandler.response(null, "Request Initiated Successfully", true);
 	}
 
 	@Override
 	public ResponseEntity<Map<String, Object>> updateWorkList(WorklistUpdateRequest worklistUpdateRequest) {
-		// TODO Auto-generated method stub
-		return null;
+		WorklistDetailsEntity worklistDetails = worklistDetailsRepository
+				.findPendingWorklist(worklistUpdateRequest.getWorklistDetailsId());
+		if (worklistDetails == null) {
+			return ResponseHandler.response(null, "No Worklist Details Found.", false);
+		}
+		Long workflowMasterId = worklistDetails.getWorkflowMasterId();
+		String action = worklistUpdateRequest.getAction();
+		boolean successFlag = false;
+		UserDetailsEntity user = userDetailsRepository.findByUserId(worklistDetails.getInitiatedUserId());
+		switch (workflowMasterId.intValue()) {
+		case WORK_FLOW_MASTER_ID_USER_CANCEL_SUB:
+			if (action.equals("Approve")) {
+				user.setActiveFlag(false);
+				keycloakUserDelete(worklistDetails.getInitiatedUserId());
+				successFlag = true;
+			}
+			userDetailsRepository.save(user);
+			break;
+		case WORK_FLOW_MASTER_ID_TRAINER_RESIGN:
+			if (action.equals("Approve")) {
+				user.setActiveFlag(false);
+				boolean change = changeTrainerIds(worklistDetails.getInitiatedUserId());
+				if (change) {
+					keycloakUserDelete(worklistDetails.getInitiatedUserId());
+					successFlag = true;
+				}
+			}
+			userDetailsRepository.save(user);
+			break;
+		case WORK_FLOW_MASTER_ID_TRAINER_REGISTER:
+		case WORK_FLOW_MASTER_ID_OWNER_REGISTER:
+			if (action.equals("Approve")) {
+				user.setActiveFlag(true);
+			}
+			if (action.equals("Reject")) {
+				keycloakUserDelete(worklistDetails.getInitiatedUserId());
+			}
+			user.setWorklistStatus("C");
+			userDetailsRepository.save(user);
+			successFlag = true;
+			break;
+		case WORK_FLOW_MASTER_ID_USER_RELOCATE:
+			if (action.equals("Approve")) {
+
+			}
+			if (action.equals("Reject")) {
+
+			}
+			break;
+		case WORK_FLOW_MASTER_ID_TRAINER_RELOCATE:
+			if (action.equals("Approve")) {
+
+			}
+			if (action.equals("Reject")) {
+
+			}
+			break;
+		}
+		if (successFlag) {
+			worklistDetails.setActedDate(Date.from(Instant.now()));
+			worklistDetails.setWorklistStatus("C");
+			worklistDetailsRepository.save(worklistDetails);
+			return ResponseHandler.response(null, "Request Updated Successfully", true);
+		} else {
+			return ResponseHandler.response(null, "Failed to Updated Request", false);
+		}
 	}
 
 	@Override
@@ -116,7 +196,8 @@ public class WorklistServiceImpl implements WorklistService {
 		if (getCompletedWorklist.getUserId() == null) {
 			return ResponseHandler.response(null, "Please Provide User Id", false);
 		}
-		List<Object[]> worklistDetails = worklistDetailsRepository.getWorklistData("C", getCompletedWorklist.getUserId());
+		List<Object[]> worklistDetails = worklistDetailsRepository.getWorklistData("C",
+				getCompletedWorklist.getUserId());
 		if (worklistDetails.isEmpty()) {
 			return ResponseHandler.response(new ArrayList<>(), "No Completed Worklist Available", false);
 		}
@@ -129,7 +210,8 @@ public class WorklistServiceImpl implements WorklistService {
 		if (getRequestedWorklist.getUserId() == null) {
 			return ResponseHandler.response(null, "Please Provide User Id", false);
 		}
-		List<Object[]> worklistDetails = worklistDetailsRepository.getRequestedWorklistData("P", getRequestedWorklist.getUserId());
+		List<Object[]> worklistDetails = worklistDetailsRepository.getRequestedWorklistData("P",
+				getRequestedWorklist.getUserId());
 		if (worklistDetails.isEmpty()) {
 			return ResponseHandler.response(new ArrayList<>(), "No Requested Worklist Available", false);
 		}
@@ -190,4 +272,29 @@ public class WorklistServiceImpl implements WorklistService {
 		return 0L;
 	}
 
+	private void keycloakUserDelete(Long userId) {
+		UserDetailsEntity user = userDetailsRepository.findByUserId(userId);
+		Map<String, String> token = keycloakUtils.getAdminToken();
+		String accesstoken = token.get("access_token");
+		keycloakUtils.keycloakUserDelete(user.getEmailId().trim(), accesstoken);
+	}
+
+	private boolean changeTrainerIds(Long userId) {
+		UserDetailsEntity user = userDetailsRepository.findByUserId(userId);
+		UserDetailsEntity newTrainer = userDetailsRepository.findNewTrainer(user.getCategoryId(), user.getGymId());
+		if (newTrainer != null) {
+			if (user.getUserId() != newTrainer.getUserId()) {
+				List<UserDetailsEntity> users = userDetailsRepository.findUsersUnderTrainer(user.getUserId());
+				List<UserDetailsEntity> normalUsers = new ArrayList<>();
+				users.forEach(data -> {
+					data.setParentUserId(newTrainer.getUserId());
+					normalUsers.add(data);
+				});
+				userDetailsRepository.saveAll(normalUsers);
+				return true;
+			}
+			return false;
+		}
+		return false;
+	}
 }
