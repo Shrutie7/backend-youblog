@@ -180,14 +180,14 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 							JSONObject initiatedUserDetails = new JSONObject();
 							worklist.put("worklistDetailsId", data[0]);
 							initiatedUserDetails.put("userId", data[3]);
-							initiatedUserDetails.put("userName", data[8] != " " ? data[8] : "");
-							initiatedUserDetails.put("emailId", data[9]);
-							initiatedUserDetails.put("roleId", data[10]);
-							initiatedUserDetails.put("categoryId", data[11] != null ? data[11] : "");
-							initiatedUserDetails.put("activeFlag", data[13]);
-							if (data[12] != null) {
+							initiatedUserDetails.put("userName", data[9] != " " ? data[9] : "");
+							initiatedUserDetails.put("emailId", data[10]);
+							initiatedUserDetails.put("roleId", data[11]);
+							initiatedUserDetails.put("categoryId", data[12] != null ? data[12] : "");
+							initiatedUserDetails.put("activeFlag", data[14]);
+							if (data[13] != null) {
 								Optional<ImageDetailsEntity> image = imageDetailsRepository
-										.findById(data[12].toString());
+										.findById(data[13].toString());
 								if (!image.isEmpty()) {
 									initiatedUserDetails.put("image",
 											image.get().getImage() != null ? image.get().getImage() : "");

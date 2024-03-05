@@ -235,8 +235,8 @@ public class WorklistServiceImpl implements WorklistService {
 		if (getRequestedWorklist.getUserId() == null) {
 			return ResponseHandler.response(null, "Please Provide User Id", false);
 		}
-		List<Object[]> worklistDetails = worklistDetailsRepository.getRequestedWorklistData("P",
-				getRequestedWorklist.getUserId());
+		List<Object[]> worklistDetails = worklistDetailsRepository
+				.getRequestedWorklistData(getRequestedWorklist.getUserId());
 		if (worklistDetails.isEmpty()) {
 			return ResponseHandler.response(new ArrayList<>(), "No Requested Worklist Available", false);
 		}
@@ -262,7 +262,16 @@ public class WorklistServiceImpl implements WorklistService {
 			}
 			subResponse.put("activeFlag", data[14]);
 			subResponse.put("workflowName", data[15]);
-			subResponse.put("pendingWith", initiatedUserDetails);
+			if (data[6].toString().equals("P")) {
+				subResponse.put("pendingWith", initiatedUserDetails);
+			} else {
+				subResponse.put("pendingWith", new JSONObject());
+			}
+			if (data[6].toString().equals("C")) {
+				subResponse.put("actedBy", initiatedUserDetails);
+			} else {
+				subResponse.put("actedBy", new JSONObject());
+			}
 			subResponse.put("workflowMasterId", data[2]);
 			subResponse.put("action", data[8] != null ? data[8] : "");
 			subResponse.put("initiatedUserId", data[1]);
