@@ -11,4 +11,6 @@ public interface CategoryDetailsService {
 	public ResponseEntity<Map<String, Object>> categoryList();
 
 	public ResponseEntity<Map<String, Object>> userCategoryList(CategoryListRequest categoryListRequest);
+
+	public ResponseEntity<Map<String, Object>> categoryListFilter();
 }

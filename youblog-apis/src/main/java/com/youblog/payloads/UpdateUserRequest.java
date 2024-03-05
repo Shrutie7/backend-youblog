@@ -30,5 +30,6 @@ public class UpdateUserRequest {
 	private Boolean activeFlag;
 
 	private Long gymId;
-
+	
+	private String image;
 }

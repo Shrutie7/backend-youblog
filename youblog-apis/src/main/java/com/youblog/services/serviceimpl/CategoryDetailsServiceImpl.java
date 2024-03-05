@@ -2,8 +2,10 @@ package com.youblog.services.serviceimpl;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +49,37 @@ public class CategoryDetailsServiceImpl implements CategoryDetailsService {
 		Map<String, Object> data = new HashMap<>();
 		List<CategoryDetailsEntity> categoryList = categoryDetailsRepository
 				.userCategoryList(categoryListRequest.getGymId());
+		List<CategoryDetailsEntity> worklistCategoryList = categoryDetailsRepository
+				.worklistCategories(categoryListRequest.getGymId());
+		Set<Map<String, Object>> categories = new HashSet<>();
+
+		if (categoryList == null) {
+			data.put("categoryDetailsList", categories);
+			return ResponseHandler.response(data, "category details not found", false);
+		} else
+
+			categoryList.forEach(ele -> {
+				Map<String, Object> catlist = new HashMap<>();
+				catlist.put("categoryId", ele.getCategoryId());
+				catlist.put("categoryName", ele.getCategoryName());
+
+				categories.add(catlist);
+			});
+		worklistCategoryList.forEach(ele -> {
+			Map<String, Object> catlist = new HashMap<>();
+			catlist.put("categoryId", ele.getCategoryId());
+			catlist.put("categoryName", ele.getCategoryName());
+
+			categories.add(catlist);
+		});
+		data.put("categoryDetailsList", categories);
+		return ResponseHandler.response(data, "category list found", true);
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> categoryListFilter() {
+		Map<String, Object> data = new HashMap<>();
+		List<CategoryDetailsEntity> categoryList = categoryDetailsRepository.getCategoryListFilter();
 		List<Map<String, Object>> categories = new ArrayList<>();
 
 		if (categoryList == null) {

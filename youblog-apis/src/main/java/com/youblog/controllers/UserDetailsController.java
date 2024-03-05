@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.youblog.payloads.CancelMembershipRequest;
+import com.youblog.payloads.ChangeGymLocationRequest;
 import com.youblog.payloads.GetUserRequest;
 import com.youblog.payloads.PlanPurchaseRequest;
 import com.youblog.payloads.TrainerListRequest;
@@ -60,5 +62,15 @@ public class UserDetailsController {
 	@PostMapping("/plan/purchase")
 	public ResponseEntity<Map<String, Object>> planPurchase(@RequestBody PlanPurchaseRequest planPurchaseRequest) {
 		return userDetailsService.planPurchase(planPurchaseRequest);
+	}
+	
+	@PostMapping("/cancel/membership")
+	public ResponseEntity<Map<String, Object>> cancelMembership(@RequestBody CancelMembershipRequest cancelMembershipRequest) {
+		return userDetailsService.cancelMembership(cancelMembershipRequest);
+	}
+	
+	@PostMapping("/change/gym/location")
+	public ResponseEntity<Map<String, Object>> changeGymLocation(@RequestBody ChangeGymLocationRequest changeGymLocationRequest) {
+		return userDetailsService.changeGymLocation(changeGymLocationRequest);
 	}
 }

@@ -18,4 +18,13 @@ public interface LocationDetailsRepository extends JpaRepository<LocationDetails
 	@Query(value = "select distinct state from location_details;", nativeQuery = true)
 	public ArrayList<Object[]> getStateList();
 
+	
+	@Query(value = "SELECT ld.LOCATION_ID,\r\n"
+			+ "	ld.LOCATION_NAME\r\n"
+			+ "FROM LOCATION_DETAILS ld\r\n"
+			+ "inner join gym_details gd on gd.location_id = ld.location_id where state = :state and city=:city\r\n"
+			+ "group by ld.location_id,ld.location_name", nativeQuery = true)
+	public ArrayList<Object[]> getLocationAddressFilter(String state, String city);
+	
+	
 }

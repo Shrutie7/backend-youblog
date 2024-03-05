@@ -25,8 +25,8 @@ public interface CommentDetailsRepository extends JpaRepository<CommentDetailsEn
 	public List<Object[]> postCommentList(Long postId);
 
 	@Query(value = "with recursive comment_data as(select comd.comment_id,comd.comment_desc,comd.post_id,\r\n"
-			+ "	 comd.comment_parent_id,comd.user_id,to_char(comd.commented_date,'dd Mon YY HH24:MI') \r\n"
-			+ "	 as commented_date,concat(ud.first_name,' ',ud.last_name) as username,ud.role_id,ud.email_id,ud.location_id,ud.user_id  from comment_details comd \r\n"
+			+ "	 comd.comment_parent_id,comd.user_id as comd_user_id,to_char(comd.commented_date,'dd Mon YY HH24:MI') \r\n"
+			+ "	 as commented_date,concat(ud.first_name,' ',ud.last_name) as username,ud.role_id,ud.email_id,ud.location_id,ud.user_id as user_details_id from comment_details comd \r\n"
 			+ "	 inner join user_details ud on ud.user_id = comd.user_id and ud.active_flag = true\r\n"
 			+ "	 where comd.comment_id = :commentId and comd.active_flag = true\r\n"
 			+ "	union all  select cd.comment_id,cd.comment_desc,cd.post_id,\r\n"

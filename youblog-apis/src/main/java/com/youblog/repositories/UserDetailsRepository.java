@@ -1,6 +1,7 @@
 package com.youblog.repositories;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,7 +26,8 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 			+ "				LD.LOCATION_NAME,\r\n" + "				PD.PLAN_ID,\r\n"
 			+ "				PD.PLAN_NAME,\r\n" + "				TO_CHAR(UD.PLAN_PURCHASED_DATE,\r\n"
 			+ "			\r\n" + "					'DD Mon YY') AS PLAN_START_DATE,\r\n" + "					\r\n"
-			+ "				case when GD.gym_name ='YouFit Gyms Elite' then 2 else case when gd.gym_name = 'YouFit Gyms Pro' then 1 end end as gym_type_id \r\n"
+			+ "				case when GD.gym_name ='YouFit Gyms Elite' then 2 else case when gd.gym_name = 'YouFit Gyms Pro' then 1 end end as gym_type_id, \r\n"
+			+ "			PD.PLAN_DURATION, to_char(UD.PLAN_PURCHASED_DATE + INTERVAL '1 MONTH' * pd.plan_duration, 'DD Mon YY') as plan_end_date,ud.image_id,ud.worklist_status,ud.active_flag\r\n"
 			+ "			FROM USER_DETAILS AS UD\r\n"
 			+ "			LEFT JOIN ROLE_DETAILS AS RD ON UD.ROLE_ID = RD.ROLE_ID\r\n"
 			+ "			LEFT JOIN USER_DETAILS AS USD ON USD.USER_ID = UD.PARENT_USER_ID\r\n"
@@ -41,17 +43,25 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 	@Query(value = "select * from user_details where active_flag = true", nativeQuery = true)
 	public ArrayList<UserDetailsEntity> getUserList();
 
-	@Query(value = "SELECT ROUND(AVG(FD.RATING),\r\n" + "\r\n" + "								2) AS rating,\r\n"
-			+ "	CONCAT(UD.FIRST_NAME,\r\n" + "\r\n" + "		' ',\r\n" + "		UD.LAST_NAME) AS trainerName,\r\n"
-			+ "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n" + "	CD.CATEGORY_NAME\r\n"
-			+ "FROM USER_DETAILS AS UD\r\n" + "LEFT JOIN FEEDBACK_DETAILS AS FD ON UD.USER_ID = FD.TRAINER_USER_ID\r\n"
+	@Query(value = "SELECT ROUND(cast(AVG(FD.RATING) as numeric),2) AS rating,\r\n" + "	CONCAT(UD.FIRST_NAME,\r\n"
+			+ "\r\n" + "		' ',\r\n" + "		UD.LAST_NAME) AS trainerName,\r\n" + "	UD.USER_ID,\r\n"
+			+ "	UD.CATEGORY_ID,\r\n" + "	CD.CATEGORY_NAME,ud.image_id\r\n" + "FROM USER_DETAILS AS UD\r\n"
+			+ "LEFT JOIN FEEDBACK_DETAILS AS FD ON UD.USER_ID = FD.TRAINER_USER_ID\r\n"
 			+ "LEFT JOIN CATEGORY_DETAILS AS CD ON CD.CATEGORY_ID = UD.CATEGORY_ID\r\n" + "WHERE ROLE_ID = 3\r\n"
-			+ "	AND PARENT_USER_ID =:ownerId\r\n" + "GROUP BY CONCAT(UD.FIRST_NAME,\r\n" + "\r\n"
-			+ "										' ',\r\n"
-			+ "										UD.LAST_NAME),\r\n" + "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n"
+			+ "	AND ud.gym_id =:gymId\r\n" + "GROUP BY CONCAT(UD.FIRST_NAME,\r\n" + "\r\n" + "	' ',\r\n"
+			+ "	UD.LAST_NAME),\r\n" + "	UD.USER_ID,\r\n" + "	UD.CATEGORY_ID,\r\n"
 			+ "	CD.CATEGORY_NAME", nativeQuery = true)
-	public ArrayList<Object[]> getTrainerList(Long ownerId);
+	public ArrayList<Object[]> getTrainerList(Long gymId);
 
 	@Query(value = "select * from user_details where user_id = :userId", nativeQuery = true)
-	public UserDetailsEntity planPurchase(Long userId);
+	public UserDetailsEntity findByUserId(Long userId);
+
+	@Query(value = "select * from user_details where category_id = :categoryId and gym_id = :gymId order by user_id desc limit 1", nativeQuery = true)
+	public UserDetailsEntity findNewTrainer(Long categoryId, Long gymId);
+
+	@Query(value = "select * from user_details where parent_user_id = :userId and active_flag = true", nativeQuery = true)
+	public List<UserDetailsEntity> findUsersUnderTrainer(Long userId);
+
+	@Query(value = "select * from user_details where category_id = :categoryId and gym_id = :gymId and active_flag = true order by user_id desc limit 1", nativeQuery = true)
+	public UserDetailsEntity findCurrentTrainer(Long categoryId, Long gymId);
 }

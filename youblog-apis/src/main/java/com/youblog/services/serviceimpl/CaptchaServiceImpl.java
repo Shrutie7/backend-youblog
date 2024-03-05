@@ -7,6 +7,7 @@ import java.util.Map;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.youblog.services.CaptchaService;
@@ -33,7 +34,6 @@ public class CaptchaServiceImpl implements CaptchaService {
 		obj.put("captchaEncoded", encode);
 		return ResponseHandler.response(obj, "Capatcha generated successfully.", true);
 	}
-
 	@Override
 	public ResponseEntity<Map<String, Object>> validateCaptcha(String captchaData) {
 		System.out.println(captchaData);

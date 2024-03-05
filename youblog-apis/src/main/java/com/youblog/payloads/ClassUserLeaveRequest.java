@@ -6,11 +6,12 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
-public class TrainerListRequest {
+public class ClassUserLeaveRequest {
 	
-	private Long gymId;
-
+	private Long userClassMappingId;
+	
+	private Long userId;
 }

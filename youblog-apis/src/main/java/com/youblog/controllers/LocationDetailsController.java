@@ -39,9 +39,20 @@ public class LocationDetailsController {
 			@RequestBody LocationAddressRequest locationAddressRequest) {
 		return locationDetailsService.getLocationAddressList(locationAddressRequest);
 	}
+	
+	@PostMapping("/address/filter")
+	public ResponseEntity<Map<String, Object>> getLocationAddressListFilter(
+			@RequestBody LocationAddressRequest locationAddressRequest) {
+		return locationDetailsService.getLocationAddressListFilter(locationAddressRequest);
+	}
 
 	@PostMapping("/gymaddress")
 	public ResponseEntity<Map<String, Object>> getGymAddressList(@RequestBody GymAddressRequest gymAddressRequest) {
 		return locationDetailsService.getGymAddressList(gymAddressRequest);
+	}
+	
+	@PostMapping("/gymaddress/filter")
+	public ResponseEntity<Map<String, Object>> getGymAddressListFilter(@RequestBody GymAddressRequest gymAddressRequest) {
+		return locationDetailsService.getGymAddressListFilter(gymAddressRequest);
 	}
 }

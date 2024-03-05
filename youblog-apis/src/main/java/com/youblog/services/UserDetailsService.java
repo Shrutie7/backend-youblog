@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
+import com.youblog.payloads.CancelMembershipRequest;
+import com.youblog.payloads.ChangeGymLocationRequest;
 import com.youblog.payloads.GetUserRequest;
 import com.youblog.payloads.PlanPurchaseRequest;
 import com.youblog.payloads.TrainerListRequest;
@@ -26,4 +28,9 @@ public interface UserDetailsService {
 	public ResponseEntity<Map<String, Object>> getTrainerList(TrainerListRequest trainerList);
 
 	public ResponseEntity<Map<String, Object>> planPurchase(PlanPurchaseRequest planPurchaseRequest);
+
+	public ResponseEntity<Map<String, Object>> cancelMembership(CancelMembershipRequest cancelMembershipRequest);
+
+	public ResponseEntity<Map<String, Object>> changeGymLocation(ChangeGymLocationRequest changeGymLocationRequest);
+
 }

@@ -1,16 +1,15 @@
 package com.youblog.payloads;
 
+import java.util.Set;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-@ToString
-public class TrainerListRequest {
+@NoArgsConstructor
+public class ClassMasterCreateRequest {
 	
-	private Long gymId;
-
+	private Set<ClassMasterCreate> classList;
 }
