@@ -24,6 +24,7 @@ import com.youblog.payloads.UpdatePasswordRequest;
 import com.youblog.payloads.UpdateUserRequest;
 import com.youblog.payloads.UserDetailsRequest;
 import com.youblog.payloads.WorklistCreateRequest;
+import com.youblog.repositories.GymDetailsRepository;
 import com.youblog.repositories.ImageDetailsRepository;
 import com.youblog.repositories.UserDetailsRepository;
 import com.youblog.repositories.WorklistDetailsRepository;
@@ -55,6 +56,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	@Autowired
 	private WorklistDetailsRepository worklistDetailsRepository;
 
+	@Autowired
+	private GymDetailsRepository gymDetailsRepository;
+
 	private static final Long WORK_FLOW_MASTER_ID_USER_CANCEL_SUB = Long
 			.valueOf(WorklistConstants.WORK_FLOW_MASTER_ID_USER_CANCEL_SUB);
 
@@ -72,6 +76,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
 	public static final Long WORK_FLOW_MASTER_ID_TRAINER_RELOCATE = Long
 			.valueOf(WorklistConstants.WORK_FLOW_MASTER_ID_TRAINER_RELOCATE);
+
+	public static final Long WORK_FLOW_MASTER_ID_TRAINER_RELOCATE_OTHER = Long
+			.valueOf(WorklistConstants.WORK_FLOW_MASTER_ID_TRAINER_RELOCATE_OTHER);
 
 	@Override
 	public ResponseEntity<Map<String, Object>> createUser(UserDetailsRequest userDetailsRequest) {
@@ -152,6 +159,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 					hm.put("userId", ele[7] != null ? ele[7].toString() : "N/A");
 					hm.put("gymId", ele[8] != null ? ele[8].toString() : "");
 					hm.put("worklistStatus", ele[25] != null ? ele[25] : "C");
+					hm.put("activeFlag", ele[26]);
 					if (ele[24] != null) {
 						Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(ele[24].toString());
 						if (!image.isEmpty()) {
@@ -163,7 +171,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 						hm.put("image", "");
 					}
 					JSONObject worklist = new JSONObject();
-					if (ele[25] != null && ele[25].toString().equals("P")) {
+					if (ele[25] != null && ele[25].toString().equals("P") && !Boolean.valueOf(ele[26].toString())) {
 						List<Object[]> worklistDetails = worklistDetailsRepository.getRequestUserWorklistData("P",
 								Long.valueOf(ele[7].toString()),
 								Integer.valueOf(ele[4].toString()) == 2 ? WORK_FLOW_MASTER_ID_OWNER_REGISTER
@@ -440,6 +448,15 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			worklistRequest
 					.setWorkflowMasterId(changeGymLocationRequest.getRoleId() == 4 ? WORK_FLOW_MASTER_ID_USER_RELOCATE
 							: WORK_FLOW_MASTER_ID_TRAINER_RELOCATE);
+//			if (changeGymLocationRequest.getRoleId() == 3) {
+//				WorklistCreateRequest worklistRequest1 = new WorklistCreateRequest();
+//				worklistRequest1.setActionUserId(
+//						gymDetailsRepository.findByGymId(changeGymLocationRequest.getGymId()).getOwnerId());
+//				worklistRequest1.setInitiatedData(changeGymLocationRequest.toMap());
+//				worklistRequest1.setInitiatedUserId(changeGymLocationRequest.getUserId());
+//				worklistRequest1.setWorkflowMasterId(WORK_FLOW_MASTER_ID_TRAINER_RELOCATE_OTHER);
+//				worklistService.initiateWorkList(worklistRequest1);
+//			}
 			userDetailsRepository.save(user);
 			return worklistService.initiateWorkList(worklistRequest);
 		} else {

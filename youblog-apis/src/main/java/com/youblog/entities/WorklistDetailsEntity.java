@@ -51,5 +51,8 @@ public class WorklistDetailsEntity {
 
 	@Column(name = "ACTED_DATE")
 	private Date actedDate;
+	
+	@Column(name = "ACTION_TAKEN")
+	private String actionTaken;
 
 }

@@ -58,6 +58,8 @@ public class WorklistServiceImpl implements WorklistService {
 
 	public static final int WORK_FLOW_MASTER_ID_TRAINER_RELOCATE = 6;
 
+	public static final int WORK_FLOW_MASTER_ID_TRAINER_RELOCATE_OTHER = 9;
+
 	@Override
 	public ResponseEntity<Map<String, Object>> initiateWorkList(WorklistCreateRequest worklistCreateRequest) {
 		WorklistDetailsEntity worklistDetails = new WorklistDetailsEntity();
@@ -89,7 +91,6 @@ public class WorklistServiceImpl implements WorklistService {
 				keycloakUserDelete(worklistDetails.getInitiatedUserId());
 				successFlag = true;
 			}
-			userDetailsRepository.save(user);
 			break;
 		case WORK_FLOW_MASTER_ID_TRAINER_RESIGN:
 			if (action.equals("Approve")) {
@@ -100,7 +101,6 @@ public class WorklistServiceImpl implements WorklistService {
 					successFlag = true;
 				}
 			}
-			userDetailsRepository.save(user);
 			break;
 		case WORK_FLOW_MASTER_ID_TRAINER_REGISTER:
 		case WORK_FLOW_MASTER_ID_OWNER_REGISTER:
@@ -110,30 +110,30 @@ public class WorklistServiceImpl implements WorklistService {
 			if (action.equals("Reject")) {
 				keycloakUserDelete(worklistDetails.getInitiatedUserId());
 			}
-			user.setWorklistStatus("C");
-			userDetailsRepository.save(user);
 			successFlag = true;
 			break;
 		case WORK_FLOW_MASTER_ID_USER_RELOCATE:
 			if (action.equals("Approve")) {
-
-			}
-			if (action.equals("Reject")) {
-
+				successFlag = userRelocate(worklistDetails);
 			}
 			break;
 		case WORK_FLOW_MASTER_ID_TRAINER_RELOCATE:
 			if (action.equals("Approve")) {
-
+				successFlag = trainerRelocate(worklistDetails);
 			}
-			if (action.equals("Reject")) {
+			break;
+		case WORK_FLOW_MASTER_ID_TRAINER_RELOCATE_OTHER:
+			if (action.equals("Approve")) {
 
 			}
 			break;
 		}
 		if (successFlag) {
+			user.setWorklistStatus("C");
+			userDetailsRepository.save(user);
 			worklistDetails.setActedDate(Date.from(Instant.now()));
 			worklistDetails.setWorklistStatus("C");
+			worklistDetails.setActionTaken(action);
 			worklistDetailsRepository.save(worklistDetails);
 			return ResponseHandler.response(null, "Request Updated Successfully", true);
 		} else {
@@ -161,14 +161,13 @@ public class WorklistServiceImpl implements WorklistService {
 			JSONObject initiatedUserDetails = new JSONObject();
 			subResponse.put("worklistDetailsId", data[0]);
 			initiatedUserDetails.put("userId", data[1]);
-			initiatedUserDetails.put("userName", data[8] != " " ? data[8] : "");
-			initiatedUserDetails.put("emailId", data[9]);
-			initiatedUserDetails.put("roleId", data[10]);
-			initiatedUserDetails.put("categoryId", data[11] != null ? data[11] : "");
-			initiatedUserDetails.put("activeFlag", data[13]);
-			initiatedUserDetails.put("workflowName", data[14]);
-			if (data[12] != null) {
-				Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(data[12].toString());
+			initiatedUserDetails.put("action", data[8] != null ? data[8] : "");
+			initiatedUserDetails.put("userName", data[9] != " " ? data[9] : "");
+			initiatedUserDetails.put("emailId", data[10]);
+			initiatedUserDetails.put("roleId", data[11]);
+			initiatedUserDetails.put("categoryId", data[12] != null ? data[12] : "");
+			if (data[13] != null) {
+				Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(data[13].toString());
 				if (!image.isEmpty()) {
 					initiatedUserDetails.put("image", image.get().getImage() != null ? image.get().getImage() : "");
 				} else {
@@ -177,6 +176,32 @@ public class WorklistServiceImpl implements WorklistService {
 			} else {
 				initiatedUserDetails.put("image", "");
 			}
+			boolean approveFlag = false;
+
+			switch (Integer.valueOf(data[2].toString())) {
+			case WORK_FLOW_MASTER_ID_USER_CANCEL_SUB:
+			case WORK_FLOW_MASTER_ID_TRAINER_REGISTER:
+			case WORK_FLOW_MASTER_ID_OWNER_REGISTER:
+			case WORK_FLOW_MASTER_ID_USER_RELOCATE:
+				approveFlag = true;
+				break;
+			case WORK_FLOW_MASTER_ID_TRAINER_RESIGN:
+			case WORK_FLOW_MASTER_ID_TRAINER_RELOCATE:
+				if (data[16] != null) {
+					UserDetailsEntity user = userDetailsRepository.findByUserId(Long.valueOf(data[0].toString()));
+					UserDetailsEntity newTrainer = userDetailsRepository
+							.findCurrentTrainer(Long.valueOf(data[12].toString()), Long.valueOf(data[16].toString()));
+					if (newTrainer != null) {
+						if (user.getUserId() != newTrainer.getUserId()) {
+							approveFlag = true;
+						}
+					}
+				}
+				break;
+			}
+			subResponse.put("approveFlag", approveFlag);
+			subResponse.put("activeFlag", data[14]);
+			subResponse.put("workflowName", data[15]);
 			subResponse.put("initiatedBy", initiatedUserDetails);
 			subResponse.put("workflowMasterId", data[2]);
 			subResponse.put("actionUserId", data[3]);
@@ -221,14 +246,12 @@ public class WorklistServiceImpl implements WorklistService {
 			JSONObject initiatedUserDetails = new JSONObject();
 			subResponse.put("worklistDetailsId", data[0]);
 			initiatedUserDetails.put("userId", data[3]);
-			initiatedUserDetails.put("userName", data[8] != " " ? data[8] : "");
-			initiatedUserDetails.put("emailId", data[9]);
-			initiatedUserDetails.put("roleId", data[10]);
-			initiatedUserDetails.put("categoryId", data[11] != null ? data[11] : "");
-			initiatedUserDetails.put("activeFlag", data[13]);
-			initiatedUserDetails.put("workflowName", data[14]);
-			if (data[12] != null) {
-				Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(data[12].toString());
+			initiatedUserDetails.put("userName", data[9] != " " ? data[9] : "");
+			initiatedUserDetails.put("emailId", data[10]);
+			initiatedUserDetails.put("roleId", data[11]);
+			initiatedUserDetails.put("categoryId", data[12] != null ? data[12] : "");
+			if (data[13] != null) {
+				Optional<ImageDetailsEntity> image = imageDetailsRepository.findById(data[13].toString());
 				if (!image.isEmpty()) {
 					initiatedUserDetails.put("image", image.get().getImage() != null ? image.get().getImage() : "");
 				} else {
@@ -237,8 +260,11 @@ public class WorklistServiceImpl implements WorklistService {
 			} else {
 				initiatedUserDetails.put("image", "");
 			}
+			subResponse.put("activeFlag", data[14]);
+			subResponse.put("workflowName", data[15]);
 			subResponse.put("pendingWith", initiatedUserDetails);
 			subResponse.put("workflowMasterId", data[2]);
+			subResponse.put("action", data[8] != null ? data[8] : "");
 			subResponse.put("initiatedUserId", data[1]);
 			subResponse.put("initiatedData", data[4] != null ? new JSONObject(data[4].toString()) : "");
 			subResponse.put("initiatedDate",
@@ -297,4 +323,50 @@ public class WorklistServiceImpl implements WorklistService {
 		}
 		return false;
 	}
+
+	private boolean userRelocate(WorklistDetailsEntity worklistDetails) {
+		Map<String, Object> changeGymLocationRequest = worklistDetails.getInitiatedData();
+		UserDetailsEntity user = userDetailsRepository.findByUserId(worklistDetails.getInitiatedUserId());
+		if (user != null) {
+			UserDetailsEntity trainer = userDetailsRepository.findByUserId(user.getParentUserId());
+			if (trainer != null) {
+				UserDetailsEntity newTrainer = userDetailsRepository.findNewTrainer(trainer.getCategoryId(),
+						Long.valueOf(changeGymLocationRequest.get("gymId").toString()));
+				if (newTrainer != null) {
+					user.setParentUserId(newTrainer.getUserId());
+					user.setGymId(Long.valueOf(changeGymLocationRequest.get("gymId").toString()));
+					user.setLocationId(Long.valueOf(changeGymLocationRequest.get("locationId").toString()));
+					userDetailsRepository.save(user);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	private boolean trainerRelocate(WorklistDetailsEntity worklistDetails) {
+		Map<String, Object> changeGymLocationRequest = worklistDetails.getInitiatedData();
+		UserDetailsEntity user = userDetailsRepository.findByUserId(worklistDetails.getInitiatedUserId());
+		if (user != null) {
+			UserDetailsEntity existing = userDetailsRepository.findCurrentTrainer(user.getCategoryId(),
+					Long.valueOf(changeGymLocationRequest.get("gymId").toString()));
+			if (existing != null) {
+				List<UserDetailsEntity> users = userDetailsRepository.findUsersUnderTrainer(existing.getUserId());
+				List<UserDetailsEntity> normalUsers = new ArrayList<>();
+				users.forEach(data -> {
+					data.setParentUserId(user.getUserId());
+					normalUsers.add(data);
+				});
+				user.setParentUserId(gymDetailsRepository
+						.findByGymId(Long.valueOf(changeGymLocationRequest.get("gymId").toString())).getOwnerId());
+				user.setGymId(Long.valueOf(changeGymLocationRequest.get("gymId").toString()));
+				user.setLocationId(Long.valueOf(changeGymLocationRequest.get("locationId").toString()));
+				userDetailsRepository.save(user);
+				userDetailsRepository.saveAll(normalUsers);
+				return true;
+			}
+		}
+		return false;
+	}
+
 }

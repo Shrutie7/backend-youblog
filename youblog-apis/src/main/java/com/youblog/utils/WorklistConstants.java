@@ -13,4 +13,6 @@ public class WorklistConstants {
 	public static final Long WORK_FLOW_MASTER_ID_USER_RELOCATE = (long) 2;
 
 	public static final Long WORK_FLOW_MASTER_ID_TRAINER_RELOCATE = (long) 6;
+
+	public static final Long WORK_FLOW_MASTER_ID_TRAINER_RELOCATE_OTHER = (long)9;
 }
