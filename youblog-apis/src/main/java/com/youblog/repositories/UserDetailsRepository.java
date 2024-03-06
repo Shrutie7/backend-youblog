@@ -56,7 +56,7 @@ public interface UserDetailsRepository extends JpaRepository<UserDetailsEntity, 
 	@Query(value = "select * from user_details where user_id = :userId", nativeQuery = true)
 	public UserDetailsEntity findByUserId(Long userId);
 
-	@Query(value = "select * from user_details where category_id = :categoryId and gym_id = :gymId order by user_id desc limit 1", nativeQuery = true)
+	@Query(value = "select * from user_details where category_id = :categoryId and gym_id = :gymId and (active_flag = true or (active_flag = false and worklist_status = 'P'))order by user_id desc limit 1", nativeQuery = true)
 	public UserDetailsEntity findNewTrainer(Long categoryId, Long gymId);
 
 	@Query(value = "select * from user_details where parent_user_id = :userId and active_flag = true", nativeQuery = true)

@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.youblog.entities.PlanDetailsEntity;
+import com.youblog.payloads.CalculateRefundRequest;
 import com.youblog.payloads.PlanCheckExpiryRequest;
 import com.youblog.payloads.PlanCreateRequest;
 import com.youblog.payloads.PlanDeleteRequest;
@@ -235,6 +236,12 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 		} else {
 			return ResponseHandler.response(null, "please provide userId", false);
 		}
+	}
+
+	@Override
+	public ResponseEntity<Map<String, Object>> calculateRefund(CalculateRefundRequest calculateRefundRequest) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

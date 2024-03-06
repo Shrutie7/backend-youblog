@@ -2,6 +2,8 @@ package com.youblog.controllers;
 
 import java.util.Map;
 
+import javax.ws.rs.POST;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -11,10 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.youblog.payloads.CalculateRefundRequest;
 import com.youblog.payloads.CategoryListRequest;
 import com.youblog.payloads.FeedbackCreateRequest;
 import com.youblog.payloads.FeedbackListRequest;
 import com.youblog.payloads.GymCreateRequest;
+import com.youblog.payloads.GymListForTrainerRelocateRequest;
 import com.youblog.payloads.PlanCheckExpiryRequest;
 import com.youblog.payloads.PlanCreateRequest;
 import com.youblog.payloads.PlanDeleteRequest;
@@ -113,6 +117,21 @@ public class CommonController {
 	@PostMapping("/user/category/list")
 	public ResponseEntity<Map<String, Object>> userCategoryList(@RequestBody CategoryListRequest categoryListRequest) {
 		return categoryDetailsService.userCategoryList(categoryListRequest);
+	}
+	
+	@PostMapping("/gym/list/trainer/relocate")
+	public ResponseEntity<Map<String,Object>> gymListForTrainerRelocate(@RequestBody GymListForTrainerRelocateRequest gymListForTrainerRelocateRequest){
+		return gymDetailsService.gymListForTrainerRelocate(gymListForTrainerRelocateRequest);
+	}
+	
+	@PostMapping("/gym/list/user/relocate")
+	public ResponseEntity<Map<String,Object>> gymListForUserRelocate(@RequestBody GymListForTrainerRelocateRequest gymListForTrainerRelocateRequest){
+		return gymDetailsService.gymListForUserRelocate(gymListForTrainerRelocateRequest);
+	}
+	
+	@PostMapping("/calculate/refund")
+	public ResponseEntity<Map<String,Object>> calculateRefund(@RequestBody CalculateRefundRequest calculateRefundRequest){
+		return planDetailsService.calculateRefund(calculateRefundRequest);
 	}
 
 }

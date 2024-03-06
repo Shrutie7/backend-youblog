@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.ResponseEntity;
 
+import com.youblog.payloads.CalculateRefundRequest;
 import com.youblog.payloads.PlanCheckExpiryRequest;
 import com.youblog.payloads.PlanCreateRequest;
 import com.youblog.payloads.PlanDeleteRequest;
@@ -24,5 +25,7 @@ public interface PlanDetailsService {
 	public ResponseEntity<Map<String, Object>> getPlan(PlanGetRequest planGetRequest);
 
 	public ResponseEntity<Map<String, Object>> checkPlanExpiry(PlanCheckExpiryRequest planCheckExpiryRequest);
+
+	public ResponseEntity<Map<String, Object>> calculateRefund(CalculateRefundRequest calculateRefundRequest);
 
 }
