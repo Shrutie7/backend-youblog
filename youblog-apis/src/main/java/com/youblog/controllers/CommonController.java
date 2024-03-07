@@ -2,8 +2,6 @@ package com.youblog.controllers;
 
 import java.util.Map;
 
-import javax.ws.rs.POST;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;

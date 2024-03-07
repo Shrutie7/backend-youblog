@@ -56,4 +56,14 @@ public interface PlanDetailsRepository extends JpaRepository<PlanDetailsEntity, 
 			+ "WHERE PD.plan_id = :planId\n"
 			+ "	AND pd.active_flag = TRUE",nativeQuery = true)
 	public Boolean checkuserplanmapping(Long planId);
+
+	@Query(value = "select to_char(ud.plan_purchased_date,'dd Mon yy HH24:mi') as plan_purchased_date,concat(pd.plan_duration,' Months')as plan_duration,pd.plan_price,pd.plan_name,\r\n"
+			+ "round(cast(cast(case when (NOW() < ud.plan_purchased_date + INTERVAL '1 MONTH' * pd.plan_duration*25/100) then pd.plan_price*75/100\r\n"
+			+ "else case when (NOW() < ud.plan_purchased_date + INTERVAL '1 MONTH' * pd.plan_duration*50/100) then pd.plan_price*50/100\r\n"
+			+ "else case when (NOW() < ud.plan_purchased_date + INTERVAL '1 MONTH' * pd.plan_duration*75/100) then pd.plan_price*25/100 else 0\r\n"
+			+ "end end end as double precision)as numeric),2) as refund_amount\r\n"
+			+ "from user_details ud\r\n"
+			+ "inner join plan_details pd on pd.plan_id = ud.plan_id \r\n"
+			+ "where ud.user_id = :userId and ud.active_flag = true",nativeQuery = true)
+	public List<Object[]> calculateRefund(Long userId);
 }

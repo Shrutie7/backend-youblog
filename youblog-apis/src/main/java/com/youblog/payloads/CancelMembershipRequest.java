@@ -19,6 +19,8 @@ public class CancelMembershipRequest {
 	
 	private Long roleId;
 	
+	private Double refundAmount;
+	
 	public Map<String,Object> toMap() {
 		return new JSONObject(JacksonUtil.toString(this)).toMap();
 	}

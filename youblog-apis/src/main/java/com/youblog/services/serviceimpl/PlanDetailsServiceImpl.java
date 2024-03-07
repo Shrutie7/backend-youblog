@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -74,24 +75,24 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 					res.put("planPrice", ele[3].toString() != null ? ele[3].toString() : "");
 					res.put("planDescription", ele[4].toString() != null ? ele[4].toString() : "N/A");
 					String[] features = null;
-					
-					if(ele[5]!=null) {
+
+					if (ele[5] != null) {
 						features = ele[5].toString().split(".-.");
 
 					}
-					List<Map<String,Object>> featuresarr = new ArrayList<>();
-					if(features!=null) {
-						for(int i =0 ; i<features.length; i++) {
+					List<Map<String, Object>> featuresarr = new ArrayList<>();
+					if (features != null) {
+						for (int i = 0; i < features.length; i++) {
 							Map<String, Object> hm = new HashMap<>();
 							hm.put("features", features[i]);
 							featuresarr.add(hm);
 						}
 					}
-				
+
 					res.put("listOfFeatures", featuresarr);
 					planList.add(res);
 				});
-				ListOfPlan.put("listOfPlans", planList); 	
+				ListOfPlan.put("listOfPlans", planList);
 				return ResponseHandler.response(ListOfPlan, "plan list found", true);
 			}
 		} else {
@@ -105,28 +106,28 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 
 		if (planEditRequest.getPlanId() != null) {
 
-			Boolean checkuserplanmap =  plandetailsrepo.checkuserplanmapping(planEditRequest.getPlanId());
+			Boolean checkuserplanmap = plandetailsrepo.checkuserplanmapping(planEditRequest.getPlanId());
 
-			if(!checkuserplanmap) {
-			PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(planEditRequest.getPlanId());
+			if (!checkuserplanmap) {
+				PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(planEditRequest.getPlanId());
 
-			if (getplandetails == null) {
-				return ResponseHandler.response(null, "plan cannot be edited", false);
+				if (getplandetails == null) {
+					return ResponseHandler.response(null, "plan cannot be edited", false);
 
+				} else {
+					getplandetails.setPlanName(planEditRequest.getPlanName());
+					getplandetails.setPlanDescription(planEditRequest.getPlanDescription());
+					getplandetails.setPlanDuration(planEditRequest.getPlanDuration());
+					getplandetails.setPlanPrice(planEditRequest.getPlanPrice());
+					getplandetails.setCategoryId(planEditRequest.getCategoryId());
+					getplandetails.setFeatures(planEditRequest.getFeatures());
+					plandetailsrepo.save(getplandetails);
+
+					return ResponseHandler.response(null, "plan updated successfully", true);
+				}
 			} else {
-				getplandetails.setPlanName(planEditRequest.getPlanName());
-				getplandetails.setPlanDescription(planEditRequest.getPlanDescription());
-				getplandetails.setPlanDuration(planEditRequest.getPlanDuration());
-				getplandetails.setPlanPrice(planEditRequest.getPlanPrice());
-				getplandetails.setCategoryId(planEditRequest.getCategoryId());
-				getplandetails.setFeatures(planEditRequest.getFeatures());
-				plandetailsrepo.save(getplandetails);
-
-				return ResponseHandler.response(null, "plan updated successfully", true);
-			}
-			}
-			else {
-				return ResponseHandler.response(null,"Plan cannot be updated since already mapped to some user", false);
+				return ResponseHandler.response(null, "Plan cannot be updated since already mapped to some user",
+						false);
 			}
 
 		}
@@ -142,24 +143,24 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 
 		if (planDeleteRequest.getPlanId() != null) {
 
-			Boolean checkuserplanmap =  plandetailsrepo.checkuserplanmapping(planDeleteRequest.getPlanId());
+			Boolean checkuserplanmap = plandetailsrepo.checkuserplanmapping(planDeleteRequest.getPlanId());
 
-			if(!checkuserplanmap) {
-			PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(planDeleteRequest.getPlanId());
+			if (!checkuserplanmap) {
+				PlanDetailsEntity getplandetails = plandetailsrepo.getPlanDetails(planDeleteRequest.getPlanId());
 
-			if (getplandetails == null) {
-				return ResponseHandler.response(null, "plan cannot be deleted", false);
+				if (getplandetails == null) {
+					return ResponseHandler.response(null, "plan cannot be deleted", false);
 
+				} else {
+
+					getplandetails.setActiveFlag(false);
+					plandetailsrepo.save(getplandetails);
+
+					return ResponseHandler.response(null, "plan deleted successfully", true);
+				}
 			} else {
-
-				getplandetails.setActiveFlag(false);
-				plandetailsrepo.save(getplandetails);
-
-				return ResponseHandler.response(null, "plan deleted successfully", true);
-			}
-			}
-			else {
-				return ResponseHandler.response(null,"Plan cannot be deleted since already mapped to some user", false);
+				return ResponseHandler.response(null, "Plan cannot be deleted since already mapped to some user",
+						false);
 			}
 
 		}
@@ -211,16 +212,15 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 				System.out.println(getexpirydetails);
 				if (getexpirydetails == null) {
 					return ResponseHandler.response(null, "plan expiry check failed", false);
-				}
-				else {
+				} else {
 					Date currentDate = Date.from(Instant.now());
-					Date date = (Date)getexpirydetails[0];
+					Date date = (Date) getexpirydetails[0];
 					Calendar cal = new Calendar.Builder().setInstant(date).build();
-					Long duration = Long.parseLong(getexpirydetails[1].toString()) ;
-					cal.add(Calendar.DATE, duration.intValue()-1);
+					Long duration = Long.parseLong(getexpirydetails[1].toString());
+					cal.add(Calendar.DATE, duration.intValue() - 1);
 					date = cal.getTime();
-					flag = date.compareTo(currentDate)<0;
-					
+					flag = date.compareTo(currentDate) < 0;
+
 					// Add the duration to the plan purchased date
 					/*
 					 * LocalDate newDate = currentDate.plusMonths(duration); DateTimeFormatter
@@ -240,8 +240,23 @@ public class PlanDetailsServiceImpl implements PlanDetailsService {
 
 	@Override
 	public ResponseEntity<Map<String, Object>> calculateRefund(CalculateRefundRequest calculateRefundRequest) {
-		// TODO Auto-generated method stub
-		return null;
+		if (calculateRefundRequest.getUserId() != null) {
+			List<Object[]> refund = plandetailsrepo.calculateRefund(calculateRefundRequest.getUserId());
+			if (refund.isEmpty()) {
+				return ResponseHandler.response(null, "User Not Eligible for Refund", false);
+			}
+			JSONObject response = new JSONObject();
+			refund.forEach(data -> {
+				response.put("planPurchasedDate", data[0] != null ? data[0] : "");
+				response.put("planDuration", data[1] != null ? data[1] : "");
+				response.put("planPrice", data[2] != null ? data[2] : 0);
+				response.put("planName", data[3] != null ? data[3] : "");
+				response.put("refundAmount", data[4] != null ? data[4] : 0.00);
+			});
+			return ResponseHandler.response(response.toMap(), "Refund Details Fetched Successfully", true);
+		} else {
+			return ResponseHandler.response(null, "Please provide User Id", false);
+		}
 	}
 
 }
